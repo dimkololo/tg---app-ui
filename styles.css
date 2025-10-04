@@ -11,3 +11,13 @@ html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Robo
 .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.5)}
 .modal-card{position:relative;max-width:min(440px,92vw);max-height:92vh;border-radius:20px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.5)}
 .modal-card img{display:block;width:100%;height:auto}
+
+.rect{position:absolute;border:none;background:transparent;cursor:pointer;outline-offset:4px}
+/* map variables */
+.rect-plus { left:var(--plus-l); top:var(--plus-t); width:var(--plus-w); height:var(--plus-h); }
+.rect-gift { left:var(--gift-l); top:var(--gift-t); width:var(--gift-w); height:var(--gift-h); }
+.rect-diary{ left:var(--diary-l);top:var(--diary-t);width:var(--diary-w);height:var(--diary-h);}
+.rect-board{ left:var(--board-l);top:var(--board-t);width:var(--board-w);height:var(--board-h);}
+
+/* Dev mode: press 'h' to show hitboxes */
+.show-hitboxes .rect{background:rgba(255,165,0,.28);border:2px dashed rgba(255,165,0,.8);border-radius:8px}

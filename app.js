@@ -39,3 +39,15 @@
   // Expose for debug in console
   window.__miniapp = { open, close };
 })();
+
+
+/* Dev helper: press 'h' to toggle hitbox visibility */
+(function(){
+  let on=false;
+  window.addEventListener('keydown', (e)=>{
+    if(e.key.toLowerCase()==='h'){
+      on=!on;
+      document.body.classList.toggle('show-hitboxes', on);
+    }
+  });
+})();
