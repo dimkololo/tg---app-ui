@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>TG Mini App — Demo</title>
+  <!-- Telegram WebApp SDK (safe even if not inside Telegram) -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="preload" href="./assets/background.png" as="image">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div id="app" class="screen">
+    <!-- Background -->
+    <img src="./assets/background.png" alt="Главный экран" class="bg" />
+
+    <!-- Hotspots (all positions are percentages so it scales) -->
+    <button id="btnPlus" class="hotspot" aria-label="Открыть попап пополнение"
+      style="left:74%; top:6%; width:16%; height:9%;"></button>
+
+    <button id="btnGift" class="hotspot" aria-label="Открыть попап призы"
+      style="left:74%; top:83%; width:18%; height:10%;"></button>
+
+    <button id="btnDiary" class="hotspot" aria-label="Открыть попап профиль"
+      style="left:8%; top:86%; width:25%; height:11%;"></button>
+
+    <button id="btnBoard" class="hotspot" aria-label="Открыть попап выбрать фото"
+      style="left:58%; top:61%; width:29%; height:9%;"></button>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="backdrop" data-close="true"></div>
+    <div class="modal-card" role="document">
+      <img id="modalImg" alt="Popup" />
+    </div>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
