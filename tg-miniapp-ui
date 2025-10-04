@@ -1,8 +1,0 @@
-```bash
-   git clone https://github.com/<ВАШ_АККАУНТ>/tg-miniapp-ui.git
-   cd tg-miniapp-ui
-   cp -R /path/to/this/folder/* .
-   git add .
-   git commit -m "feat: initial mini app UI"
-   git branch -M main
-   git push -u origin main
