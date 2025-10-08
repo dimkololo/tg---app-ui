@@ -10,6 +10,33 @@
   const $ = (sel)=>document.querySelector(sel);
   const modal = $('#modal');
   const modalImg = $('#modalImg');
+  const tg = window.Telegram.WebApp;
+tg.expand(); // разворачивает окно на весь экран
+
+// Получаем данные пользователя
+const user = tg.initDataUnsafe.user;
+
+console.log(user);
+
+// Пример: отображаем имя и аватар
+document.getElementById('name').innerText = user.first_name + ' ' + (user.last_name || '');
+document.getElementById('username').innerText = '@' + (user.username || '—');
+
+// Загрузка аватара (через Bot API)
+fetch(`https://api.telegram.org/bot<8469653359:AAF1iggmErf8xposwoUDU8i1bQdAjNgFV2I>/getUserProfilePhotos?user_id=${user.id}`)
+  .then(res => res.json())
+  .then(data => {
+    if (data.ok && data.result.photos.length > 0) {
+      const fileId = data.result.photos[0][0].file_id;
+      fetch(`https://api.telegram.org/bot<8469653359:AAF1iggmErf8xposwoUDU8i1bQdAjNgFV2I>/getFile?file_id=${fileId}`)
+        .then(r => r.json())
+        .then(fileData => {
+          const filePath = fileData.result.file_path;
+          const photoUrl = `https://api.telegram.org/file/bot<8469653359:AAF1iggmErf8xposwoUDU8i1bQdAjNgFV2I>/${filePath}`;
+          document.getElementById('avatar').src = photoUrl;
+        });
+    }
+  });
 
   const open = (src)=>{
     modalImg.src = src;
