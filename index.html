@@ -1,41 +1,57 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>TG Mini App — Demo</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Telegram Mini App — Профиль</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <link rel="preload" href="./assets/background.png" as="image">
-  <link rel="stylesheet" href="./styles.css">
   <style>
-  :root{
-    /* Hitbox rectangles as percentages (left, top, width, height) */
-    --plus-l:58%; --plus-t:7%;  --plus-w:35%; --plus-h:11%;
-    --gift-l:64%; --gift-t:79%; --gift-w:24%; --gift-h:16%;
-    --diary-l:7%; --diary-t:77%; --diary-w:33%; --diary-h:16%;
-    --board-l:51%; --board-t:63%; --board-w:42%; --board-h:13%;
-  }
+    body {
+      background: #0f0f0f;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 30px;
+    }
+    img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      margin-top: 20px;
+      border: 3px solid #2a2a2a;
+      object-fit: cover;
+    }
   </style>
 </head>
 <body>
-  <div id="app" class="screen">
-    <img src="./assets/background.png" alt="Главный экран" class="bg" />
+  <h1>👤 Профиль Telegram</h1>
+  <img id="avatar" src="" alt="Аватар" />
+  <h2 id="name"></h2>
+  <p id="username"></p>
 
-    <!-- Hotspots strictly within the red-rectangle bounds -->
-    <button id="btnPlus"  class="hotspot rect rect-plus"  aria-label="Открыть попап пополнение"></button>
-    <button id="btnGift"  class="hotspot rect rect-gift"  aria-label="Открыть попап призы"></button>
-    <button id="btnDiary" class="hotspot rect rect-diary" aria-label="Открыть попап профиль"></button>
-    <button id="btnBoard" class="hotspot rect rect-board" aria-label="Открыть попап выбрать фото"></button>
-  </div>
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
 
-  <!-- Modal -->
-  <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
-    <div class="backdrop" data-close="true"></div>
-    <div class="modal-card" role="document">
-      <img id="modalImg" alt="Popup" />
-    </div>
-  </div>
+    const user = tg.initDataUnsafe.user;
 
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    // Заполняем базовые данные
+    document.getElementById('name').innerText =
+      user.first_name + (user.last_name ? ' ' + user.last_name : '');
+    document.getElementById('username').innerText =
+      user.username ? '@' + user.username : 'Без username';
+
+    // Загружаем фото через сервер
+    fetch(`/api/avatar?user_id=${user.id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.photoUrl) {
+          document.getElementById('avatar').src = data.photoUrl;
+        } else {
+          document.getElementById('avatar').src =
+            'https://cdn-icons-png.flaticon.com/512/847/847969.png'; // Заглушка
+        }
+      });
+  </script>
 </body>
 </html>
