@@ -45,8 +45,7 @@ document.addEventListener('keydown', (e) => {
 // --- Индикатор на плюс-облаке ---
 function updatePlusBalanceUI(){
   const el = document.getElementById('plusValue');
-  if (el) el.textContent = String(window.PLAM.balance || 0); // без "+"
-  // ...обновляешь aria-label при желании
+  if (el) el.textContent = String(window.PLAM.balance || 0);
 }
 updatePlusBalanceUI();
 
@@ -59,22 +58,19 @@ function initUploadPopup(){
   const fileInput = root.querySelector('#file-input');
   root.querySelector('.btn-pick')?.addEventListener('click', ()=>fileInput?.click());
 
-  // 2) Слайдер
-const range   = root.querySelector('.range');
-const starsEl = root.querySelector('[data-stars]');
-const secsEl  = root.querySelector('[data-secs]');
-
-if (range && starsEl && secsEl) {
-  const update = () => {
-    const v = Number(range.value);          // 0..20
-    starsEl.textContent = `${v} PLAMc`;     // слева — просто число PLAMc
-    // справа — 0 sec для 0, и +N sec начиная с 1
-    secsEl.textContent  = (v === 0) ? '0 sec' : `+${v} sec`;
-  };
-  range.addEventListener('input', update);
-  update(); // выставить начальное состояние
-}
-
+  // слайдер
+  const range   = root.querySelector('.range');
+  const starsEl = root.querySelector('[data-stars]');
+  const secsEl  = root.querySelector('[data-secs]');
+  if (range && starsEl && secsEl) {
+    const update = () => {
+      const v = Number(range.value);          // 0..20
+      starsEl.textContent = `${v} PLAMc`;
+      secsEl.textContent  = (v === 0) ? '0 sec' : `+${v} sec`;
+    };
+    range.addEventListener('input', update);
+    update();
+  }
 
   // отправка
   root.querySelector('[data-upload-form]')?.addEventListener('submit', (e)=>{
@@ -90,7 +86,6 @@ if (range && starsEl && secsEl) {
       return;
     }
 
-    // списываем и обновляем индикатор
     window.PLAM.balance -= need;
     updatePlusBalanceUI();
 
@@ -99,7 +94,7 @@ if (range && starsEl && secsEl) {
   });
 }
 
-// --- Попап 2: магазин (покупка PLAMc) ---
+// --- Попап 2: магазин ---
 function initBuyStars(){
   const root = modalRoot.querySelector('.shop-popup');
   if (!root) return;
@@ -109,21 +104,14 @@ function initBuyStars(){
       e.preventDefault();
 
       const amount = Number(btn.dataset.amount || 0);
-      // локально увеличиваем баланс
       window.PLAM.balance = (window.PLAM.balance || 0) + amount;
       updatePlusBalanceUI();
 
-      // НИКАКОГО sendData здесь — Android закроет WebApp.
-      // Можно показать хаптик/алерт, чтобы было видно действие:
       try { window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light'); } catch(_) {}
       try { window.Telegram?.WebApp?.showAlert?.(`+${amount} PLAMc`); } catch(_) {}
-
-      // остаёмся внутри WebApp; модалку закрывать не обязательно
-      // closeModal();
     }, { passive:false });
   });
 }
-
 
 // --- Попап 3: призы ---
 function initPrizes(){
@@ -159,32 +147,31 @@ function initProfile(){
   usernameEl.textContent = handle;
   if (usr?.photo_url) avatarEl.style.backgroundImage = `url("${usr.photo_url}")`;
 
-  // заполняем статистику
+  // статистика
   const photos = Number(window.PLAM.photoCount || 0);
   root.querySelector('[data-photo-count]').textContent = String(photos);
 
-  // базовое время: 40 сек при премиуме, 20 сек иначе
+  // базовое время: 40 сек при премиуме, 20 сек иначе + 1 сек за каждые 100 фото
   const baseSecs = window.PLAM.premium ? 40 : 20;
   const secs = baseSecs + Math.floor(photos / 100);
   root.querySelector('[data-show-seconds]').textContent = `${secs} сек`;
 
   // Кнопка/плашка премиума + корона
   const setBtn = ()=>{
-  if (window.PLAM.premium){
-    btnPremium.textContent = 'Премиум активен';
-    btnPremium.classList.add('is-owned');
-    btnPremium.disabled = true;
-    avatarEl.classList.add('has-crown');    // корона остаётся
-  } else {
-    // ВСЕГДА две строки
-    btnPremium.innerHTML = '<span class="btn-premium__label">Получить<br>премиум</span>';
-    btnPremium.classList.remove('is-owned');
-    btnPremium.disabled = false;
-    avatarEl.classList.remove('has-crown');
-  }
-};
+    if (window.PLAM.premium){
+      btnPremium.textContent = 'Премиум активен';
+      btnPremium.classList.add('is-owned');
+      btnPremium.disabled = true;
+      avatarEl.classList.add('has-crown');
+    } else {
+      // всегда две строки, центр
+      btnPremium.innerHTML = '<span class="btn-premium__label">Получить<br>премиум</span>';
+      btnPremium.classList.remove('is-owned');
+      btnPremium.disabled = false;
+      avatarEl.classList.remove('has-crown');
+    }
+  };
   setBtn();
-
 
   btnPremium.addEventListener('click', ()=>{
     if (window.PLAM.premium) return;
