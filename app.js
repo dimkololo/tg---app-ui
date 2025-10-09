@@ -26,23 +26,17 @@ function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(PLAM)); }
 
 window.PLAM = loadState();
 // --- Нормализация состояния премиума (миграция/страховка) ---
+// --- Нормализация / миграция состояния премиума ---
 (function normalizePremium() {
-  const s = window.PLAM || {};
-  // если нет обеих частей — премиума нет
-  if (!s.isPremium || !s.premiumUntil) {
-    s.isPremium = false;
-    s.premiumUntil = null;
-    saveState();
-    return;
-  }
-  // если дата битая/в прошлом — сбрасываем
-  const ts = Date.parse(s.premiumUntil);
-  if (Number.isNaN(ts) || ts <= Date.now()) {
-    s.isPremium = false;
-    s.premiumUntil = null;
-    saveState();
-  }
+  const s = (window.PLAM ||= {});
+  // считаем активным ТОЛЬКО если premiumUntil в будущем
+  const ts = s.premiumUntil ? Date.parse(s.premiumUntil) : NaN;
+  const active = !Number.isNaN(ts) && ts > Date.now();
+  s.isPremium = !!active;
+  if (!active) s.premiumUntil = null;
+  saveState();
 })();
+
 
 
 // helper: есть ли сейчас активный премиум
