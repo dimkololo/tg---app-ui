@@ -314,38 +314,47 @@ html,body{
 }
 
 /* Кнопка «Приобрести премиум» */
+/* кнопка в шапке */
 .profile-header .btn-premium{
-  grid-area:button;
-  justify-self:start;
-  height:auto;
-  padding:10px 18px;
-  border-radius:18px;
-  border:0;
-  cursor:pointer;
-  background:#FF7300;
-  color:#fff;
-  font-weight:800;
-  font-size:15px;
-  line-height:1.1;
-  position:relative; /* для кружка с ? */
+  position: relative;                 /* якорь для '?' */
+  display: flex;
+  align-items: center;
+  justify-content: center;            /* центрируем надпись */
+  text-align: center;
+  height: auto;
+  padding: 10px 36px 10px 18px;       /* справа запас под кружок '?' */
+  border-radius: 18px;
+  border: 0;
+  cursor: pointer;
+  background: #FF7300;
+  color: #fff;
+  font-weight: 800;
+  font-size: 15px;
+  line-height: 1.1;
 }
 
+/* сам текст в две строки — обёртка (мы добавим её из JS) */
+.btn-premium__label{
+  display: inline-block;
+  line-height: 1.05;
+}
+
+/* кружок с '?' внутри кнопки, фиксирован у правого края */
 .profile-header .btn-premium::after{
-  content:'?';
-  position:absolute;
-  left:100%;                 /* сразу после правого края кнопки */
-  top:50%;
-  transform:translate(10px, -50%); /* внешний отступ 10px */
-  width:20px; height:20px;
-  display:flex; align-items:center; justify-content:center;
-  border-radius:50%;
-  background:#D9D9D9;
-  color:#000;
-  font-weight:800;
-  font-size:13px;
-  pointer-events:none;       /* не кликабельно, как просила */
-}
-
+  content: '?';
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: #D9D9D9;
+  color: #000;
+  font-weight: 800;
+  font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;               /* некликабельно */
+  
 /* Состояния */
 .btn-premium[disabled]{background:#D9D9D9; color:#777; cursor:not-allowed}
 
@@ -353,10 +362,10 @@ html,body{
 .btn-premium.is-owned{
   background:#D9D9D9;
   color:#000;
-  cursor:default;
+  cursor: default;
 }
 
-.btn-premium.is-owned::after{ content:''; display:none; }
+.btn-premium.is-owned::after{ display:none; }
 
 /* Корона на аватаре при премиуме */
 .profile-header .avatar{ position:relative; } /* нужно для псевдоэлемента */
@@ -365,7 +374,7 @@ html,body{
   position:absolute;
   /* выносим корону за верх/лево круга */
   top:-26px;
-  left:-12px;
+  left:-5px;
 
   width:56px;
   height:56px;
