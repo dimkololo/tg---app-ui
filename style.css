@@ -1,0 +1,307 @@
+/* ====== переменные ====== */
+:root{
+  --bg:#0f1115;
+  --text:#e7eaf0;
+  --accent:#FF7300;
+  --chip:#D9D9D9;
+  --popup-bg:rgba(221,221,221,.25);
+  --shadow:0 8px 16px rgba(0,0,0,.25);
+
+  /* дизайн-холсты */
+  --mw:393; --mh:853;      /* medium */
+  --sw:320; --sh:568;      /* small  */
+  --lw:834; --lh:1194;     /* large  */
+
+  /* ПЕНЁК — координаты центра и размеры (в пикселях макета) */
+  --stump-x-m:308; --stump-y-m:540; --stump-w-m:150; --stump-h-m:120;
+  --stump-x-s:252; --stump-y-s:360; --stump-w-s:120; --stump-h-s:100;
+  --stump-x-l:580; --stump-y-l:840; --stump-w-l:220; --stump-h-l:180;
+
+  /* Плюс-облако (иконка выведена слоем ::before) */
+  --plus-x-m:282; --plus-y-m:150; --plus-w-m:200; --plus-h-m:90;
+  --plus-x-s:233; --plus-y-s:122; --plus-w-s:150; --plus-h-s:70;
+  --plus-x-l:560; --plus-y-l:150; --plus-w-l:330; --plus-h-l:150;
+
+  /* Текст + иконка валюты внутри облака */
+  --plus-font-m:18px;   /* размер шрифта (medium) */
+  --plus-icon-m:22px;   /* размер иконки 🌍 (medium) */
+  --plus-gap-m:0px;     /* зазор между числом и иконкой */
+  --plus-padleft-m:60px;/* отступ от кружка "+" внутри облака */
+
+  /* Подарок */
+  --gift-x-m:305; --gift-y-m:740; --gift-w-m:130; --gift-h-m:100;
+  --gift-x-s:230; --gift-y-s:480; --gift-w-s:100; --gift-h-s:80;
+  --gift-x-l:680; --gift-y-l:1070; --gift-w-l:210; --gift-h-l:160;
+
+  /* Дневник */
+  --notebook-x-m:110; --notebook-y-m:740; --notebook-w-m:150; --notebook-h-m:110;
+  --notebook-x-s:95;  --notebook-y-s:480; --notebook-w-s:120; --notebook-h-s:90;
+  --notebook-x-l:170; --notebook-y-l:1070; --notebook-w-l:220; --notebook-h-l:160;
+}
+
+/* ====== базовая сцена ====== */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  height:100%;
+  overflow:hidden;
+  background:var(--bg);
+  color:var(--text);
+  font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+}
+.scene{position:relative;width:100vw;height:100svh;display:grid;place-items:center;background:#0a0d12}
+.stage{position:relative;display:inline-block;max-width:100vw;max-height:100svh;--design-w:var(--mw);--design-h:var(--mh)}
+.stage__img{display:block;max-width:100vw;max-height:100svh;width:auto;height:auto;object-fit:contain;pointer-events:none}
+
+/* ====== хот-споты ====== */
+.hotspot{
+  position:absolute;
+  transform:translate(-50%, -50%);
+  border:0; background:transparent; cursor:pointer;
+  z-index:20;
+}
+
+/* пенёк */
+.hotspot--stump{
+  left:  calc(var(--stump-x-m)/var(--design-w)*100%);
+  top:   calc(var(--stump-y-m)/var(--design-h)*100%);
+  width: calc(var(--stump-w-m)/var(--design-w)*100%);
+  height:calc(var(--stump-h-m)/var(--design-h)*100%);
+  z-index:30;
+}
+
+/* подарок */
+.hotspot--gift{
+  left:calc(var(--gift-x-m)/var(--design-w)*100%); top:calc(var(--gift-y-m)/var(--design-h)*100%);
+  width:calc(var(--gift-w-m)/var(--design-w)*100%); height:calc(var(--gift-h-m)/var(--design-h)*100%);
+  z-index:30;
+}
+
+/* дневник */
+.hotspot--notebook{
+  left:calc(var(--notebook-x-m)/var(--design-w)*100%); top:calc(var(--notebook-y-m)/var(--design-h)*100%);
+  width:calc(var(--notebook-w-m)/var(--design-w)*100%); height:calc(var(--notebook-h-m)/var(--design-h)*100%);
+  z-index:30;
+}
+
+/* плюс-облако как отдельный слой (фон картинкой) */
+.hotspot--plus{
+  left:calc(var(--plus-x-m)/var(--design-w)*100%); top:calc(var(--plus-y-m)/var(--design-h)*100%);
+  width:calc(var(--plus-w-m)/var(--design-w)*100%); height:calc(var(--plus-h-m)/var(--design-h)*100%);
+  z-index:25;
+}
+.hotspot--plus::before{
+  content:"";
+  position:absolute; inset:0;
+  background:center/contain no-repeat;
+  background-image:image-set(
+    url("./bgicons/cloud-plus.png") 1x,
+    url("./bgicons/cloud-plus@2x.png") 2x
+  );
+  pointer-events:none;
+  z-index:-1;
+}
+
+/* число + иконка валюты внутри облака */
+.hotspot--plus .plus-ui{
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  padding-left:var(--plus-padleft-m);
+  gap:var(--plus-gap-m);
+  pointer-events:none;
+}
+.hotspot--plus .plus-value{
+  color:#F6E3A8;
+  font-weight:800;
+  font-size:var(--plus-font-m);
+  line-height:1; letter-spacing:.5px;
+  text-shadow:0 2px 4px rgba(0,0,0,.25);
+}
+.hotspot--plus .plus-currency{
+  width:var(--plus-icon-m); height:var(--plus-icon-m);
+  flex:0 0 auto; filter:drop-shadow(0 2px 2px rgba(0,0,0,.25));
+  margin-left:2px; /* тонкая доводка зазора, при необходимости меняй */
+}
+
+/* ====== small ====== */
+@media (max-width:360px),(max-height:640px){
+  .stage{--design-w:var(--sw); --design-h:var(--sh)}
+  .hotspot--stump{
+    left:  calc(var(--stump-x-s)/var(--design-w)*100%);
+    top:   calc(var(--stump-y-s)/var(--design-h)*100%);
+    width: calc(var(--stump-w-s)/var(--design-w)*100%);
+    height:calc(var(--stump-h-s)/var(--design-h)*100%);
+  }
+  .hotspot--plus{
+    left:calc(var(--plus-x-s)/var(--design-w)*100%); top:calc(var(--plus-y-s)/var(--design-h)*100%);
+    width:calc(var(--plus-w-s)/var(--design-w)*100%); height:calc(var(--plus-h-s)/var(--design-h)*100%);
+  }
+  .hotspot--gift{
+    left:calc(var(--gift-x-s)/var(--design-w)*100%); top:calc(var(--gift-y-s)/var(--design-h)*100%);
+    width:calc(var(--gift-w-s)/var(--design-w)*100%); height:calc(var(--gift-h-s)/var(--design-h)*100%);
+  }
+  .hotspot--notebook{
+    left:calc(var(--notebook-x-s)/var(--design-w)*100%); top:calc(var(--notebook-y-s)/var(--design-h)*100%);
+    width:calc(var(--notebook-w-s)/var(--design-w)*100%); height:calc(var(--notebook-h-s)/var(--design-h)*100%);
+  }
+
+  /* размеры текста/иконки в облаке для small */
+  :root{
+    --plus-font-m:16px;
+    --plus-icon-m:18px;
+    --plus-gap-m:0px;
+    --plus-padleft-m:30px;
+  }
+}
+
+/* ====== large ====== */
+@media (min-width:768px),(min-height:1024px){
+  .stage{--design-w:var(--lw); --design-h:var(--lh)}
+  .hotspot--stump{
+    left:  calc(var(--stump-x-l)/var(--design-w)*100%);
+    top:   calc(var(--stump-y-l)/var(--design-h)*100%);
+    width: calc(var(--stump-w-l)/var(--design-w)*100%);
+    height:calc(var(--stump-h-l)/var(--design-h)*100%);
+  }
+  .hotspot--plus{
+    left:calc(var(--plus-x-l)/var(--design-w)*100%); top:calc(var(--plus-y-l)/var(--design-h)*100%);
+    width:calc(var(--plus-w-l)/var(--design-w)*100%); height:calc(var(--plus-h-l)/var(--design-h)*100%);
+  }
+  .hotspot--gift{
+    left:calc(var(--gift-x-l)/var(--design-w)*100%); top:calc(var(--gift-y-l)/var(--design-h)*100%);
+    width:calc(var(--gift-w-l)/var(--design-w)*100%); height:calc(var(--gift-h-l)/var(--design-h)*100%);
+  }
+  .hotspot--notebook{
+    left:calc(var(--notebook-x-l)/var(--design-w)*100%); top:calc(var(--notebook-y-l)/var(--design-h)*100%);
+    width:calc(var(--notebook-w-l)/var(--design-w)*100%); height:calc(var(--notebook-h-l)/var(--design-h)*100%);
+  }
+
+  :root{
+    --plus-font-m:24px;
+    --plus-icon-m:28px;
+    --plus-gap-m:10px;
+    --plus-padleft-m:70px;
+  }
+}
+
+/* ====== модалка ====== */
+.modal{position:fixed; inset:0; z-index:1000; display:grid; place-items:center}
+.modal[hidden]{display:none}
+.modal__backdrop{position:absolute; inset:0; background:rgba(0,0,0,.5)}
+.modal__dialog{
+  position:relative; width:min(560px,calc(100vw - 24px)); max-width:560px;
+  border-radius:42px; background:var(--popup-bg); box-shadow:var(--shadow); padding:18px 16px 22px;
+}
+.modal__content{max-height:calc(100svh - 60px); overflow:auto hidden}
+.modal__close{position:absolute; top:10px; left:10px; border:0; background:transparent; color:#fff; font-size:20px; cursor:pointer}
+
+/* ====== попап 1: загрузка ====== */
+.popup{display:grid; gap:12px; justify-items:center; width:100%; max-width:420px; margin-inline:auto}
+.u-center{display:flex; justify-content:center; width:100%}
+.chip{background:var(--chip); border:1px solid rgba(0,0,0,.06); border-radius:16px}
+.btn-pick,.btn-submit{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:clamp(206px,90%,360px); height:56px; border-radius:35px;
+  font-size:18px; font-weight:700; border:0; cursor:pointer;
+}
+.btn-pick{background:var(--chip); color:#000}
+.btn-submit{background:var(--accent); color:#fff; box-shadow:0 6px 14px rgba(255,115,0,.25)}
+.card{width:100%; background:var(--chip); border-radius:16px; padding:12px; border:1px solid rgba(0,0,0,.06)}
+.slider-card{padding:14px}
+.slider-row{display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:12px}
+.label{color:#000; font-weight:700; opacity:.75}
+.range{-webkit-appearance:none; appearance:none; width:100%; height:16px; border-radius:200px; background:#D0D0D0; outline:none}
+.range::-webkit-slider-thumb{-webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:var(--accent); border:1px solid #fff; cursor:pointer}
+.range::-moz-range-thumb{width:18px; height:18px; border-radius:50%; background:var(--accent); border:1px solid #fff; cursor:pointer}
+.form-card{display:grid; gap:10px; padding:14px}
+.field{width:100%; padding:14px 16px; border-radius:16px; border:1px solid rgba(0,0,0,.08); background:#fff; color:#111; font:16px/1.4 inherit}
+.field::placeholder{color:#9aa3b2; opacity:.8}
+.field:focus{outline:2px solid rgba(255,115,0,.35)}
+
+/* ====== попап 2: магазин ====== */
+.shop-header{width:100%; min-height:150px; display:grid; place-items:center; gap:4px; padding:14px 12px}
+.shop-header__icon{width:56px; height:auto; display:block}
+.shop-title{margin:4px 0 0; font-size:22px; font-weight:800; color:#000}
+.shop-subtitle{margin:0; font-size:14px; color:#000; opacity:.75}
+.shop-list{display:grid; width:100%; gap:10px}
+.shop-item{
+  width:100%; display:grid; grid-template-columns:1fr auto; align-items:center; gap:12px;
+  padding:12px 14px; border:0; background:var(--chip); border-radius:16px; cursor:pointer;
+}
+.shop-item__left{display:flex; align-items:center; gap:10px; color:#000; font-weight:700}
+.shop-item__left img{width:20px}
+.shop-item__right{display:flex; align-items:center; gap:8px; color:#000; font-weight:800}
+.shop-item__right img{width:22px}
+.shop-num{min-width:36px; text-align:right}
+.shop-item:hover{filter:brightness(.98)}
+@media (max-width:360px),(max-height:640px){
+  .shop-header{min-height:100px; padding:10px 8px}
+  .shop-header__icon{width:40px}
+  .shop-title{font-size:18px}
+  .shop-subtitle{font-size:12px}
+  .shop-item{padding:10px 12px}
+  .shop-item__left img,.shop-item__right img{width:18px}
+}
+
+/* ====== попап 3: призы ====== */
+.prizes-popup{width:100%; max-width:420px; display:grid; gap:14px}
+.prizes-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
+@media (max-width:360px),(max-height:640px){ .prizes-grid{grid-template-columns:repeat(2,1fr)} }
+.prize-card{position:relative; min-height:110px; background:var(--chip); border-radius:16px; padding:12px; display:flex; align-items:flex-end}
+.check-input{position:absolute; opacity:0; pointer-events:none}
+.checkmark{position:absolute; top:12px; right:12px; width:26px; height:26px; border-radius:50%; border:2px solid #FF7300}
+.checkmark::after{content:""; position:absolute; inset:5px; border-radius:50%; background:#FF7300; transform:scale(0); transition:transform .12s}
+.prize-card:has(.check-input:checked) .checkmark::after{transform:scale(1)}
+.prize-body{color:#000; opacity:.75; font-size:12px}
+.prize-title{font-weight:700; margin-bottom:4px; opacity:.9}
+.prize-sub{font-size:11px}
+.btn-pay{
+  display:inline-flex; align-items:center; justify-content:center;
+  min-width:220px; padding:0 18px; height:56px; border-radius:35px;
+  border:0; cursor:pointer; background:#FF7300; color:#fff; font-weight:800; font-size:18px;
+  box-shadow:0 6px 14px rgba(255,115,0,.25);
+}
+.btn-pay:disabled{background:#D9D9D9; color:#777; box-shadow:none; cursor:not-allowed}
+.pay-note{margin:0; padding:0 4px 4px; text-align:center; color:#fff; opacity:.8; font-size:11px; line-height:1.3}
+
+/* ====== попап 4: профиль ====== */
+.profile-popup{width:100%; max-width:420px; display:grid; gap:14px}
+
+/* верхняя плашка на всю ширину */
+.profile-header{
+  width:100%; background:var(--chip); border-radius:16px; padding:12px;
+  display:grid; grid-template-columns:56px 1fr; grid-template-rows:auto auto;
+  grid-template-areas:"avatar username" "avatar button";
+  align-items:center; column-gap:12px; row-gap:8px; border:1px solid rgba(0,0,0,.06);
+}
+.avatar{grid-area:avatar; width:56px; height:56px; border-radius:50%; background:#bbb center/cover no-repeat}
+.profile-id{grid-area:username; color:#000; font-weight:700; line-height:1.2}
+.btn-premium{
+  grid-area:button; justify-self:start;
+  height:40px; padding:0 16px; border-radius:20px; border:0; cursor:pointer;
+  background:#FF7300; color:#fff; font-weight:800;
+}
+.btn-premium[disabled]{background:#D9D9D9; color:#777; cursor:not-allowed}
+.btn-premium.is-owned{background:#D9D9D9; color:#000; position:relative}
+.btn-premium.is-owned::after{
+  content:""; display:inline-block; width:18px; height:18px; margin-left:8px; border-radius:50%;
+  background:#FF7300 url("./bgicons/check-item.png") center/12px 12px no-repeat; vertical-align:middle;
+}
+
+.profile-card{width:100%; background:var(--chip); border-radius:16px; padding:12px; display:grid; gap:8px; border:1px solid rgba(0,0,0,.06)}
+.row{display:flex; align-items:center; justify-content:space-between; gap:10px}
+.label-left{color:#000; font-weight:700}
+.val-right{color:#000; font-weight:800}
+.pill{min-width:28px; height:28px; padding:0 10px; display:inline-flex; align-items:center; justify-content:center; border-radius:14px; color:#fff; font-weight:800; font-size:14px}
+.pill-orange{background:#FF7300}
+.hint{color:#000; opacity:.75; font-size:12px}
+
+/* подтверждение */
+.confirm-card{width:100%; max-width:420px; padding:16px; background:var(--chip); border-radius:16px; display:grid; gap:12px}
+.confirm-text{text-align:center; color:#000; font-weight:700}
+.confirm-actions{display:flex; gap:12px; justify-content:center}
+.btn-confirm{min-width:120px; height:44px; border-radius:35px; border:0; cursor:pointer; font-weight:800; font-size:16px}
+.btn-confirm.yes{background:#FF7300; color:#fff}
+.btn-confirm.no{background:#C7C4C4; color:#000}
+
+/* ====== DEBUG (включай <body class="__debug">) ====== */
+body.__debug .hotspot{outline:2px dashed rgba(0,200,255,.9); background:rgba(0,200,255,.10)}
