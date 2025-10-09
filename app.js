@@ -143,50 +143,140 @@ function initPrizes(){
 
 // --- Попап 4: профиль ---
 function initProfile(){
-  const root = modalRoot.querySelector('.profile-popup');
+  const root = document.querySelector('[data-modal-root] .profile-popup');
   if (!root) return;
 
+  // Источники данных
+  const tg = window.Telegram?.WebApp;
+  const plam = (window.PLAM ||= {});
+  plam.user ||= {};
+  plam.user.username ||= tg?.initDataUnsafe?.user?.username || '';
+  plam.user.photoUrl ||= tg?.initDataUnsafe?.user?.photo_url || '';
+  plam.photosCount ??= 0;
+  plam.balance ??= 0;
+  plam.isPremium ??= false; // если уже активирован — true
+  // если активирован, желательно хранить премиум до:
+  // plam.premiumUntil = Date.now() + 30*24*60*60*1000;
+
+  // Узлы
   const avatarEl   = root.querySelector('[data-avatar]');
-  const usernameEl = root.querySelector('[data-username]');
-  const btnPremium = root.querySelector('[data-btn-premium]');
+  const unameEl    = root.querySelector('[data-username]');
+  const countEl    = root.querySelector('[data-photos-count]');
+  const timeEl     = root.querySelector('[data-photo-time]');
+  const crownEl    = root.querySelector('[data-crown]');
+  const rowEl      = root.querySelector('[data-premium-row]');
+  const chipEl     = root.querySelector('[data-premium-chip]');
+  const timerEl    = root.querySelector('[data-premium-timer]');
+  const btnPrem    = root.querySelector('[data-premium-btn]');
+  const helpBtn    = root.querySelector('[data-help]');
+  const helpSheet  = root.querySelector('[data-help-sheet]');
+  const helpClose  = root.querySelector('[data-help-close]');
 
-  // данные TG (если доступны)
-  const tg  = window.Telegram?.WebApp;
-  const usr = tg?.initDataUnsafe?.user || null;
-  const firstLast = usr ? [usr.first_name, usr.last_name].filter(Boolean).join(' ') : '';
-  const handle    = usr?.username ? '@' + usr.username : (firstLast || '@tg profile');
+  // Аватар/ник
+  if (plam.user.photoUrl) {
+    avatarEl.style.backgroundImage = `url("${plam.user.photoUrl}")`;
+  }
+  unameEl.textContent = plam.user.username ? `@${plam.user.username}` : '@tg profile';
 
-  usernameEl.textContent = handle;
-  if (usr?.photo_url) avatarEl.style.backgroundImage = `url("${usr.photo_url}")`;
+  // Показываем нужный вид «премиума»
+  function renderPremiumView() {
+    if (plam.isPremium) {
+      rowEl.hidden  = true;
+      chipEl.hidden = false;
+      crownEl.hidden = false;
 
-  // заполняем статистику
-  const photos = Number(window.PLAM.photoCount || 0);
-  root.querySelector('[data-photo-count]').textContent = String(photos);
-
-  // базовое время: 40 сек при премиуме, 20 сек иначе
-  const baseSecs = window.PLAM.premium ? 40 : 20;
-  const secs = baseSecs + Math.floor(photos / 100);
-  root.querySelector('[data-show-seconds]').textContent = `${secs} сек`;
-
-  // кнопка премиума
-   const setBtn = ()=>{
-    if (window.PLAM.premium){
-      btnPremium.textContent = 'Премиум';
-      btnPremium.classList.add('is-owned');
-      btnPremium.disabled = true;
+      // Запуск таймера если есть premiumUntil
+      if (!plam.premiumUntil) {
+        // если по какой-то причине нет — считаем от 30 дней с текущего момента
+        plam.premiumUntil = Date.now() + 30*24*60*60*1000;
+      }
+      startPremiumTimer(plam.premiumUntil, timerEl);
     } else {
-      btnPremium.textContent = 'Получить премиум';
-      btnPremium.classList.remove('is-owned');
-      btnPremium.disabled = false;
+      rowEl.hidden  = false;
+      chipEl.hidden = true;
+      crownEl.hidden = true;
+      stopPremiumTimer(timerEl);
+    }
+  }
+
+  // Время показа: базовое 20/40 + за каждые 100 фото
+  function renderPhotoTime() {
+    const base = plam.isPremium ? 40 : 20;
+    const extra = Math.floor((plam.photosCount || 0) / 100);
+    timeEl.textContent = `${base + extra} сек`;
+  }
+
+  // Кол-во фото
+  countEl.textContent = (plam.photosCount || 0);
+
+  renderPremiumView();
+  renderPhotoTime();
+
+  // Кнопка «Получить премиум» — оставляю твой флоу (покупка/проверки)
+  if (btnPrem) {
+    btnPrem.addEventListener('click', () => {
+      // здесь твоя существующая логика:
+      // 1) если недостаточно PLAMc -> открыть попап покупки монет (buy-stars)
+      // 2) иначе открыть подтверждение покупки премиума
+      if (typeof openPremiumConfirm === 'function') {
+        openPremiumConfirm(); // если у тебя есть такая функция
+      } else {
+        // запасной вариант: простое подтверждение
+        const ok = confirm('Вы хотите получить премиум на 30 дней за 1500 PLAMc?');
+        if (ok) {
+          // Эмулируем покупку: списать 1500 (если хватает) и активировать
+          const price = 1500;
+          if ((plam.balance || 0) >= price) {
+            plam.balance -= price;
+            plam.isPremium = true;
+            plam.premiumUntil = Date.now() + 30*24*60*60*1000;
+            renderPremiumView();
+            renderPhotoTime();
+          } else {
+            // если не хватает — открыть магазин
+            if (typeof openModal === 'function') openModal('buy-stars');
+          }
+        }
+      }
+    });
+  }
+
+  // Хелп-оверлей
+  if (helpBtn && helpSheet) {
+    helpBtn.addEventListener('click', () => { helpSheet.hidden = false; });
+  }
+  if (helpClose && helpSheet) {
+    helpClose.addEventListener('click', () => { helpSheet.hidden = true; });
+  }
+}
+
+/* ===== таймер 30 дней ===== */
+let _premiumTimerId = null;
+function startPremiumTimer(untilTs, targetEl){
+  stopPremiumTimer(targetEl);
+  const tick = () => {
+    const ms = Math.max(0, untilTs - Date.now());
+    const days = Math.floor(ms / (24*60*60*1000));
+    const hours = Math.floor((ms % (24*60*60*1000)) / (60*60*1000));
+    const minutes = Math.floor((ms % (60*60*1000)) / (60*1000));
+    if (targetEl) targetEl.textContent = `${days} д ${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}`;
+    if (ms <= 0) {
+      const plam = (window.PLAM ||= {});
+      plam.isPremium = false;
+      plam.premiumUntil = undefined;
+      // Перерисовать профиль, если открыт
+      const opened = document.querySelector('[data-modal-root] .profile-popup');
+      if (opened) initProfilePopup();
+      stopPremiumTimer(targetEl);
     }
   };
-  setBtn();
-
-  btnPremium.addEventListener('click', ()=>{
-    if (window.PLAM.premium) return;
-    openModal('confirm-premium');
-  });
+  _premiumTimerId = setInterval(tick, 30*1000); // раз в 30 сек достаточно
+  tick();
 }
+function stopPremiumTimer(){
+  if (_premiumTimerId) { clearInterval(_premiumTimerId); _premiumTimerId = null; }
+}
+
 
 // --- Подтверждение покупки премиума ---
 function initConfirmPremium(){
