@@ -142,11 +142,10 @@ function initPrizes(){
 }
 
 // --- Попап 4: профиль ---
-function initProfile(){
+function initProfile() {
   const root = document.querySelector('[data-modal-root] .profile-popup');
   if (!root) return;
 
-  // Источники данных
   const tg = window.Telegram?.WebApp;
   const plam = (window.PLAM ||= {});
   plam.user ||= {};
@@ -154,11 +153,14 @@ function initProfile(){
   plam.user.photoUrl ||= tg?.initDataUnsafe?.user?.photo_url || '';
   plam.photosCount ??= 0;
   plam.balance ??= 0;
-  plam.isPremium ??= false; // если уже активирован — true
-  // если активирован, желательно хранить премиум до:
-  // plam.premiumUntil = Date.now() + 30*24*60*60*1000;
 
-  // Узлы
+  // 🔧 НОРМАЛИЗАЦИЯ ПРЕМИУМА: единственный источник истины — premiumUntil
+  const now = Date.now();
+  const active = typeof plam.premiumUntil === 'number' && plam.premiumUntil > now;
+  plam.isPremium = active;               // выравниваем флаг под premiumUntil
+  if (!active) plam.premiumUntil = undefined;
+
+  // далее — твои селекторы:
   const avatarEl   = root.querySelector('[data-avatar]');
   const unameEl    = root.querySelector('[data-username]');
   const countEl    = root.querySelector('[data-photos-count]');
@@ -172,6 +174,9 @@ function initProfile(){
   const helpSheet  = root.querySelector('[data-help-sheet]');
   const helpClose  = root.querySelector('[data-help-close]');
 
+  // ... остальной код отрисовки (ниже обновлённые функции) ...
+
+
   // Аватар/ник
   if (plam.user.photoUrl) {
     avatarEl.style.backgroundImage = `url("${plam.user.photoUrl}")`;
@@ -179,16 +184,15 @@ function initProfile(){
   unameEl.textContent = plam.user.username ? `@${plam.user.username}` : '@tg profile';
 
   // Показываем нужный вид «премиума»
-  function renderPremiumView() {
+   function renderPremiumView() {
     if (plam.isPremium) {
       rowEl.hidden  = true;
       chipEl.hidden = false;
       crownEl.hidden = false;
 
-      // Запуск таймера если есть premiumUntil
+      // если по какой-то причине даты нет — ставим на 30 дней от сейчас
       if (!plam.premiumUntil) {
-        // если по какой-то причине нет — считаем от 30 дней с текущего момента
-        plam.premiumUntil = Date.now() + 30*24*60*60*1000;
+        plam.premiumUntil = Date.now() + 30 * 24 * 60 * 60 * 1000;
       }
       startPremiumTimer(plam.premiumUntil, timerEl);
     } else {
@@ -199,18 +203,22 @@ function initProfile(){
     }
   }
 
-  // Время показа: базовое 20/40 + за каждые 100 фото
   function renderPhotoTime() {
-    const base = plam.isPremium ? 40 : 20;
+    const base = plam.isPremium ? 40 : 20;          // 40 при активном премиуме
     const extra = Math.floor((plam.photosCount || 0) / 100);
     timeEl.textContent = `${base + extra} сек`;
   }
 
-  // Кол-во фото
-  countEl.textContent = (plam.photosCount || 0);
+  // первичная отрисовка
+  if (plam.user.photoUrl) {
+    avatarEl.style.backgroundImage = `url("${plam.user.photoUrl}")`;
+  }
+  unameEl.textContent = plam.user.username ? `@${plam.user.username}` : '@tg profile';
+  countEl.textContent = plam.photosCount || 0;
 
   renderPremiumView();
   renderPhotoTime();
+
 
   // Кнопка «Получить премиум» — оставляю твой флоу (покупка/проверки)
   if (btnPrem) {
@@ -227,9 +235,9 @@ function initProfile(){
           // Эмулируем покупку: списать 1500 (если хватает) и активировать
           const price = 1500;
           if ((plam.balance || 0) >= price) {
-            plam.balance -= price;
-            plam.isPremium = true;
+             plam.balance -= price;                           // если влезли по средствам
             plam.premiumUntil = Date.now() + 30*24*60*60*1000;
+            plam.isPremium = true;                           // выравниваем флаг
             renderPremiumView();
             renderPhotoTime();
           } else {
@@ -253,26 +261,27 @@ function initProfile(){
 /* ===== таймер 30 дней ===== */
 let _premiumTimerId = null;
 function startPremiumTimer(untilTs, targetEl){
-  stopPremiumTimer(targetEl);
+  stopPremiumTimer();
   const tick = () => {
     const ms = Math.max(0, untilTs - Date.now());
-    const days = Math.floor(ms / (24*60*60*1000));
-    const hours = Math.floor((ms % (24*60*60*1000)) / (60*60*1000));
-    const minutes = Math.floor((ms % (60*60*1000)) / (60*1000));
+    const days = Math.floor(ms / 86400000);
+    const hours = Math.floor((ms % 86400000) / 3600000);
+    const minutes = Math.floor((ms % 3600000) / 60000);
     if (targetEl) targetEl.textContent = `${days} д ${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}`;
     if (ms <= 0) {
       const plam = (window.PLAM ||= {});
       plam.isPremium = false;
       plam.premiumUntil = undefined;
-      // Перерисовать профиль, если открыт
+      // если попап открыт — перерисовать
       const opened = document.querySelector('[data-modal-root] .profile-popup');
-      if (opened) initProfilePopup();
-      stopPremiumTimer(targetEl);
+      if (opened) initProfile();
+      stopPremiumTimer();
     }
   };
-  _premiumTimerId = setInterval(tick, 30*1000); // раз в 30 сек достаточно
+  _premiumTimerId = setInterval(tick, 30000);
   tick();
 }
+
 function stopPremiumTimer(){
   if (_premiumTimerId) { clearInterval(_premiumTimerId); _premiumTimerId = null; }
 }
