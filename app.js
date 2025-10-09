@@ -168,19 +168,26 @@ function initProfile(){
   const secs = baseSecs + Math.floor(photos / 100);
   root.querySelector('[data-show-seconds]').textContent = `${secs} сек`;
 
-  // кнопка премиума
-   const setBtn = ()=>{
+  // Кнопка/плашка премиума + корона
+  const setBtn = ()=>{
     if (window.PLAM.premium){
-      btnPremium.textContent = 'Премиум';
+      btnPremium.textContent = 'Премиум активен';
       btnPremium.classList.add('is-owned');
       btnPremium.disabled = true;
+
+      // корона на аватаре
+      avatarEl.classList.add('has-crown');
     } else {
-      btnPremium.textContent = 'Получить премиум';
+      btnPremium.textContent = 'Приобрести премиум';
       btnPremium.classList.remove('is-owned');
       btnPremium.disabled = false;
+
+      // убрать корону
+      avatarEl.classList.remove('has-crown');
     }
   };
   setBtn();
+
 
   btnPremium.addEventListener('click', ()=>{
     if (window.PLAM.premium) return;
