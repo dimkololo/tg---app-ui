@@ -40,11 +40,12 @@ window.PLAM = loadState();
 
 
 // helper: есть ли сейчас активный премиум
-function isPremiumActive(){
-  if(!PLAM.isPremium || !PLAM.premiumUntil) return false;
-  const now = Date.now();
-  return now < new Date(PLAM.premiumUntil).getTime();
+function isPremiumActive() {
+  if (!PLAM.premiumUntil) return false;
+  const ts = Date.parse(PLAM.premiumUntil);
+  return !Number.isNaN(ts) && ts > Date.now();
 }
+
 
 // === Telegram: аккуратно достаём пользователя =================================
 (function initTelegramUser(){
@@ -226,46 +227,47 @@ function computePhotoTime(){
   return base + bonus;
 }
 
-function initProfile(reuseDOM=false){
-  const root = modalRoot.querySelector('.profile-popup');
-  if(!root) return;
+function initProfile() {
+  const root = document.querySelector('[data-modal-root] .profile-popup');
+  if (!root) return;
 
   const avatar = root.querySelector('[data-avatar]');
   const uname  = root.querySelector('[data-username]');
-  const row    = root.querySelector('[data-premium-row]');
-  const chip   = root.querySelector('[data-premium-chip]');
+  const row    = root.querySelector('[data-premium-row]');   // блок с кнопкой
+  const chip   = root.querySelector('[data-premium-chip]');  // плашка «Премиум активирован»
   const timer  = root.querySelector('[data-premium-timer]');
   const crown  = root.querySelector('[data-crown]');
   const photos = root.querySelector('[data-photos-count]');
   const timeEl = root.querySelector('[data-photo-time]');
 
-  // заполняем ник/аватар если есть
+  // ник/аватар
   if (PLAM.user?.username) uname.textContent = '@' + PLAM.user.username;
   if (PLAM.user?.photo_url) avatar.style.backgroundImage = `url("${PLAM.user.photo_url}")`;
 
   // количество фото и время показа
   photos.textContent = String(PLAM.photosCount || 0);
-  timeEl.textContent = `${computePhotoTime()} сек`;
+  const base = isPremiumActive() ? 40 : 20;
+  const extra = Math.floor((PLAM.photosCount || 0) / 100);
+  timeEl.textContent = `${base + extra} сек`;
 
-  const premiumActive = isPremiumActive();
+  // вью по состоянию премиума
+  const active = isPremiumActive();
+  row.hidden   =  active;
+  chip.hidden  = !active;
+  crown.hidden = !active;
 
-  // вью состояния
-  crown.hidden = !premiumActive;
-  chip.hidden  = !premiumActive;
-  row.hidden   =  premiumActive;
+  if (active) startPremiumTimer(timer);
 
-  if (premiumActive) startPremiumTimer(timer);
-
-  // «Получить премиум»
-  root.querySelector('[data-premium-btn]')?.addEventListener('click', ()=>{
+  // обработчики
+  root.querySelector('[data-premium-btn]')?.addEventListener('click', () => {
     openModal('confirm-premium');
   });
 
-  // «?»
   const helpSheet = root.querySelector('[data-help-sheet]');
   root.querySelector('[data-help]')?.addEventListener('click', ()=> helpSheet.hidden = false);
   root.querySelector('[data-help-close]')?.addEventListener('click', ()=> helpSheet.hidden = true);
 }
+
 
 // попап подтверждения премиума
 function initConfirmPremium(){
@@ -273,21 +275,20 @@ function initConfirmPremium(){
   if(!root) return;
   root.querySelector('[data-confirm-yes]')?.addEventListener('click', ()=>{
     const price = 1500;
-    if (PLAM.balance < price) {
-      // не хватает — открываем магазин
-      closeModal();
-      openModal('buy-stars');
-      return;
-    }
-    PLAM.balance -= price;
-    PLAM.isPremium = true;
-    const until = new Date();
-    until.setDate(until.getDate() + 30);
-    PLAM.premiumUntil = until.toISOString();
-    saveState();
-    updatePlus();
-    closeModal();
-    openModal('profile'); // показать активированный
+if (PLAM.balance < price) {
+  closeModal(); openModal('buy-stars'); return;
+}
+PLAM.balance -= price;
+
+const until = new Date();
+until.setDate(until.getDate() + 30);
+PLAM.premiumUntil = until.toISOString();
+PLAM.isPremium = true;    // можно и не ставить, но оставим как зеркало
+
+saveState();
+updatePlus();
+closeModal();
+openModal('profile');
   });
 }
 
