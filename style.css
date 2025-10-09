@@ -23,10 +23,10 @@
   --plus-x-l:560; --plus-y-l:150; --plus-w-l:330; --plus-h-l:150;
 
   /* Текст + иконка валюты внутри облака */
-  --plus-font-m:18px;   /* размер шрифта (medium) */
-  --plus-icon-m:22px;   /* размер иконки 🌍 (medium) */
-  --plus-gap-m:0px;     /* зазор между числом и иконкой */
-  --plus-padleft-m:60px;/* отступ от кружка "+" внутри облака */
+  --plus-font-m:18px;
+  --plus-icon-m:22px;
+  --plus-gap-m:0px;
+  --plus-padleft-m:60px;
 
   /* Подарок */
   --gift-x-m:305; --gift-y-m:740; --gift-w-m:130; --gift-h-m:100;
@@ -119,7 +119,7 @@ html,body{
 .hotspot--plus .plus-currency{
   width:var(--plus-icon-m); height:var(--plus-icon-m);
   flex:0 0 auto; filter:drop-shadow(0 2px 2px rgba(0,0,0,.25));
-  margin-left:2px; /* тонкая доводка зазора, при необходимости меняй */
+  margin-left:2px;
 }
 
 /* ====== small ====== */
@@ -144,7 +144,6 @@ html,body{
     width:calc(var(--notebook-w-s)/var(--design-w)*100%); height:calc(var(--notebook-h-s)/var(--design-h)*100%);
   }
 
-  /* размеры текста/иконки в облаке для small */
   :root{
     --plus-font-m:16px;
     --plus-icon-m:18px;
@@ -193,15 +192,17 @@ html,body{
 }
 .modal__content {
   max-height: calc(100svh - 60px);
-  overflow-y: auto;     /* появляется только если нужно */
+  overflow-y: auto;
   overflow-x: hidden;
 }
 .modal__close{position:absolute; top:10px; left:10px; border:0; background:transparent; color:#fff; font-size:20px; cursor:pointer}
 
-/* ====== попап 1: загрузка ====== */
+/* ====== попапы: общие ====== */
 .popup{display:grid; gap:12px; justify-items:center; width:100%; max-width:420px; margin-inline:auto}
 .u-center{display:flex; justify-content:center; width:100%}
 .chip{background:var(--chip); border:1px solid rgba(0,0,0,.06); border-radius:16px}
+
+/* ====== попап 1: загрузка ====== */
 .btn-pick,.btn-submit{
   display:inline-flex; align-items:center; justify-content:center;
   width:clamp(206px,90%,360px); height:56px; border-radius:35px;
@@ -273,12 +274,12 @@ html,body{
 /* верхняя зона: БЕЗ общей плашки chip, свой лэйаут */
 .chip.profile-header{
   width:100%;
-  background:transparent;               /* перебиваем .chip */
-  border:0;                             /* перебиваем .chip */
+  background:transparent;
+  border:0;
   padding:12px 16px 8px;
 
   display:grid;
-  grid-template-columns:100px 1fr;      /* аватар 100 + правая колонка */
+  grid-template-columns:100px 1fr;
   grid-template-rows:auto auto;
   grid-template-areas:
     "avatar username"
@@ -287,18 +288,34 @@ html,body{
   column-gap:20px;
   row-gap:12px;
 }
-/* Аватар 100×100 */
+
+/* Аватар 100×100 + корона может выходить за рамки */
 .profile-header .avatar{
-  position: relative;       /* для якоря короны */
+  position: relative;
   width:100px;
   height:100px;
   border-radius:50%;
   background:#bbb center/cover no-repeat;
-  overflow: visible;        /* ВАЖНО: разрешаем выход за границы круга */
+  overflow: visible;
   z-index: 0;
 }
+.profile-header .avatar.has-crown::before{
+  content:'';
+  position:absolute;
+  top:-26px;
+  left:-12px;
+  width:56px;
+  height:56px;
+  background:center/contain no-repeat;
+  background-image:image-set(
+    url('./bgicons/crown.png') 1x,
+    url('./bgicons/crown@2x.png') 2x
+  );
+  pointer-events:none;
+  z-index: 2;
+}
 
-/* Плашка под ник: #D9D9D9 со скруглением */
+/* Плашка с ником */
 .profile-header .profile-id{
   grid-area:username;
   background:#D9D9D9;
@@ -313,16 +330,19 @@ html,body{
   text-overflow:ellipsis;
 }
 
-/* Кнопка «Приобрести премиум» */
-/* кнопка в шапке */
+/* Кнопка «Получить премиум» (под ником) */
 .profile-header .btn-premium{
-  position: relative;                 /* якорь для '?' */
+  grid-area:button;           /* важно: под ником */
+  justify-self:start;
+
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;            /* центрируем надпись */
+  justify-content: center;
   text-align: center;
+
   height: auto;
-  padding: 10px 36px 10px 18px;       /* справа запас под кружок '?' */
+  padding: 10px 36px 10px 18px; /* справа место под '?' */
   border-radius: 18px;
   border: 0;
   cursor: pointer;
@@ -333,13 +353,13 @@ html,body{
   line-height: 1.1;
 }
 
-/* сам текст в две строки — обёртка (мы добавим её из JS) */
+/* Двухстрочная подпись внутри кнопки */
 .btn-premium__label{
   display: inline-block;
   line-height: 1.05;
 }
 
-/* кружок с '?' внутри кнопки, фиксирован у правого края */
+/* Кружок «?» внутри кнопки, справа; не влияет на выравнивание текста */
 .profile-header .btn-premium::after{
   content: '?';
   position: absolute;
@@ -353,41 +373,21 @@ html,body{
   font-weight: 800;
   font-size: 13px;
   display: flex; align-items: center; justify-content: center;
-  pointer-events: none;               /* некликабельно */
-  
+  pointer-events: none;
+} /* ← важная закрывающая скобка! */
+
 /* Состояния */
 .btn-premium[disabled]{background:#D9D9D9; color:#777; cursor:not-allowed}
 
-/* Премиум активен — превращаем кнопку в серую плашку, скрываем «?» */
+/* Премиум активен — превращаем кнопку в плашку, убираем «?» */
 .btn-premium.is-owned{
   background:#D9D9D9;
   color:#000;
   cursor: default;
 }
-
 .btn-premium.is-owned::after{ display:none; }
 
-/* Корона на аватаре при премиуме */
-.profile-header .avatar{ position:relative; } /* нужно для псевдоэлемента */
-.profile-header .avatar.has-crown::before{
-  content:'';
-  position:absolute;
-  /* выносим корону за верх/лево круга */
-  top:-26px;
-  left:-5px;
-
-  width:56px;
-  height:56px;
-
-  background:center/contain no-repeat;
-  background-image:image-set(
-    url('./bgicons/crown.png') 1x,
-    url('./bgicons/crown@2x.png') 2x
-  );
-  pointer-events:none;
-  z-index: 2;               /* поверх всего в шапке */
-}
-
+/* Карточки профиля */
 .profile-card{width:100%; background:var(--chip); border-radius:16px; padding:12px; display:grid; gap:8px; border:1px solid rgba(0,0,0,.06)}
 .row{display:flex; align-items:center; justify-content:space-between; gap:10px}
 .label-left{color:#000; font-weight:700}
