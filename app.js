@@ -178,7 +178,7 @@ function initProfile(){
       // корона на аватаре
       avatarEl.classList.add('has-crown');
     } else {
-      btnPremium.textContent = 'Приобрести премиум';
+      btnPremium.textContent = 'Получить премиум';
       btnPremium.classList.remove('is-owned');
       btnPremium.disabled = false;
 
