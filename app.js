@@ -19,6 +19,25 @@ function loadState(){
 function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(PLAM)); }
 
 window.PLAM = loadState();
+// --- Нормализация состояния премиума (миграция/страховка) ---
+(function normalizePremium() {
+  const s = window.PLAM || {};
+  // если нет обеих частей — премиума нет
+  if (!s.isPremium || !s.premiumUntil) {
+    s.isPremium = false;
+    s.premiumUntil = null;
+    saveState();
+    return;
+  }
+  // если дата битая/в прошлом — сбрасываем
+  const ts = Date.parse(s.premiumUntil);
+  if (Number.isNaN(ts) || ts <= Date.now()) {
+    s.isPremium = false;
+    s.premiumUntil = null;
+    saveState();
+  }
+})();
+
 
 // helper: есть ли сейчас активный премиум
 function isPremiumActive(){
