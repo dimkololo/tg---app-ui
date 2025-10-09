@@ -325,13 +325,49 @@ html,body{
   font-weight:800;
   font-size:15px;
   line-height:1.1;
+  position:relative; /* для кружка с ? */
 }
 
+.profile-header .btn-premium::after{
+  content:'?';
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:20px; height:20px;
+  margin-left:10px;
+  border-radius:50%;
+  background:#D9D9D9;
+  color:#000;
+  font-weight:800;
+  font-size:13px;
+  vertical-align:middle;
+}
+
+/* Состояния */
 .btn-premium[disabled]{background:#D9D9D9; color:#777; cursor:not-allowed}
-.btn-premium.is-owned{background:#D9D9D9; color:#000; position:relative}
-.btn-premium.is-owned::after{
-  content:""; display:inline-block; width:18px; height:18px; margin-left:8px; border-radius:50%;
-  background:#FF7300 url("./bgicons/check-item.png") center/12px 12px no-repeat; vertical-align:middle;
+
+/* Премиум активен — превращаем кнопку в серую плашку, скрываем «?» */
+.btn-premium.is-owned{
+  background:#D9D9D9;
+  color:#000;
+  cursor:default;
+}
+
+.btn-premium.is-owned::after{ content:''; display:none; }
+
+/* Корона на аватаре при премиуме */
+.profile-header .avatar{ position:relative; } /* нужно для псевдоэлемента */
+.profile-header .avatar.has-crown::before{
+  content:'';
+  position:absolute;
+  top:-10px; left:-6px;
+  width:40px; height:40px;
+  background: center/contain no-repeat;
+  background-image: image-set(
+    url('./bgicons/crown.png') 1x,
+    url('./bgicons/crown@2x.png') 2x
+  );
+  pointer-events:none;
 }
 
 .profile-card{width:100%; background:var(--chip); border-radius:16px; padding:12px; display:grid; gap:8px; border:1px solid rgba(0,0,0,.06)}
