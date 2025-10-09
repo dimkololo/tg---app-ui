@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Пополнить звёзды</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #eaf3ff;
+      text-align: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      display: inline-block;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .title {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 10px 15px;
+      margin: 8px 0;
+      cursor: pointer;
+      transition: 0.2s;
+      background: #f8faff;
+    }
+    .item:hover {
+      background: #ddecff;
+    }
+    .star {
+      color: gold;
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="title">Пополнить</div>
+    <div>Выберите количество звёзд</div>
+
+    <div class="item" onclick="buyStars(25)">⭐ 25 звёзд <span>🌍 25</span></div>
+    <div class="item" onclick="buyStars(75)">⭐ 75 звёзд <span>🌍 75</span></div>
+    <div class="item" onclick="buyStars(100)">⭐ 100 звёзд <span>🌍 100</span></div>
+    <div class="item" onclick="buyStars(250)">⭐ 250 звёзд <span>🌍 250</span></div>
+    <div class="item" onclick="buyStars(750)">⭐ 750 звёзд <span>🌍 750</span></div>
+    <div class="item" onclick="buyStars(1500)">⭐ 1500 звёзд <span>🌍 1500</span></div>
+  </div>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+
+    // "виртуальный баланс" для примера
+    let userStars = 500;
+
+    function buyStars(amount) {
+      tg.showPopup({
+        title: "Подтверждение",
+        message: `Вы хотите купить ${amount} звёзд за ${amount} 🌍?`,
+        buttons: [
+          {id: "yes", type: "default", text: "Да"},
+          {id: "no", type: "cancel", text: "Отмена"}
+        ]
+      }, (buttonId) => {
+        if (buttonId === "yes") {
+          openPaymentWindow(amount);
+        }
+      });
+    }
+
+    function openPaymentWindow(amount) {
+      tg.showConfirm(`Оплатить ${amount} звёзд?`, (ok) => {
+        if (ok) {
+          // Здесь ты можешь вызвать API своего бэкенда, чтобы отправить invoice или обработать оплату
+          tg.showAlert(`✅ Оплата ${amount} звёзд успешно проведена!`);
+        }
+      });
+    }
+  </script>
+</body>
+</html>
