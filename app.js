@@ -170,22 +170,19 @@ function initProfile(){
 
   // Кнопка/плашка премиума + корона
   const setBtn = ()=>{
-    if (window.PLAM.premium){
-      btnPremium.textContent = 'Премиум активен';
-      btnPremium.classList.add('is-owned');
-      btnPremium.disabled = true;
-
-      // корона на аватаре
-      avatarEl.classList.add('has-crown');
-    } else {
-      btnPremium.textContent = 'Получить премиум';
-      btnPremium.classList.remove('is-owned');
-      btnPremium.disabled = false;
-
-      // убрать корону
-      avatarEl.classList.remove('has-crown');
-    }
-  };
+  if (window.PLAM.premium){
+    btnPremium.textContent = 'Премиум активен';
+    btnPremium.classList.add('is-owned');
+    btnPremium.disabled = true;
+    avatarEl.classList.add('has-crown');    // корона остаётся
+  } else {
+    // ВСЕГДА две строки
+    btnPremium.innerHTML = '<span class="btn-premium__label">Получить<br>премиум</span>';
+    btnPremium.classList.remove('is-owned');
+    btnPremium.disabled = false;
+    avatarEl.classList.remove('has-crown');
+  }
+};
   setBtn();
 
 
