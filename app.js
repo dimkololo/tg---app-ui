@@ -1,7 +1,8 @@
-// --- Telegram WebApp ---
-if (window.Telegram && window.Telegram.WebApp) {
-  try { window.Telegram.WebApp.expand(); } catch(e) {}
+if (window.Telegram?.WebApp?.initDataUnsafe?.user?.id) {
+  // временно сбрасываем всё при каждом открытии в Telegram
+  localStorage.removeItem('plam_state_v2');
 }
+
 
 // === Глобальный стейт ========================================================
 const STORAGE_KEY = 'plam_state_v2';
