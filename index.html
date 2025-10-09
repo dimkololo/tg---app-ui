@@ -2,68 +2,53 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
-  />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Plam — WebApp</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <link rel="stylesheet" href="./style.css?v=50" />
+  <link rel="stylesheet" href="./style.css?v=51" />
 </head>
 <body>
   <main class="scene">
     <div class="stage" data-stage>
       <picture>
         <!-- LARGE -->
-        <source
-          media="(min-height: 1024px), (min-width: 768px)"
-          srcset="./bgicons/bg-large.png 1x, ./bgicons/bg-large@2x.png 2x"
-        />
+        <source media="(min-height:1024px),(min-width:768px)"
+                srcset="./bgicons/bg-large.png 1x, ./bgicons/bg-large@2x.png 2x" />
         <!-- SMALL -->
-        <source
-          media="(max-width: 360px), (max-height: 640px)"
-          srcset="./bgicons/bg-small.png 1x, ./bgicons/bg-small@2x.png 2x"
-        />
-        <!-- MEDIUM (default) -->
-        <img
-          class="stage__img"
-          alt="Main background"
-          src="./bgicons/bg-medium.png"
-          srcset="./bgicons/bg-medium.png 1x, ./bgicons/bg-medium@2x.png 2x"
-        />
+        <source media="(max-width:360px),(max-height:640px)"
+                srcset="./bgicons/bg-small.png 1x, ./bgicons/bg-small@2x.png 2x" />
+        <!-- MEDIUM -->
+        <img class="stage__img" alt="Main background"
+             src="./bgicons/bg-medium.png"
+             srcset="./bgicons/bg-medium.png 1x, ./bgicons/bg-medium@2x.png 2x" />
       </picture>
 
       <!-- Хот-споты -->
-      <button
-        class="hotspot hotspot--stump"
-        data-open-modal="upload-popup"
-        aria-label="Открыть попап загрузки"
-      ></button>
+      <button class="hotspot hotspot--stump"
+              data-open-modal="upload-popup"
+              aria-label="Открыть попап загрузки"></button>
 
-      <!-- Плюс-облако отдельным слоем с индикатором баланса -->
-      <button
-        class="hotspot hotspot--plus"
-        data-open-modal="buy-stars"
-        aria-label="Открыть попап звёзд"
-      >
+      <!-- Облако «плюс» с балансом -->
+      <button class="hotspot hotspot--plus"
+              data-open-modal="buy-stars"
+              aria-label="Открыть попап обмена звёзд">
         <span class="plus-ui" aria-hidden="true">
-    <span id="plusValue" class="plus-value">0</span>
-    <img class="plus-currency"
-         src="./bgicons/earth-item.png"
-         srcset="./bgicons/earth-item.png 1x, ./bgicons/earth-item@2x.png 2x"
-         alt="">
+          <span id="plusValue" class="plus-value">0</span>
+          <img class="plus-currency"
+               src="./bgicons/earth-item.png"
+               srcset="./bgicons/earth-item.png 1x, ./bgicons/earth-item@2x.png 2x"
+               alt="">
         </span>
       </button>
 
-      <button
-        class="hotspot hotspot--gift"
-        data-open-modal="prizes"
-        aria-label="Открыть попап призов"
-      ></button>
+      <button class="hotspot hotspot--gift"
+              data-open-modal="prizes"
+              aria-label="Открыть попап призов"></button>
 
       <button class="hotspot hotspot--notebook"
-        data-open-modal="profile-popup"
-        aria-label="Открыть профиль"></button>
+              data-open-modal="profile"
+              aria-label="Открыть профиль"></button>
     </div>
   </main>
 
@@ -92,7 +77,6 @@
         </div>
       </div>
 
-
       <form class="card form-card" data-upload-form novalidate>
         <input class="field" type="url" name="social" placeholder="...add your social media link" />
         <textarea class="field" name="desc" rows="3" placeholder="...add a description"></textarea>
@@ -101,25 +85,22 @@
     </section>
   </template>
 
-  <!-- Попап 2: покупка PLAMc -->
+  <!-- Попап 2: обмен / покупка PLAMc -->
   <template id="tpl-buy-stars">
     <section class="popup shop-popup">
       <div class="chip shop-header">
-        <img
-          class="shop-header__icon"
-          src="./bgicons/star-header.png"
-          srcset="./bgicons/star-header.png 1x, ./bgicons/star-header@2x.png 2x"
-          alt=""
-        />
+        <img class="shop-header__icon"
+             src="./bgicons/star-header.png"
+             srcset="./bgicons/star-header.png 1x, ./bgicons/star-header@2x.png 2x" alt="">
         <h3 class="shop-title">Обменять</h3>
-        <p class="shop-subtitle">Выберите количество звезд</p>
+        <p class="shop-subtitle">Выберите количество звёзд</p>
       </div>
 
       <div class="shop-list">
         <button class="chip shop-item" type="button" data-amount="25">
           <span class="shop-item__left">
             <img src="./bgicons/star-item.png" srcset="./bgicons/star-item.png 1x, ./bgicons/star-item@2x.png 2x" alt="">
-            <span>25 звезд</span>
+            <span>25 звёзд</span>
           </span>
           <span class="shop-item__right">
             <span class="shop-num">25 PLAMc</span>
@@ -130,7 +111,7 @@
         <button class="chip shop-item" type="button" data-amount="75">
           <span class="shop-item__left">
             <img src="./bgicons/star-item.png" srcset="./bgicons/star-item.png 1x, ./bgicons/star-item@2x.png 2x" alt="">
-            <span>75 звезд</span>
+            <span>75 звёзд</span>
           </span>
           <span class="shop-item__right">
             <span class="shop-num">75 PLAMc</span>
@@ -141,7 +122,7 @@
         <button class="chip shop-item" type="button" data-amount="100">
           <span class="shop-item__left">
             <img src="./bgicons/star-item.png" srcset="./bgicons/star-item.png 1x, ./bgicons/star-item@2x.png 2x" alt="">
-            <span>100 звезд</span>
+            <span>100 звёзд</span>
           </span>
           <span class="shop-item__right">
             <span class="shop-num">100 PLAMc</span>
@@ -152,7 +133,7 @@
         <button class="chip shop-item" type="button" data-amount="250">
           <span class="shop-item__left">
             <img src="./bgicons/star-item.png" srcset="./bgicons/star-item.png 1x, ./bgicons/star-item@2x.png 2x" alt="">
-            <span>250 звезд</span>
+            <span>250 звёзд</span>
           </span>
           <span class="shop-item__right">
             <span class="shop-num">250 PLAMc</span>
@@ -163,7 +144,7 @@
         <button class="chip shop-item" type="button" data-amount="750">
           <span class="shop-item__left">
             <img src="./bgicons/star-item.png" srcset="./bgicons/star-item.png 1x, ./bgicons/star-item@2x.png 2x" alt="">
-            <span>750 звезд</span>
+            <span>750 звёзд</span>
           </span>
           <span class="shop-item__right">
             <span class="shop-num">750 PLAMc</span>
@@ -174,7 +155,7 @@
         <button class="chip shop-item" type="button" data-amount="1500">
           <span class="shop-item__left">
             <img src="./bgicons/star-item.png" srcset="./bgicons/star-item.png 1x, ./bgicons/star-item@2x.png 2x" alt="">
-            <span>1500 звезд</span>
+            <span>1500 звёзд</span>
           </span>
           <span class="shop-item__right">
             <span class="shop-num">1500 PLAMc</span>
@@ -203,71 +184,56 @@
   </template>
 
   <!-- Попап 4: профиль -->
-  <template id="tpl-profile-popup">
-  <section class="popup profile-popup">
+  <template id="tpl-profile">
+    <section class="popup profile-popup">
 
-    <!-- Верхняя плашка -->
-    <div class="profile-header chip">
-      <div class="avatar" data-avatar></div>
+      <div class="profile-header chip">
+        <div class="avatar" data-avatar></div>
 
-      <!-- Ник в плашке -->
-      <div class="username-chip" data-username>@tg profile</div>
+        <div class="username-chip" data-username>@tg profile</div>
 
-      <!-- Ряд: кнопка + знак вопроса -->
-      <div class="premium-row" data-premium-row>
-        <button class="btn-premium" type="button" data-premium-btn>
-          Получить премиум
-        </button>
-        <button class="help-btn" type="button" data-help aria-label="Что дает премиум">?</button>
+        <!-- ряд до покупки -->
+        <div class="premium-row" data-premium-row>
+          <button class="btn-premium" type="button" data-premium-btn>Получить премиум</button>
+          <button class="help-btn" type="button" data-help aria-label="Что даёт премиум">?</button>
+        </div>
+
+        <!-- после покупки -->
+        <div class="premium-chip" data-premium-chip hidden>
+          <div class="premium-title">Премиум активирован</div>
+          <div class="premium-timer" data-premium-timer>30 д 00:00</div>
+        </div>
+
+        <img class="crown" data-crown hidden
+             src="./bgicons/crown.png"
+             srcset="./bgicons/crown.png 1x, ./bgicons/crown@2x.png 2x" alt="">
       </div>
 
-      <!-- Плашка «Премиум активирован» + таймер -->
-      <div class="premium-chip" data-premium-chip hidden>
-        <div class="premium-title">Премиум активирован</div>
-        <div class="premium-timer" data-premium-timer>30 д 00:00</div>
+      <div class="profile-card">
+        <div class="row">
+          <div class="label-left">Количество фото:</div>
+          <span class="pill pill-orange" data-photos-count>0</span>
+        </div>
+        <p class="hint">Количество фото влияет на время их отображения. 100 фото = +1 секунда</p>
       </div>
 
-      <!-- Корона (показываем только при премиуме) -->
-      <img class="crown" data-crown hidden
-           src="./bgicons/crown.png"
-           srcset="./bgicons/crown.png 1x, ./bgicons/crown@2x.png 2x"
-           alt="">
-    </div>
-
-    <!-- Количество фото -->
-    <div class="profile-card">
-      <div class="row">
-        <div class="label-left">Количество фото:</div>
-        <span class="pill pill-orange" data-photos-count>0</span>
+      <div class="profile-card">
+        <div class="row">
+          <div class="label-left">Время показа фото:</div>
+          <div class="val-right" data-photo-time>20 сек</div>
+        </div>
       </div>
-      <p class="hint">
-        Количество фото влияет на время их отображения. 100 фото = +1 секунда
-      </p>
-    </div>
 
-    <!-- Время показа -->
-    <div class="profile-card">
-      <div class="row">
-        <div class="label-left">Время показа фото:</div>
-        <div class="val-right" data-photo-time>20 сек</div>
+      <div class="profile-help" data-help-sheet hidden>
+        <div class="help-inner">
+          <h3>О премиуме</h3>
+          <p>Рыбный текст. Здесь будет описание преимуществ, условий и стоимости премиум-статуса.</p>
+          <button class="btn-confirm yes" type="button" data-help-close>Понятно</button>
+        </div>
       </div>
-    </div>
 
-    <!-- Внутренний оверлей-подсказка -->
-    <div class="profile-help" data-help-sheet hidden>
-      <div class="help-inner">
-        <h3>О премиуме</h3>
-        <p>
-          Рыбный текст. Здесь будет описание преимуществ, условий и стоимости
-          премиум-статуса.
-        </p>
-        <button class="btn-confirm yes" type="button" data-help-close>Понятно</button>
-      </div>
-    </div>
-
-  </section>
-</template>
-
+    </section>
+  </template>
 
   <!-- Подтверждение премиума -->
   <template id="tpl-confirm-premium">
@@ -276,12 +242,12 @@
         <p class="confirm-text">Вы хотите получить премиум на 30 дней за 1500 PLAMc?</p>
         <div class="confirm-actions">
           <button class="btn-confirm yes" type="button" data-confirm-yes>Да</button>
-          <button class="btn-confirm no" type="button" data-dismiss>Нет</button>
+          <button class="btn-confirm no"  type="button" data-dismiss>Нет</button>
         </div>
       </div>
     </section>
   </template>
 
-  <script src="./app.js?v=50"></script>
+  <script src="./app.js?v=51"></script>
 </body>
 </html>
