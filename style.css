@@ -335,7 +335,7 @@ html,body{
    чтобы "?" помещался внутри колонки и не обрезался. */
 .profile-header .btn-premium{
   grid-column:2; grid-row:2;
-  justify-self:end;                   /* выровнять по правому краю */
+  justify-self:start;                   /* выровнять по левому краю */
   max-width:calc(100% - 28px);        /* 20px кружок + 8px gap */
   position:relative;
   display:flex; align-items:center; justify-content:center; text-align:center;
@@ -349,27 +349,37 @@ html,body{
 .btn-premium__label{ display:inline-block; line-height:1.05; }
 
 
-/* «?» — ОТДЕЛЬНЫЙ кружок справа от кнопки, gap = 8px */
+/* «?» ОТДЕЛЬНО от кнопки, в выделенном справа месте (gap 8px) */
 .profile-header .btn-premium::after{
   content:'?';
   position:absolute;
-  left:100%; top:50%;
-  transform:translate(8px, -50%);
-  width:20px; height:20px; border-radius:50%;
-  background:#D9D9D9; color:#000; font-weight:800; font-size:13px;
-  display:flex; align-items:center; justify-content:center;
+  left:100%;
+  top:50%;
+  transform:translate(8px,-50%);     /* gap = 8px */
+  width:20px; 
+  height:20px; 
+  border-radius:50%;
+  background:#D9D9D9; 
+  color:#000; 
+  font-weight:800; 
+  font-size:13px;
+  display:flex; 
+  align-items:center; 
+  justify-content:center;
   pointer-events:none;
 }
 
 /* Состояния */
 .btn-premium[disabled]{background:#D9D9D9; color:#777; cursor:not-allowed}
 
-/* При активном премиуме — плашка, полная ширина, без "?" */
+/* Когда премиум активен — плашка на всю ширину правой колонки, без «?» */
 .btn-premium.is-owned{
-  justify-self:stretch;         /* ширина как у плашки ника */
-  max-width:100%;
-  background:#D9D9D9; color:#000; cursor:default;
-  padding:10px 18px;            /* симметричное центрирование текста */
+  justify-self:stretch;
+  width:100%;                         /* ← вернули всю ширину */
+  background:#D9D9D9; 
+  color:#000; 
+  cursor:default;
+  padding:10px 18px;
 }
 .btn-premium.is-owned::after{ display:none; }
 
