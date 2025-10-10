@@ -92,10 +92,17 @@
 <template id="tpl-upload-popup">
   <section class="popup upload-popup">
     <div class="u-center">
-      <label class="btn-pick" for="file-input">Выбрать фото</label>
-      <!-- ВАЖНО: одно фото -->
-      <input id="file-input" type="file" accept="image/*" hidden />
-    </div>
+  <div class="pick-wrap">
+    <button class="btn-pick" type="button">Выбрать фото</button>
+    <!-- ВАЖНО: без hidden, без display:none -->
+    <input id="file-input"
+           class="file-input-overlay"
+           type="file"
+           accept="image/*"
+           capture="environment" />
+  </div>
+</div>
+
 
     <!-- ПРЕДПРОСМОТР (между кнопкой и слайдером) -->
     <div class="picked-box" data-picked>
