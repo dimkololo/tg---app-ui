@@ -78,6 +78,16 @@
     </div>
   </div>
 
+  <!-- ВТОРОЙ СЛОЙ МОДАЛКИ (для таймера и пр.) -->
+<div class="modal modal--stack" data-modal-stack hidden aria-hidden="true">
+  <div class="modal__backdrop" data-dismiss-stack></div>
+  <div class="modal__dialog" role="dialog" aria-modal="true">
+    <button class="modal__close" type="button" aria-label="Закрыть" data-dismiss-stack>×</button>
+    <div class="modal__content" data-stack-content></div>
+  </div>
+</div>
+
+
   <!-- Попап 1: загрузка фото -->
   <template id="tpl-upload-popup">
     <section class="popup upload-popup">
@@ -236,7 +246,8 @@
         <h3 class="timer-title">Премиум активен</h3>
         <div class="timer-remaining" data-remaining>30д. 0ч. 0мин.</div>
         <p class="timer-note">Обратный отсчёт до окончания подписки</p>
-        <div class="u-center"><button class="btn-close-timer" type="button" data-dismiss>Ок</button></div>
+        <div class="u-center"><button class="btn-close-timer" type="button" data-dismiss-stack>Ок</button>
+</div>
       </div>
     </section>
   </template>
