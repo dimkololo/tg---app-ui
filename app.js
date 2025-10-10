@@ -4,7 +4,7 @@ if (window.Telegram && window.Telegram.WebApp) {
 }
 
 // --- Глобальный state ---
-window.PLAM = window.PLAM || { balance: 0, premium: false, photoCount: 0, premiumUntil: null };
+window.PLAM = window.PLAM || { balance: 0, premium: false, photoCount: 0, premiumUntil: null, subsOk: false };
 
 // --- Автозакрытие через 15 минут (анти-автозагрузка/макросы) ---
 (function setupAutoClose(){
@@ -78,6 +78,8 @@ function openStack(id){
 
   if (id === 'premium-timer')   initPremiumTimer();
   if (id === 'confirm-premium') initConfirmPremium();   // ← добавь это
+  if (id === 'subs-required')  initSubsRequired();
+
 }
 
 
@@ -177,7 +179,6 @@ function initUploadPopup(){
   const root = modalRoot.querySelector('.upload-popup');
   if (!root) return;
 
-  // файл
   const fileInput = root.querySelector('#file-input');
   root.querySelector('.btn-pick')?.addEventListener('click', ()=>fileInput?.click());
 
@@ -194,6 +195,15 @@ function initUploadPopup(){
     range.addEventListener('input', update);
     update();
   }
+
+  // Кнопка отправки — активна только когда: есть файлы и пройдена подписка
+  const submitBtn = root.querySelector('[data-submit]');
+  const updateSubmitState = ()=>{
+    const hasFiles = fileInput?.files && fileInput.files.length > 0;
+    submitBtn.disabled = !(hasFiles && window.PLAM.subsOk === true);
+  };
+  fileInput?.addEventListener('change', updateSubmitState);
+  updateSubmitState();
 
    // ===== Счётчики символов =====
   const bindCounter = (el)=>{
@@ -221,16 +231,41 @@ function initUploadPopup(){
   }
 
   // отправка
-  const form = root.querySelector('[data-upload-form]');
-  form?.addEventListener('submit', (e)=>{
-    e.preventDefault();
+  // ====== ОТПРАВКА ======
+const form = root.querySelector('[data-upload-form]');
+const fileInput  = root.querySelector('#file-input');
+const submitBtn  = root.querySelector('[data-submit]');
 
-    const range   = root.querySelector('.range');
-    const need = parseInt(range?.value || '0', 10) || 0;
+// helper: активность кнопки "Отправить"
+const updateSubmitState = ()=>{
+  const hasFiles = fileInput?.files && fileInput.files.length > 0;
+  submitBtn.disabled = !(hasFiles && window.PLAM.subsOk === true);
+};
+fileInput?.addEventListener('change', updateSubmitState);
+updateSubmitState();
 
-    // проверка баланса (как было)
-    if (need > 0 && (window.PLAM.balance||0) <= 0) { alert('Недостаточно PLAMc'); return; }
-    if (need > (window.PLAM.balance||0))          { alert('Недостаточно PLAMc'); return; }
+form?.addEventListener('submit', (e)=>{
+  e.preventDefault();
+
+  // 1) Должен быть выбран хотя бы 1 файл
+  const filesCount = fileInput?.files?.length || 0;
+  if (filesCount === 0){
+    updateSubmitState();
+    return;
+  }
+
+  // 2) Если подписка ещё не подтверждена — открываем попап и выходим
+  if (!window.PLAM.subsOk){
+    openStack('subs-required');
+    return;
+  }
+
+    // 3) Проверка баланса по слайдеру
+  const range = root.querySelector('.range');
+  const need = parseInt(range?.value || '0', 10) || 0;
+
+  if (need > 0 && (window.PLAM.balance||0) <= 0) { alert('Недостаточно PLAMc'); return; }
+  if (need > (window.PLAM.balance||0))          { alert('Недостаточно PLAMc'); return; }
 
     // проверка URL
     const link = urlInput?.value.trim();
@@ -239,13 +274,62 @@ function initUploadPopup(){
       urlInput.focus();
       return;
     }
+// 4) Списываем и обновляем валюту
+  window.PLAM.balance -= need;
+  updatePlusBalanceUI();
 
-    // списываем и закрываем
-    window.PLAM.balance -= need;
-    updatePlusBalanceUI();
-    closeModal();
+  // 5) Увеличиваем счётчик фото
+  window.PLAM.photoCount = (window.PLAM.photoCount || 0) + filesCount;
+
+  // 6) Если профиль открыт — обновим UI (секунды + количество)
+  if (!modalRoot.hidden && modalRoot.querySelector('.profile-popup')){
+    refreshProfileUI?.();
+  }
+
+  // 7) TODO: отправка на сервер/TG
+
+  closeModal();
+});
+}
+
+function initSubsRequired(){
+  const root = stackRoot.querySelector('.subs-popup');
+  if (!root) return;
+
+  let clickedYT = false;
+  let clickedTG = false;
+
+  // считаем «кликнутым», если пользователь открыл ссылку
+  root.querySelector('[data-sub-yt]')?.addEventListener('click', ()=>{ clickedYT = true; });
+  root.querySelector('[data-sub-tg]')?.addEventListener('click', ()=>{ clickedTG = true; });
+
+  const btnCheck = root.querySelector('[data-check-subs]');
+
+  btnCheck?.addEventListener('click', async ()=>{
+    // В реале: вызвать бэкенд, который проверит подписку через бота (getChatMember).
+    // Здесь — фронтенд-демо: считаем ок, если обе ссылки открывали.
+    if (!clickedYT || !clickedTG){
+      try { window.Telegram?.WebApp?.showAlert?.('Откройте обе ссылки и подпишитесь.'); } catch(_) {}
+      return;
+    }
+
+    // Условие выполнено
+    window.PLAM.subsOk = true;
+    btnCheck.textContent = 'Спасибо';
+    btnCheck.classList.add('is-ok');
+    btnCheck.disabled = true;
+
+    // Обновим состояние кнопки "Отправить" в открытом попапе загрузки
+    const uploadRoot = modalRoot.querySelector('.upload-popup');
+    if (uploadRoot){
+      const fileInput = uploadRoot.querySelector('#file-input');
+      const submitBtn = uploadRoot.querySelector('[data-submit]');
+      const hasFiles = fileInput?.files && fileInput.files.length > 0;
+      if (submitBtn) submitBtn.disabled = !(hasFiles && window.PLAM.subsOk === true);
+    }
   });
 }
+
 
 // --- Попап 2: магазин ---
 function initBuyStars(){
