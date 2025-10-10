@@ -159,24 +159,54 @@ function initUploadPopup(){
     update();
   }
 
+   // ===== Счётчики символов =====
+  const bindCounter = (el)=>{
+    if (!el) return;
+    const id = el.getAttribute('data-counter');
+    const box = root.querySelector(`[data-counter-for="${id}"]`);
+    const max = Number(el.getAttribute('maxlength')) || 0;
+    const update = ()=>{
+      const len = el.value.length;
+      if (box) box.textContent = `${len} / ${max}`;
+    };
+    el.addEventListener('input', update);
+    update();
+  };
+  bindCounter(root.querySelector('[data-counter="link"]'));
+  bindCounter(root.querySelector('[data-counter="desc"]'));
+
+  // ===== Мягкая валидация ссылки =====
+  const urlInput = root.querySelector('input[name="social"]');
+  function isValidUrlLike(v){
+    if (!v) return true; // поле необязательное — пусто ок
+    const tme = /^https?:\/\/t\.me\/.+/i;
+    const http = /^https?:\/\/.+/i;
+    return tme.test(v) || http.test(v);
+  }
+
   // отправка
-  root.querySelector('[data-upload-form]')?.addEventListener('submit', (e)=>{
+  const form = root.querySelector('[data-upload-form]');
+  form?.addEventListener('submit', (e)=>{
     e.preventDefault();
-    const need = parseInt(range.value || '0', 10) || 0;
 
-    if (need > 0 && (window.PLAM.balance||0) <= 0) {
-      alert('Недостаточно PLAMc');
+    const range   = root.querySelector('.range');
+    const need = parseInt(range?.value || '0', 10) || 0;
+
+    // проверка баланса (как было)
+    if (need > 0 && (window.PLAM.balance||0) <= 0) { alert('Недостаточно PLAMc'); return; }
+    if (need > (window.PLAM.balance||0))          { alert('Недостаточно PLAMc'); return; }
+
+    // проверка URL
+    const link = urlInput?.value.trim();
+    if (link && !isValidUrlLike(link)){
+      alert('Ссылка должна начинаться с http:// или https:// (поддерживается и https://t.me/...)');
+      urlInput.focus();
       return;
     }
-    if (need > (window.PLAM.balance||0)) {
-      alert('Недостаточно PLAMc');
-      return;
-    }
 
+    // списываем и закрываем
     window.PLAM.balance -= need;
     updatePlusBalanceUI();
-
-    // TODO: отправка на сервер/TG
     closeModal();
   });
 }
