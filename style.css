@@ -568,13 +568,20 @@ html,body{
   background:#fff; color:#000; font-weight:800; line-height:1;
   box-shadow:0 2px 6px rgba(0,0,0,.2);
 }
-/* Обёртка и инпут поверх кнопки — строгая ширина по кнопке */
+/* Центрированная обёртка под кнопку выбора файла */
 .pick-wrap{
   position: relative;
-  display: inline-block;
-  width: max-content;      /* ширина = содержимому (кнопке) */
-  margin-inline: auto;     /* на всякий случай */
+  display: block;
+  width: clamp(206px, 90%, 360px); /* такая же логика ширины, как у кнопки */
+  margin-inline: auto;             /* по центру */
 }
+
+/* Кнопка внутри обёртки всегда на всю её ширину */
+.pick-wrap .btn-pick{
+  width: 100%;
+}
+
+/* Невидимый, но кликабельный инпут поверх кнопки */
 .file-input-overlay{
   position: absolute;
   inset: 0;
@@ -583,8 +590,9 @@ html,body{
   opacity: 0;
   cursor: pointer;
   -webkit-appearance: none;
-  border-radius: inherit;  /* повторяем скругление кнопки */
+  border-radius: inherit;
 }
+
 
 
 
