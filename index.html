@@ -106,10 +106,26 @@
       </div>
 
       <form class="card form-card" data-upload-form novalidate>
-        <input class="field" type="url" name="social" placeholder="...add your social media link" />
-        <textarea class="field" name="desc" rows="3" placeholder="...add a description"></textarea>
-        <div class="u-center"><button class="btn-submit" type="submit">Отправить</button></div>
-      </form>
+  <div class="field-wrap">
+    <input class="field" type="url" name="social"
+           placeholder="...add your social media link"
+           inputmode="url"
+           maxlength="255"
+           data-counter="link" />
+    <div class="field-counter" data-counter-for="link">0 / 255</div>
+  </div>
+
+  <div class="field-wrap">
+    <textarea class="field" name="desc" rows="3"
+              placeholder="...add a description"
+              maxlength="220"
+              data-counter="desc"></textarea>
+    <div class="field-counter" data-counter-for="desc">0 / 160</div>
+  </div>
+
+  <div class="u-center"><button class="btn-submit" type="submit">Отправить</button></div>
+</form>
+
     </section>
   </template>
 
