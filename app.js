@@ -236,7 +236,7 @@ function initUploadPopup(){
     const update = () => {
       const v = Number(range.value);
       starsEl.textContent = `${v} PLAMc`;
-      secsEl.textContent  = (v === 0) ? '0 sec' : `+${v} sec`;
+      secsEl.textContent  = (v === 0) ? '0 сек' : `+${v} сек`;
     };
     range.addEventListener('input', update);
     update();
