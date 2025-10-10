@@ -509,6 +509,24 @@ html,body{
   color:#000;
 }
 
+/* ===== Попап обязательной подписки ===== */
+.subs-popup{width:100%; max-width:420px; display:grid; gap:14px}
+.subs-card{width:100%; background:var(--chip); border-radius:16px; padding:16px; display:grid; gap:12px; border:1px solid rgba(0,0,0,.06)}
+.subs-title{margin:0; text-align:center; color:#000; font-weight:800; font-size:18px}
+.subs-sub{margin:0; text-align:center; color:#000; opacity:.85; font-size:14px}
+.subs-links{display:grid; gap:10px}
+.btn-link{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:100%; height:44px; border-radius:14px; text-decoration:none;
+  background:#fff; color:#000; font-weight:800; border:1px solid rgba(0,0,0,.08);
+}
+.btn-check{
+  display:inline-flex; align-items:center; justify-content:center;
+  min-width:200px; height:44px; border-radius:35px; border:0; cursor:pointer;
+  background:#FF7300; color:#fff; font-weight:800; font-size:16px;
+}
+.btn-check.is-ok{ background:#14ae5c; } /* зелёная после успешной проверки */
+.subs-note{margin:0; text-align:center; color:#000; opacity:.7; font-size:12px}
 
 
 /* ====== DEBUG (включай <body class="__debug">) ====== */
