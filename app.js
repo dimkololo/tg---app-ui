@@ -165,7 +165,7 @@ function initProfile(){
       avatarEl.classList.add('has-crown');
     } else {
       // всегда две строки, центр
-      btnPremium.innerHTML = '<span class="btn-premium__label">Получить<br>премиум</span>';
+      btnPremium.textContent = 'Получить премиум';
       btnPremium.classList.remove('is-owned');
       btnPremium.disabled = false;
       avatarEl.classList.remove('has-crown');
