@@ -345,9 +345,6 @@ html,body{
   background:#FF7300; color:#fff; font-weight:800; font-size:15px; line-height:1.1;
 }
 
-/* двухстрочный текст внутри */
-.btn-premium__label{ display:inline-block; line-height:1.05; }
-
 
 /* «?» ОТДЕЛЬНО от кнопки, в выделенном справа месте (gap 8px) */
 .profile-header .btn-premium::after{
