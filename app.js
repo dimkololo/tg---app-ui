@@ -234,6 +234,7 @@ btnPremium.addEventListener('click', ()=>{
     openModal('confirm-premium');
   }
 });
+}  
 
 
 // --- Подтверждение покупки премиума ---
@@ -257,6 +258,7 @@ function initConfirmPremium(){
   closeModal();
   openModal('profile');
 });
+} 
 
 // --- DEBUG хот-спотов: ?debug=1 в URL или Shift+D ---
 (function debugHotspots(){
