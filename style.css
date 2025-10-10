@@ -396,5 +396,58 @@ html,body{
 .btn-confirm.yes{background:#FF7300; color:#fff}
 .btn-confirm.no{background:#C7C4C4; color:#000}
 
+/* ====== Попап таймера премиума ====== */
+.timer-popup{width:100%; max-width:420px; display:grid; gap:14px}
+
+.timer-card{
+  width:100%;
+  background:var(--chip);
+  border-radius:16px;
+  padding:16px;
+  display:grid;
+  gap:12px;
+  border:1px solid rgba(0,0,0,.06);
+}
+
+.timer-title{
+  margin:0;
+  text-align:center;
+  color:#000;
+  font-weight:800;
+  font-size:18px;
+}
+
+.timer-remaining{
+  text-align:center;
+  color:#000;
+  font-weight:900;
+  font-size:28px;
+  line-height:1;
+}
+
+.timer-note{
+  margin:0;
+  text-align:center;
+  color:#000;
+  opacity:.75;
+  font-size:12px;
+}
+
+.btn-close-timer{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:160px;
+  height:44px;
+  border-radius:35px;
+  border:0;
+  cursor:pointer;
+  background:#FF7300;
+  color:#fff;
+  font-weight:800;
+  font-size:16px;
+}
+
+
 /* ====== DEBUG (включай <body class="__debug">) ====== */
 body.__debug .hotspot{outline:2px dashed rgba(0,200,255,.9); background:rgba(0,200,255,.10)}
