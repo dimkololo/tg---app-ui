@@ -189,6 +189,27 @@ function initUploadPopup(){
   const starsEl     = root.querySelector('[data-stars]');
   const secsEl      = root.querySelector('[data-secs]');
   const urlInput    = root.querySelector('input[name="social"]');
+  
+  // === счётчики символов ===
+function bindCounter(el){
+  if (!el) return;
+  const id  = el.getAttribute('data-counter');
+  const box = root.querySelector(`[data-counter-for="${id}"]`);
+  const max = Number(el.getAttribute('maxlength')) || 0;
+
+  const update = () => {
+    const len = el.value.length;
+    if (box) box.textContent = `${len} / ${max}`;
+  };
+
+  el.addEventListener('input', update);
+  update(); // первичная отрисовка
+}
+
+// привязываем к полям
+bindCounter(root.querySelector('[data-counter="link"]'));
+bindCounter(root.querySelector('[data-counter="desc"]'));
+
 
   // предпросмотр
   const pickedEmpty = root.querySelector('.picked-empty');
