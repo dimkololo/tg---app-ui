@@ -260,9 +260,9 @@ setBtn();
 
 btnPremium.addEventListener('click', ()=>{
   if (window.PLAM.premium){
-    openStack('premium-timer');   // ← поверх профиля
+    openStack('premium-timer');     // поверх профиля
   } else {
-    openModal('confirm-premium');
+    openStack('confirm-premium');   // ← вместо openModal
   }
 });
 }  
