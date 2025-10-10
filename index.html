@@ -89,44 +89,45 @@
 
 
   <!-- Попап 1: загрузка фото -->
-  <template id="tpl-upload-popup">
-    <section class="popup upload-popup">
+<template id="tpl-upload-popup">
+  <section class="popup upload-popup">
+    <div class="u-center">
+      <label class="btn-pick" for="file-input">Выбрать фото</label>
+      <input id="file-input" type="file" accept="image/*" hidden multiple />
+    </div>
+
+    <div class="card slider-card">
+      <div class="slider-title">Увеличить эфирное время</div>
+      <div class="slider-row">
+        <span class="label" data-stars>0 PLAMc</span>
+        <input class="range" type="range" min="0" max="20" step="1" value="0" />
+        <span class="label" data-secs>0 sec</span>
+      </div>
+    </div>
+
+    <form class="card form-card" data-upload-form novalidate>
+      <div class="field-wrap">
+        <input class="field" type="url" name="social"
+               placeholder="...add your social media link"
+               inputmode="url" maxlength="255"
+               data-counter="link" />
+        <div class="field-counter" data-counter-for="link">0 / 255</div>
+      </div>
+
+      <div class="field-wrap">
+        <textarea class="field" name="desc" rows="3"
+                  placeholder="...add a description"
+                  maxlength="160" data-counter="desc"></textarea>
+        <div class="field-counter" data-counter-for="desc">0 / 160</div>
+      </div>
+
       <div class="u-center">
-        <label class="btn-pick" for="file-input">Выбрать фото</label>
-        <input id="file-input" type="file" accept="image/*" hidden />
+        <button class="btn-submit" type="submit" data-submit disabled>Отправить</button>
       </div>
+    </form>
+  </section>
+</template>
 
-      <div class="card slider-card">
-        <div class="slider-title">Увеличить эфирное время</div>   <!-- ← добавили -->
-        <div class="slider-row">
-          <span class="label" data-stars>0 PLAMc</span>
-          <input class="range" type="range" min="0" max="20" step="1" value="0" />
-          <span class="label" data-secs>0 sec</span>
-        </div>
-      </div>
-
-      <form class="card form-card" data-upload-form novalidate>
-  <input class="field" type="url" name="social" placeholder="...add your social media link" />
-  <textarea class="field" name="desc" rows="3" placeholder="...add a description"></textarea>
-  <div class="u-center">
-    <button class="btn-submit" type="submit" data-submit disabled>Отправить</button>
-  </div>
-</form>
-
-
-  <div class="field-wrap">
-    <textarea class="field" name="desc" rows="3"
-              placeholder="...add a description"
-              maxlength="220"
-              data-counter="desc"></textarea>
-    <div class="field-counter" data-counter-for="desc">0 / 160</div>
-  </div>
-
-  <div class="u-center"><button class="btn-submit" type="submit">Отправить</button></div>
-</form>
-
-    </section>
-  </template>
 
   <!-- Попап 2: покупка PLAMc -->
   <template id="tpl-buy-stars">
