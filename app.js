@@ -181,18 +181,46 @@ function initUploadPopup(){
   if (!root) return;
 
   // элементы
-  const fileInput  = root.querySelector('#file-input');
-  const submitBtn  = root.querySelector('[data-submit]');
-  const form       = root.querySelector('[data-upload-form]');
-  const range      = root.querySelector('.range');
-  const starsEl    = root.querySelector('[data-stars]');
-  const secsEl     = root.querySelector('[data-secs]');
-  const urlInput   = root.querySelector('input[name="social"]');
+  const fileInput   = root.querySelector('#file-input');
+  const btnPick     = root.querySelector('.btn-pick');
+  const submitBtn   = root.querySelector('[data-submit]');
+  const form        = root.querySelector('[data-upload-form]');
+  const range       = root.querySelector('.range');
+  const starsEl     = root.querySelector('[data-stars]');
+  const secsEl      = root.querySelector('[data-secs]');
 
-  // кнопка выбора файла
-  root.querySelector('.btn-pick')?.addEventListener('click', ()=>fileInput?.click());
+  // предпросмотр
+  const pickedEmpty = root.querySelector('.picked-empty');
+  const pickedItem  = root.querySelector('.picked-item');
+  const pickedImg   = root.querySelector('[data-picked-img]');
+  const removeBtn   = root.querySelector('[data-remove-photo]');
 
-  // слайдер
+  // ——— выбор файла (только ОДИН) + показ превью
+  let objectUrl = null;
+  function showPreview(file){
+    // гасим прежний blob урл
+    if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = null; }
+    if (!file){ 
+      pickedItem.hidden = true; pickedEmpty.style.display = 'block';
+      pickedImg.src = ''; return;
+    }
+    objectUrl = URL.createObjectURL(file);
+    pickedImg.src = objectUrl;
+    pickedEmpty.style.display = 'none';
+    pickedItem.hidden = false;
+  }
+  btnPick?.addEventListener('click', ()=>fileInput?.click());
+  fileInput?.addEventListener('change', ()=>{
+    const f = fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+    showPreview(f);
+  });
+  removeBtn?.addEventListener('click', ()=>{
+    fileInput.value = '';               // сброс выбора
+    showPreview(null);
+  });
+  showPreview(null);                    // стартовое состояние
+
+  // ——— слайдер
   if (range && starsEl && secsEl) {
     const update = () => {
       const v = Number(range.value);
@@ -203,51 +231,34 @@ function initUploadPopup(){
     update();
   }
 
-  // счётчики символов (если ты добавляла data-counter в HTML)
-  const bindCounter = (el)=>{
-    if (!el) return;
-    const id  = el.getAttribute('data-counter');
-    const box = root.querySelector(`[data-counter-for="${id}"]`);
-    const max = Number(el.getAttribute('maxlength')) || 0;
-    const upd = ()=>{ box && (box.textContent = `${el.value.length} / ${max}`); };
-    el.addEventListener('input', upd); upd();
-  };
-  bindCounter(root.querySelector('[data-counter="link"]'));
-  bindCounter(root.querySelector('[data-counter="desc"]'));
-
-  // валидация URL (мягкая)
+  // ——— мягкая валидация URL
+  const urlInput = root.querySelector('input[name="social"]');
   function isValidUrlLike(v){
     if (!v) return true;
-    const tme  = /^https?:\/\/t\.me\/.+/i;
+    const tme = /^https?:\/\/t\.me\/.+/i;
     const http = /^https?:\/\/.+/i;
     return tme.test(v) || http.test(v);
   }
 
-  // активность кнопки "Отправить" — файлы + подписка
-  const updateSubmitState = ()=>{
-    const hasFiles = fileInput?.files && fileInput.files.length > 0;
-    submitBtn.disabled = !(hasFiles && window.PLAM.subsOk === true);
-  };
-  fileInput?.addEventListener('change', updateSubmitState);
-  updateSubmitState();
-
-  // отправка
+  // ——— отправка
   form?.addEventListener('submit', (e)=>{
     e.preventDefault();
 
-    // 1) должны быть выбраны файлы
-    const filesCount = fileInput?.files?.length || 0;
-    if (filesCount === 0){ updateSubmitState(); return; }
+    const file = fileInput?.files?.[0] || null;
+    const filesCount = file ? 1 : 0;
 
-    // 2) если подписка не подтверждена — открываем попап в стеке
-    if (!window.PLAM.subsOk){ openStack('subs-required'); return; }
+    // если файла нет и подписка ещё не подтверждена — сначала подписка
+    if (!file && !window.PLAM.subsOk){
+      openStack('subs-required');
+      return;
+    }
+    // если файла нет, но подписка уже подтверждена — попросим выбрать фото
+    if (!file && window.PLAM.subsOk){
+      try { window.Telegram?.WebApp?.showAlert?.('Прикрепите фото'); } catch(_) {}
+      return;
+    }
 
-    // 3) проверка баланса по слайдеру
-    const need = parseInt(range?.value || '0', 10) || 0;
-    if (need > 0 && (window.PLAM.balance||0) <= 0) { alert('Недостаточно PLAMc'); return; }
-    if (need > (window.PLAM.balance||0))          { alert('Недостаточно PLAMc'); return; }
-
-    // 4) проверка url
+    // проверка URL
     const link = urlInput?.value.trim();
     if (link && !isValidUrlLike(link)){
       alert('Ссылка должна начинаться с http:// или https:// (поддерживается и https://t.me/...)');
@@ -255,22 +266,31 @@ function initUploadPopup(){
       return;
     }
 
-    // 5) списываем валюту
+    // проверка баланса по слайдеру
+    const need = parseInt(range?.value || '0', 10) || 0;
+    if (need > 0 && (window.PLAM.balance||0) <= 0) { alert('Недостаточно PLAMc'); return; }
+    if (need > (window.PLAM.balance||0))          { alert('Недостаточно PLAMc'); return; }
+
+    // списание
     window.PLAM.balance -= need;
     updatePlusBalanceUI();
 
-    // 6) увеличиваем счётчик фото
+    // счетчики фото (+1 за отправку, т.к. ровно одно фото)
     window.PLAM.photoCount = (window.PLAM.photoCount || 0) + filesCount;
 
-    // 7) если профиль открыт — обновим плашки
+    // если профиль открыт — обновим плашки
     if (!modalRoot.hidden && modalRoot.querySelector('.profile-popup')){
       refreshProfileUI?.();
     }
 
-    // 8) TODO: реальная отправка
+    // TODO: реальная отправка file/link/desc на сервер
+
+    // очистка превью и закрытие
+    showPreview(null);
     closeModal();
   });
 }
+
 
 
 function initSubsRequired(){
