@@ -175,10 +175,10 @@ html,body{
   }
 
   :root{
-    --plus-font-m:20px;
+    --plus-font-m:18px;
     --plus-icon-m:24px;
-    --plus-gap-m:6px;
-    --plus-padleft-m:70px;
+    --plus-gap-m:0px;
+    --plus-padleft-m:60px;
   }
 }
 
