@@ -301,7 +301,7 @@ html,body{
 .profile-header .avatar.has-crown::before{
   content:'';
   position:absolute;
-  top:-50px; left:14px;
+  top:-50px; left:24px;
   width:100px; aspect-ratio:1.45;
   background:center/contain no-repeat;
   background-image:image-set(
