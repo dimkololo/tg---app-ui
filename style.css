@@ -271,18 +271,14 @@ html,body{
 /* ====== попап 4: профиль ====== */
 .profile-popup{width:100%; max-width:420px; display:grid; gap:14px}
 
-/* верхняя зона: аватар слева, справа — колонка из 2 блоков */
+/* Шапка — плотнее к аватару */
 .chip.profile-header{
-  width:100%;
-  background:transparent;
-  border:0;
-  padding:12px 16px 8px;
-
+  padding:12px 14px 8px;
   display:grid;
-  grid-template-columns:100px 1fr;      /* 1: аватар, 2: правая колонка */
-  grid-auto-rows:auto;
-  column-gap:16px;
-  row-gap:6px;                          /* маленький зазор между ником и кнопкой */
+  grid-template-columns:100px 1fr;
+  grid-auto-rows:min-content;
+  column-gap:10px;          /* ближе к аватару */
+  row-gap:4px;              /* почти без зазора между ником и кнопкой */
   align-items:start;
 }
 
@@ -315,27 +311,26 @@ html,body{
   z-index: 2;
 }
 
-/* плашка ника — по правому краю и шире кнопки */
+/* Плашка ника — на всю ширину правой колонки, по правому краю */
 .profile-header .profile-id{
   grid-column:2; grid-row:1;
-  justify-self:end;                      /* выравниваем по правому краю */
-  background:#D9D9D9;
-  border-radius:12px;
-  padding:10px 14px;
-  color:#000; font-weight:700; line-height:1.2; text-align:center;
+  justify-self:stretch;     /* растягиваем полностью */
+  background:#D9D9D9; border-radius:12px; padding:10px 14px;
+  color:#000; font-weight:700; text-align:center; line-height:1.2;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-  max-width:100%;                         /* не вылазит за пределы колонки */
 }
 
-/* кнопка — сразу под плашкой ника, тоже по правому краю, уже по ширине */
+/* Кнопка — под ником, выровнена по правому краю.
+   ВАЖНО: уменьшаем ширину на (20px кружок + 8px gap) = 28px,
+   чтобы "?" помещался внутри колонки и не обрезался. */
 .profile-header .btn-premium{
   grid-column:2; grid-row:2;
-  justify-self:end;                       /* выровнена по правому краю */
-  width:auto;                             /* уже, чем .profile-id */
+  justify-self:end;
+  max-width:calc(100% - 28px);   /* ← резерв места под кружок справа */
   position:relative;
   display:flex; align-items:center; justify-content:center; text-align:center;
 
-  padding:10px 22px;                      /* симметричные паддинги у кнопки */
+  padding:10px 18px;             /* симметричные отступы у самой кнопки */
   border-radius:18px; border:0; cursor:pointer;
   background:#FF7300; color:#fff; font-weight:800; font-size:15px; line-height:1.1;
 }
@@ -344,31 +339,29 @@ html,body{
 .btn-premium__label{ display:inline-block; line-height:1.05; }
 
 
-/* знак “?” — ВНЕ кнопки, справа от неё и не влияет на раскладку */
+/* "?" как ОТДЕЛЬНЫЙ кружок справа от кнопки (gap 8px) */
 .profile-header .btn-premium::after{
   content:'?';
   position:absolute;
-  left:100%;
+  left:100%;                    /* сразу за правым краем кнопки */
   top:50%;
-  transform:translate(8px, -50%);         /* расстояние от кнопки */
+  transform:translate(8px, -50%);  /* GAP = 8px */
   width:20px; height:20px;
   border-radius:50%;
   background:#D9D9D9; color:#000; font-weight:800; font-size:13px;
   display:flex; align-items:center; justify-content:center;
-  pointer-events:none;
+  pointer-events:none;          /* не кликабельно */
 }
 
 /* Состояния */
 .btn-premium[disabled]{background:#D9D9D9; color:#777; cursor:not-allowed}
 
-/* Премиум активен — превращаем в плашку и выравниваем текст по центру */
-
-/* активный премиум — плашка вместо кнопки, та же позиция/правый край */
+/* При активном премиуме — плашка, полная ширина, без "?" */
 .btn-premium.is-owned{
-  background:#D9D9D9;
-  color:#000;
-  cursor:default;
-  padding:10px 18px;                      /* симметрично, строго центр */
+  justify-self:stretch;         /* ширина как у плашки ника */
+  max-width:100%;
+  background:#D9D9D9; color:#000; cursor:default;
+  padding:10px 18px;            /* симметричное центрирование текста */
 }
 .btn-premium.is-owned::after{ display:none; }
 
