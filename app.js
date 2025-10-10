@@ -179,16 +179,22 @@ function initUploadPopup(){
   const root = modalRoot.querySelector('.upload-popup');
   if (!root) return;
 
-  const fileInput = root.querySelector('#file-input');
+  // элементы
+  const fileInput  = root.querySelector('#file-input');
+  const submitBtn  = root.querySelector('[data-submit]');
+  const form       = root.querySelector('[data-upload-form]');
+  const range      = root.querySelector('.range');
+  const starsEl    = root.querySelector('[data-stars]');
+  const secsEl     = root.querySelector('[data-secs]');
+  const urlInput   = root.querySelector('input[name="social"]');
+
+  // кнопка выбора файла
   root.querySelector('.btn-pick')?.addEventListener('click', ()=>fileInput?.click());
 
   // слайдер
-  const range   = root.querySelector('.range');
-  const starsEl = root.querySelector('[data-stars]');
-  const secsEl  = root.querySelector('[data-secs]');
   if (range && starsEl && secsEl) {
     const update = () => {
-      const v = Number(range.value);          // 0..20
+      const v = Number(range.value);
       starsEl.textContent = `${v} PLAMc`;
       secsEl.textContent  = (v === 0) ? '0 sec' : `+${v} sec`;
     };
@@ -196,8 +202,27 @@ function initUploadPopup(){
     update();
   }
 
-  // Кнопка отправки — активна только когда: есть файлы и пройдена подписка
-  const submitBtn = root.querySelector('[data-submit]');
+  // счётчики символов (если ты добавляла data-counter в HTML)
+  const bindCounter = (el)=>{
+    if (!el) return;
+    const id  = el.getAttribute('data-counter');
+    const box = root.querySelector(`[data-counter-for="${id}"]`);
+    const max = Number(el.getAttribute('maxlength')) || 0;
+    const upd = ()=>{ box && (box.textContent = `${el.value.length} / ${max}`); };
+    el.addEventListener('input', upd); upd();
+  };
+  bindCounter(root.querySelector('[data-counter="link"]'));
+  bindCounter(root.querySelector('[data-counter="desc"]'));
+
+  // валидация URL (мягкая)
+  function isValidUrlLike(v){
+    if (!v) return true;
+    const tme  = /^https?:\/\/t\.me\/.+/i;
+    const http = /^https?:\/\/.+/i;
+    return tme.test(v) || http.test(v);
+  }
+
+  // активность кнопки "Отправить" — файлы + подписка
   const updateSubmitState = ()=>{
     const hasFiles = fileInput?.files && fileInput.files.length > 0;
     submitBtn.disabled = !(hasFiles && window.PLAM.subsOk === true);
@@ -205,92 +230,47 @@ function initUploadPopup(){
   fileInput?.addEventListener('change', updateSubmitState);
   updateSubmitState();
 
-   // ===== Счётчики символов =====
-  const bindCounter = (el)=>{
-    if (!el) return;
-    const id = el.getAttribute('data-counter');
-    const box = root.querySelector(`[data-counter-for="${id}"]`);
-    const max = Number(el.getAttribute('maxlength')) || 0;
-    const update = ()=>{
-      const len = el.value.length;
-      if (box) box.textContent = `${len} / ${max}`;
-    };
-    el.addEventListener('input', update);
-    update();
-  };
-  bindCounter(root.querySelector('[data-counter="link"]'));
-  bindCounter(root.querySelector('[data-counter="desc"]'));
-
-  // ===== Мягкая валидация ссылки =====
-  const urlInput = root.querySelector('input[name="social"]');
-  function isValidUrlLike(v){
-    if (!v) return true; // поле необязательное — пусто ок
-    const tme = /^https?:\/\/t\.me\/.+/i;
-    const http = /^https?:\/\/.+/i;
-    return tme.test(v) || http.test(v);
-  }
-
   // отправка
-  // ====== ОТПРАВКА ======
-const form = root.querySelector('[data-upload-form]');
-const fileInput  = root.querySelector('#file-input');
-const submitBtn  = root.querySelector('[data-submit]');
+  form?.addEventListener('submit', (e)=>{
+    e.preventDefault();
 
-// helper: активность кнопки "Отправить"
-const updateSubmitState = ()=>{
-  const hasFiles = fileInput?.files && fileInput.files.length > 0;
-  submitBtn.disabled = !(hasFiles && window.PLAM.subsOk === true);
-};
-fileInput?.addEventListener('change', updateSubmitState);
-updateSubmitState();
+    // 1) должны быть выбраны файлы
+    const filesCount = fileInput?.files?.length || 0;
+    if (filesCount === 0){ updateSubmitState(); return; }
 
-form?.addEventListener('submit', (e)=>{
-  e.preventDefault();
+    // 2) если подписка не подтверждена — открываем попап в стеке
+    if (!window.PLAM.subsOk){ openStack('subs-required'); return; }
 
-  // 1) Должен быть выбран хотя бы 1 файл
-  const filesCount = fileInput?.files?.length || 0;
-  if (filesCount === 0){
-    updateSubmitState();
-    return;
-  }
+    // 3) проверка баланса по слайдеру
+    const need = parseInt(range?.value || '0', 10) || 0;
+    if (need > 0 && (window.PLAM.balance||0) <= 0) { alert('Недостаточно PLAMc'); return; }
+    if (need > (window.PLAM.balance||0))          { alert('Недостаточно PLAMc'); return; }
 
-  // 2) Если подписка ещё не подтверждена — открываем попап и выходим
-  if (!window.PLAM.subsOk){
-    openStack('subs-required');
-    return;
-  }
-
-    // 3) Проверка баланса по слайдеру
-  const range = root.querySelector('.range');
-  const need = parseInt(range?.value || '0', 10) || 0;
-
-  if (need > 0 && (window.PLAM.balance||0) <= 0) { alert('Недостаточно PLAMc'); return; }
-  if (need > (window.PLAM.balance||0))          { alert('Недостаточно PLAMc'); return; }
-
-    // проверка URL
+    // 4) проверка url
     const link = urlInput?.value.trim();
     if (link && !isValidUrlLike(link)){
       alert('Ссылка должна начинаться с http:// или https:// (поддерживается и https://t.me/...)');
       urlInput.focus();
       return;
     }
-// 4) Списываем и обновляем валюту
-  window.PLAM.balance -= need;
-  updatePlusBalanceUI();
 
-  // 5) Увеличиваем счётчик фото
-  window.PLAM.photoCount = (window.PLAM.photoCount || 0) + filesCount;
+    // 5) списываем валюту
+    window.PLAM.balance -= need;
+    updatePlusBalanceUI();
 
-  // 6) Если профиль открыт — обновим UI (секунды + количество)
-  if (!modalRoot.hidden && modalRoot.querySelector('.profile-popup')){
-    refreshProfileUI?.();
-  }
+    // 6) увеличиваем счётчик фото
+    window.PLAM.photoCount = (window.PLAM.photoCount || 0) + filesCount;
 
-  // 7) TODO: отправка на сервер/TG
+    // 7) если профиль открыт — обновим плашки
+    if (!modalRoot.hidden && modalRoot.querySelector('.profile-popup')){
+      refreshProfileUI?.();
+    }
 
-  closeModal();
-});
+    // 8) TODO: реальная отправка
+    closeModal();
+  });
 }
+
 
 function initSubsRequired(){
   const root = stackRoot.querySelector('.subs-popup');
