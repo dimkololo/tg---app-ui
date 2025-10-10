@@ -253,17 +253,19 @@
   </template>
 
   <!-- Подтверждение премиума -->
-  <template id="tpl-confirm-premium">
-    <section class="popup confirm-popup">
-      <div class="chip confirm-card">
-        <p class="confirm-text">Вы хотите получить премиум на 30 дней за 1500 PLAMc?</p>
-        <div class="confirm-actions">
-          <button class="btn-confirm yes" type="button" data-confirm-yes>Да</button>
-          <button class="btn-confirm no" type="button" data-dismiss>Нет</button>
-        </div>
+<template id="tpl-confirm-premium">
+  <section class="popup confirm-popup">
+    <div class="chip confirm-card">
+      <p class="confirm-text">Вы хотите получить премиум на 30 дней за 1500 PLAMc?</p>
+      <div class="confirm-actions">
+        <button class="btn-confirm yes" type="button" data-confirm-yes>Да</button>
+        <!-- было data-dismiss, нужно закрывать только стек -->
+        <button class="btn-confirm no" type="button" data-dismiss-stack>Нет</button>
       </div>
-    </section>
-  </template>
+    </div>
+  </section>
+</template>
+
 
   <script src="./app.js?v=51"></script>
 </body>
