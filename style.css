@@ -145,8 +145,8 @@ html,body{
   }
 
   :root{
-    --plus-font-m:14px;
-    --plus-icon-m:16px;
+    --plus-font-m:12px;
+    --plus-icon-m:14px;
     --plus-gap-m:0px;
     --plus-padleft-m:10px;
   }
