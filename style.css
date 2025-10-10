@@ -277,7 +277,6 @@ html,body{
   background:transparent;
   border:0;
   padding:28px 16px 8px;
-
   display:grid;
   grid-template-columns:100px 1fr;  /* аватар + правая колонка */
   grid-template-rows:auto auto;
@@ -286,7 +285,7 @@ html,body{
     "avatar button";
   align-items:start;                 /* ← ник ровно по верхнему краю аватара */
   column-gap:16px;                   /* чуть ближе друг к другу */
-  row-gap:8px;                       /* небольшой зазор между ником и кнопкой */
+  row-gap:2px;                       /* небольшой зазор между ником и кнопкой */
 }
 
 /* Аватар 100×100 + корона может выходить за рамки */
@@ -301,9 +300,9 @@ html,body{
 .profile-header .avatar.has-crown::before{
   content:'';
   position:absolute;
-  top:-14px;
-  left:20px;
-  width:80px;
+  top:-26px;
+  left:26px;
+  width:100px;
   aspect-ratio: 1.45;
   background:center/contain no-repeat;
   background-image:image-set(
@@ -354,8 +353,23 @@ html,body{
 /* Состояния */
 .btn-premium[disabled]{background:#D9D9D9; color:#777; cursor:not-allowed}
 
-/* Премиум активен — превращаем кнопку в плашку, убираем «?» */
-.btn-premium.is-owned{ background:#D9D9D9; color:#000; cursor:default; }
+/* Премиум активен — превращаем в плашку и выравниваем текст по центру */
+.btn-premium.is-owned{
+  background:#D9D9D9;
+  color:#000;
+  cursor:default;
+
+  /* симметричные отступы, чтобы не вело влево */
+  padding:10px 18px;
+
+  /* гарантированно по центру */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+
+/* убираем кружок с ? */
 .btn-premium.is-owned::after{ display:none; }
 
 /* Карточки профиля */
