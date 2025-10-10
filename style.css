@@ -282,7 +282,7 @@ html,body{
   grid-template-columns:100px 1fr;   /* 1: аватар, 2: правая колонка */
   grid-auto-rows:min-content;
   column-gap:10px;                   /* ближе к аватару */
-  row-gap:4px;                       /* маленький зазор ник↔кнопка */
+  row-gap:8px;                       /* маленький зазор ник↔кнопка */
   align-items:start;
 }
 
