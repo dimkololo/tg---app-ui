@@ -271,41 +271,40 @@ html,body{
 /* ====== попап 4: профиль ====== */
 .profile-popup{width:100%; max-width:420px; display:grid; gap:14px}
 
-/* верхняя зона: БЕЗ общей плашки chip, свой лэйаут */
+/* верхняя зона */
 .chip.profile-header{
   width:100%;
   background:transparent;
   border:0;
-  padding:12px 16px 8px;
+  padding:28px 16px 8px;
 
   display:grid;
-  grid-template-columns:100px 1fr;
+  grid-template-columns:100px 1fr;  /* аватар + правая колонка */
   grid-template-rows:auto auto;
   grid-template-areas:
     "avatar username"
     "avatar button";
-  align-items:center;
-  column-gap:20px;
-  row-gap:12px;
+  align-items:start;                 /* ← ник ровно по верхнему краю аватара */
+  column-gap:16px;                   /* чуть ближе друг к другу */
+  row-gap:8px;                       /* небольшой зазор между ником и кнопкой */
 }
 
 /* Аватар 100×100 + корона может выходить за рамки */
 .profile-header .avatar{
   position: relative;
-  width:100px;
-  height:100px;
+  width:100px; height:100px;
   border-radius:50%;
   background:#bbb center/cover no-repeat;
-  overflow: visible;
-  z-index: 0;
+  overflow:visible;
 }
+
 .profile-header .avatar.has-crown::before{
   content:'';
   position:absolute;
-  top:-26px;
-  left:-12px;
-  width:56px;
-  height:56px;
+  top:-14px;
+  left:20px;
+  width:80px;
+  aspect-ratio: 1.45;
   background:center/contain no-repeat;
   background-image:image-set(
     url('./bgicons/crown.png') 1x,
@@ -315,76 +314,48 @@ html,body{
   z-index: 2;
 }
 
-/* Плашка с ником */
+/* Плашка с ником — на всю ширину правой колонки */
 .profile-header .profile-id{
   grid-area:username;
+  justify-self:stretch;              /* ← одинаковая ширина с кнопкой */
   background:#D9D9D9;
   border-radius:12px;
   padding:10px 14px;
-  color:#000;
-  font-weight:700;
-  line-height:1.2;
-  text-align:center;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+  color:#000; font-weight:700; line-height:1.2; text-align:center;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 
-/* Кнопка «Получить премиум» (под ником) */
+/* Кнопка ПОД ником — тоже на всю ширину правой колонки */
 .profile-header .btn-premium{
-  grid-area:button;           /* важно: под ником */
-  justify-self:start;
+  grid-area:button;
+  justify-self:stretch;              /* ← ширина = ширине плашки ника */
+  position:relative;
+  display:flex; align-items:center; justify-content:center; text-align:center;
 
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-
-  height: auto;
-  padding: 10px 36px 10px 18px; /* справа место под '?' */
-  border-radius: 18px;
-  border: 0;
-  cursor: pointer;
-  background: #FF7300;
-  color: #fff;
-  font-weight: 800;
-  font-size: 15px;
-  line-height: 1.1;
+  padding:10px 56px 10px 18px;       /* ↑ больше места справа под «?» */
+  border-radius:18px; border:0; cursor:pointer;
+  background:#FF7300; color:#fff; font-weight:800; font-size:15px; line-height:1.1;
 }
 
 /* Двухстрочная подпись внутри кнопки */
-.btn-premium__label{
-  display: inline-block;
-  line-height: 1.05;
-}
+.btn-premium__label{ display:inline-block; line-height:1.05; }
 
-/* Кружок «?» внутри кнопки, справа; не влияет на выравнивание текста */
+/* «?» внутри кнопки, прижат справа, с бОльшим отступом от текста */
 .profile-header .btn-premium::after{
-  content: '?';
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 20px; height: 20px;
-  border-radius: 50%;
-  background: #D9D9D9;
-  color: #000;
-  font-weight: 800;
-  font-size: 13px;
-  display: flex; align-items: center; justify-content: center;
-  pointer-events: none;
-} /* ← важная закрывающая скобка! */
+  content:'?';
+  position:absolute; right:14px; top:50%; transform:translateY(-50%);
+  width:22px; height:22px;           /* немного крупнее, читабельнее */
+  border-radius:50%;
+  background:#D9D9D9; color:#000; font-weight:800; font-size:13px;
+  display:flex; align-items:center; justify-content:center;
+  pointer-events:none;
+}
 
 /* Состояния */
 .btn-premium[disabled]{background:#D9D9D9; color:#777; cursor:not-allowed}
 
 /* Премиум активен — превращаем кнопку в плашку, убираем «?» */
-.btn-premium.is-owned{
-  background:#D9D9D9;
-  color:#000;
-  cursor: default;
-}
+.btn-premium.is-owned{ background:#D9D9D9; color:#000; cursor:default; }
 .btn-premium.is-owned::after{ display:none; }
 
 /* Карточки профиля */
