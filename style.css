@@ -196,6 +196,9 @@ html,body{
 }
 
 .modal__close{position:absolute; top:10px; left:10px; border:0; background:transparent; color:#fff; font-size:20px; cursor:pointer}
+/* второй слой поверх основной модалки */
+.modal--stack{ z-index: 1101; }
+
 
 /* ====== попапы: общие ====== */
 .popup{display:grid; gap:12px; justify-items:center; width:100%; max-width:420px; margin-inline:auto}
