@@ -28,14 +28,35 @@ function openModal(id){
   if (id === 'premium-timer') initPremiumTimer();
 }
 
+// второй слой модалки (стек)
+const stackRoot    = document.querySelector('[data-modal-stack]');
+const stackContent = document.querySelector('[data-stack-content]');
+
+function openStack(id){
+  const tpl = document.getElementById(`tpl-${id}`);
+  if (!tpl) return;
+  stackContent.innerHTML = '';
+  stackContent.appendChild(tpl.content.cloneNode(true));
+  stackRoot.hidden = false;
+  stackRoot.setAttribute('aria-hidden','false');
+
+  // инициализаторы для шаблонов стека
+  if (id === 'premium-timer') initPremiumTimer();
+}
+
+function closeStack(){
+  stackRoot.hidden = true;
+  stackRoot.setAttribute('aria-hidden','true');
+  stackContent.innerHTML = '';
+}
+
+
 // --- Попап: таймер премиума ---
 function initPremiumTimer(){
-  const root = modalRoot.querySelector('.timer-popup');
+  const root = stackRoot.querySelector('.timer-popup'); // ← в стеке
   if (!root) return;
 
   const box = root.querySelector('[data-remaining]');
-
-  // Если по какой-то причине нет даты — стартуем 30 дней с текущего момента
   if (!window.PLAM.premiumUntil) {
     window.PLAM.premiumUntil = Date.now() + 30*24*60*60*1000;
   }
@@ -44,31 +65,30 @@ function initPremiumTimer(){
     const now = Date.now();
     let ms = Math.max(0, window.PLAM.premiumUntil - now);
 
-    // переводим в дни/часы/минуты
     const totalMinutes = Math.floor(ms / 60000);
-    const days   = Math.floor(totalMinutes / (24*60));
-    const hours  = Math.floor((totalMinutes - days*24*60) / 60);
-    const minutes= totalMinutes - days*24*60 - hours*60;
+    const days    = Math.floor(totalMinutes / (24*60));
+    const hours   = Math.floor((totalMinutes - days*24*60) / 60);
+    const minutes = totalMinutes - days*24*60 - hours*60;
 
     box.textContent = `${days}д. ${hours}ч. ${minutes}мин.`;
 
-    // если закончилось — останавливаем, снимаем премиум и обновим профиль
     if (ms <= 0){
       clearInterval(timer);
       window.PLAM.premium = false;
       window.PLAM.premiumUntil = null;
-      try { window.Telegram?.WebApp?.showAlert?.('Премиум истёк'); } catch(_){}
-      closeModal(); 
-      openModal('profile');
+      try { window.Telegram?.WebApp?.showAlert?.('Премиум истёк'); } catch(_) {}
+      closeStack();                     // закрываем только верхний слой
+      // при желании можно обновить профиль:
+      // closeModal(); openModal('profile');
     }
   };
 
   tick();
   const timer = setInterval(tick, 1000);
 
-  // при закрытии модалки — остановим таймер (чтобы не тикал в фоне)
+  // стопаем таймер при закрытии именно стека
   root.addEventListener('click', (e)=>{
-    if (e.target.matches('[data-dismiss]') || e.target.closest('[data-dismiss]')){
+    if (e.target.matches('[data-dismiss-stack]') || e.target.closest('[data-dismiss-stack]')){
       clearInterval(timer);
     }
   });
@@ -91,11 +111,22 @@ function closeModal(){
 document.addEventListener('click', (e) => {
   const opener = e.target.closest('[data-open-modal]');
   if (opener) { openModal(opener.getAttribute('data-open-modal')); return; }
-  if (e.target.matches('[data-dismiss]') || e.target.closest('[data-dismiss]')) closeModal();
+
+  if (e.target.matches('[data-dismiss-stack]') || e.target.closest('[data-dismiss-stack]')) {
+    closeStack(); return;
+  }
+  if (e.target.matches('[data-dismiss]') || e.target.closest('[data-dismiss]')) {
+    closeModal(); return;
+  }
 });
+
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && !modalRoot.hidden) closeModal();
+  if (e.key === 'Escape') {
+    if (!stackRoot.hidden) { closeStack(); return; }
+    if (!modalRoot.hidden) { closeModal(); }
+  }
 });
+
 
 // --- Индикатор на плюс-облаке ---
 function updatePlusBalanceUI(){
@@ -229,7 +260,7 @@ setBtn();
 
 btnPremium.addEventListener('click', ()=>{
   if (window.PLAM.premium){
-    openModal('premium-timer');   // ← показываем попап с обратным отсчётом
+    openStack('premium-timer');   // ← поверх профиля
   } else {
     openModal('confirm-premium');
   }
