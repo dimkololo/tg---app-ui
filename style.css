@@ -451,6 +451,50 @@ html,body{
   font-size:16px;
 }
 
+/* ====== ОПАКОВЫЕ попапы (таймер и подтверждение) поверх профиля ====== */
+/* сам диалог в верхнем слое — сплошной фон */
+.modal--stack .modal__dialog{
+  background: var(--chip);             /* был полупрозрачным, стал сплошным */
+}
+
+/* фон подложки можно сделать чуть темнее, чтобы читалось */
+.modal--stack .modal__backdrop{
+  background: rgba(0,0,0,.6);
+}
+
+/* убираем внутренние «карточки» — они становятся прозрачными (без рамки) */
+.modal--stack .chip{
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+/* крестик на светлом фоне должен быть тёмным */
+.modal--stack .modal__close{ color:#000; }
+
+/* КНОПКИ внутри оставляем как есть (оранжевые) — ничего менять не нужно */
+
+
+/* --- универсальный фолбэк (если вдруг откроешь в обычной модалке) --- */
+/* диалог с этими попапами тоже делаем сплошным */
+.modal__dialog:has(.timer-popup),
+.modal__dialog:has(.confirm-popup){
+  background: var(--chip);
+}
+/* и выключаем «плашки» внутри */
+.modal__dialog:has(.timer-popup) .chip,
+.modal__dialog:has(.confirm-popup) .chip{
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+/* крестик на светлом фоне */
+.modal__dialog:has(.timer-popup) .modal__close,
+.modal__dialog:has(.confirm-popup) .modal__close{
+  color:#000;
+}
+
+
 
 /* ====== DEBUG (включай <body class="__debug">) ====== */
 body.__debug .hotspot{outline:2px dashed rgba(0,200,255,.9); background:rgba(0,200,255,.10)}
