@@ -3,8 +3,9 @@ if (window.Telegram && window.Telegram.WebApp) {
   try { window.Telegram.WebApp.expand(); } catch(e) {}
 }
 
-// --- Глобальный state (храним баланс/премиум/счётчики) ---
-window.PLAM = window.PLAM || { balance: 0, premium: false, photoCount: 0 };
+// --- Глобальный state ---
+window.PLAM = window.PLAM || { balance: 0, premium: false, photoCount: 0, premiumUntil: null };
+
 
 // --- Модалка ---
 const modalRoot = document.querySelector('[data-modal-root]');
@@ -24,7 +25,61 @@ function openModal(id){
   if (id === 'prizes')       initPrizes();
   if (id === 'profile')      initProfile();
   if (id === 'confirm-premium') initConfirmPremium();
+  if (id === 'premium-timer') initPremiumTimer();
 }
+
+// --- Попап: таймер премиума ---
+function initPremiumTimer(){
+  const root = modalRoot.querySelector('.timer-popup');
+  if (!root) return;
+
+  const box = root.querySelector('[data-remaining]');
+
+  // Если по какой-то причине нет даты — стартуем 30 дней с текущего момента
+  if (!window.PLAM.premiumUntil) {
+    window.PLAM.premiumUntil = Date.now() + 30*24*60*60*1000;
+  }
+
+  const tick = ()=>{
+    const now = Date.now();
+    let ms = Math.max(0, window.PLAM.premiumUntil - now);
+
+    // переводим в дни/часы/минуты
+    const totalMinutes = Math.floor(ms / 60000);
+    const days   = Math.floor(totalMinutes / (24*60));
+    const hours  = Math.floor((totalMinutes - days*24*60) / 60);
+    const minutes= totalMinutes - days*24*60 - hours*60;
+
+    box.textContent = `${days}д. ${hours}ч. ${minutes}мин.`;
+
+    // если закончилось — останавливаем, снимаем премиум и обновим профиль
+    if (ms <= 0){
+      clearInterval(timer);
+      window.PLAM.premium = false;
+      window.PLAM.premiumUntil = null;
+      try { window.Telegram?.WebApp?.showAlert?.('Премиум истёк'); } catch(_){}
+      closeModal(); 
+      openModal('profile');
+    }
+  };
+
+  tick();
+  const timer = setInterval(tick, 1000);
+
+  // при закрытии модалки — остановим таймер (чтобы не тикал в фоне)
+  root.addEventListener('click', (e)=>{
+    if (e.target.matches('[data-dismiss]') || e.target.closest('[data-dismiss]')){
+      clearInterval(timer);
+    }
+  });
+  document.addEventListener('keydown', function escOnce(ev){
+    if (ev.key === 'Escape' && !modalRoot.hidden){
+      clearInterval(timer);
+      document.removeEventListener('keydown', escOnce);
+    }
+  });
+}
+
 
 function closeModal(){
   modalRoot.hidden = true;
@@ -158,26 +213,28 @@ function initProfile(){
 
   // Кнопка/плашка премиума + корона
   const setBtn = ()=>{
-    if (window.PLAM.premium){
-      btnPremium.textContent = 'Премиум активен';
-      btnPremium.classList.add('is-owned');
-      btnPremium.disabled = true;
-      avatarEl.classList.add('has-crown');
-    } else {
-      // всегда две строки, центр
-      btnPremium.textContent = 'Получить премиум';
-      btnPremium.classList.remove('is-owned');
-      btnPremium.disabled = false;
-      avatarEl.classList.remove('has-crown');
-    }
-  };
-  setBtn();
+  if (window.PLAM.premium){
+    btnPremium.textContent = 'Премиум активен';
+    btnPremium.classList.add('is-owned');   // ← активный премиум
+    btnPremium.disabled = false;            // ← НЕ отключаем
+    avatarEl.classList.add('has-crown');
+  } else {
+    btnPremium.textContent = 'Получить премиум';
+    btnPremium.classList.remove('is-owned');
+    btnPremium.disabled = false;
+    avatarEl.classList.remove('has-crown');
+  }
+};
+setBtn();
 
-  btnPremium.addEventListener('click', ()=>{
-    if (window.PLAM.premium) return;
+btnPremium.addEventListener('click', ()=>{
+  if (window.PLAM.premium){
+    openModal('premium-timer');   // ← показываем попап с обратным отсчётом
+  } else {
     openModal('confirm-premium');
-  });
-}
+  }
+});
+
 
 // --- Подтверждение покупки премиума ---
 function initConfirmPremium(){
@@ -185,17 +242,21 @@ function initConfirmPremium(){
   if (!root) return;
 
   root.querySelector('[data-confirm-yes]')?.addEventListener('click', ()=>{
-    const price = 1500; // заглушка цены
-    if ((window.PLAM.balance||0) < price){
-      closeModal(); openModal('buy-stars'); return;
-    }
-    window.PLAM.balance -= price;
-    window.PLAM.premium  = true;
-    updatePlusBalanceUI();
-    closeModal();
-    openModal('profile');
-  });
-}
+  const price = 1500;
+  if ((window.PLAM.balance||0) < price){
+    closeModal(); openModal('buy-stars'); return;
+  }
+  window.PLAM.balance -= price;
+  window.PLAM.premium  = true;
+
+  // 30 дней вперёд от текущего момента (сбрасывается при перезагрузке)
+  const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
+  window.PLAM.premiumUntil = Date.now() + THIRTY_DAYS;
+
+  updatePlusBalanceUI();
+  closeModal();
+  openModal('profile');
+});
 
 // --- DEBUG хот-спотов: ?debug=1 в URL или Shift+D ---
 (function debugHotspots(){
