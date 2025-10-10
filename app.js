@@ -60,7 +60,6 @@ function openModal(id){
   if (id === 'buy-stars')    initBuyStars();
   if (id === 'prizes')       initPrizes();
   if (id === 'profile')      initProfile();
-  if (id === 'confirm-premium') initConfirmPremium();
   if (id === 'premium-timer') initPremiumTimer();
 }
 
