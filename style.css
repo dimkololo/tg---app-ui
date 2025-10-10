@@ -232,6 +232,13 @@ html,body{
 .field{width:100%; padding:14px 16px; border-radius:16px; border:1px solid rgba(0,0,0,.08); background:#fff; color:#111; font:16px/1.4 inherit}
 .field::placeholder{color:#9aa3b2; opacity:.8}
 .field:focus{outline:2px solid rgba(255,115,0,.35)}
+.field-wrap{ display:grid; gap:6px; }
+.field-counter{
+  font-size:12px; line-height:1; color:#000; opacity:.55;
+  text-align:right;
+}
+.field:invalid{ outline:2px solid rgba(255,0,0,.35); }
+
 
 /* ====== попап 2: магазин ====== */
 .shop-header{width:100%; min-height:150px; display:grid; place-items:center; gap:4px; padding:14px 12px}
