@@ -215,6 +215,14 @@ html,body{
 .btn-submit{background:var(--accent); color:#fff; box-shadow:0 6px 14px rgba(255,115,0,.25)}
 .card{width:100%; background:var(--chip); border-radius:16px; padding:12px; border:1px solid rgba(0,0,0,.06)}
 .slider-card{padding:14px}
+.slider-card .slider-title{
+  margin-bottom: 8px;
+  color:#000;
+  font-weight:800;
+  font-size:14px;
+  text-align:center;
+  line-height:1.2;
+}
 .slider-row{display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:12px}
 .label{color:#000; font-weight:700; opacity:.75}
 .range{-webkit-appearance:none; appearance:none; width:100%; height:16px; border-radius:200px; background:#D0D0D0; outline:none}
