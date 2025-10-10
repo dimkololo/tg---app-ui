@@ -6,6 +6,42 @@ if (window.Telegram && window.Telegram.WebApp) {
 // --- Глобальный state ---
 window.PLAM = window.PLAM || { balance: 0, premium: false, photoCount: 0, premiumUntil: null };
 
+// --- Автозакрытие через 15 минут (анти-автозагрузка/макросы) ---
+(function setupAutoClose(){
+  const AUTO_CLOSE_MS = 15 * 60 * 1000;  // 15 минут
+  const WARN_MS       = 30 * 1000;       // предупредим за 30 сек
+  const deadline      = Date.now() + AUTO_CLOSE_MS;
+
+  let warned = false;
+  const tick = () => {
+    const left = deadline - Date.now();
+
+    // разовое предупреждение
+    if (!warned && left <= WARN_MS && left > 0) {
+      warned = true;
+      try {
+        window.Telegram?.WebApp?.showAlert?.('Сессия будет закрыта через 30 секунд для безопасности.');
+      } catch(_) {}
+    }
+
+    // закрываем
+    if (left <= 0) {
+      // корректное закрытие WebApp
+      try { window.Telegram?.WebApp?.close?.(); } catch(_) {}
+
+      // фолбек на случай запуска вне Telegram
+      try { window.close(); } catch(_) {}
+      try { location.replace('about:blank'); } catch(_) {}
+
+      clearInterval(timer);
+    }
+  };
+
+  tick();
+  const timer = setInterval(tick, 1000);
+})();
+
+
 
 // --- Модалка ---
 const modalRoot = document.querySelector('[data-modal-root]');
