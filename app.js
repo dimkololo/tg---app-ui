@@ -220,7 +220,7 @@ function initUploadPopup(){
     updateSubmitState();
   }
 
-  btnPick?.addEventListener('click', ()=>fileInput?.click());
+  
   fileInput?.addEventListener('change', ()=>{
     const f = fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
     showPreview(f);
