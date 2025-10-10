@@ -18,15 +18,15 @@
   --stump-x-l:580; --stump-y-l:840; --stump-w-l:220; --stump-h-l:180;
 
   /* Плюс-облако (иконка выведена слоем ::before) */
-  --plus-x-m:282; --plus-y-m:150; --plus-w-m:200; --plus-h-m:90;
-  --plus-x-s:233; --plus-y-s:122; --plus-w-s:150; --plus-h-s:70;
-  --plus-x-l:640; --plus-y-l:150; --plus-w-l:330; --plus-h-l:150;
+  --plus-x-m:282; --plus-y-m:150; --plus-w-m:190; --plus-h-m:90;
+  --plus-x-s:233; --plus-y-s:122; --plus-w-s:140; --plus-h-s:60;
+  --plus-x-l:640; --plus-y-l:150; --plus-w-l:320; --plus-h-l:140;
 
   /* Текст + иконка валюты внутри облака */
-  --plus-font-m:18px;
+  --plus-font-m:20px;
   --plus-icon-m:22px;
   --plus-gap-m:0px;
-  --plus-padleft-m:60px;
+  --plus-padleft-m:50px;
 
   /* Подарок */
   --gift-x-m:305; --gift-y-m:740; --gift-w-m:130; --gift-h-m:100;
@@ -148,7 +148,7 @@ html,body{
     --plus-font-m:14px;
     --plus-icon-m:16px;
     --plus-gap-m:0px;
-    --plus-padleft-m:20px;
+    --plus-padleft-m:10px;
   }
 }
 
@@ -175,8 +175,8 @@ html,body{
   }
 
   :root{
-    --plus-font-m:20px;
-    --plus-icon-m:24px;
+    --plus-font-m:28px;
+    --plus-icon-m:28px;
     --plus-gap-m:0px;
     --plus-padleft-m:60px;
   }
