@@ -145,10 +145,10 @@ html,body{
   }
 
   :root{
-    --plus-font-m:16px;
-    --plus-icon-m:18px;
+    --plus-font-m:14px;
+    --plus-icon-m:16px;
     --plus-gap-m:0px;
-    --plus-padleft-m:30px;
+    --plus-padleft-m:20px;
   }
 }
 
