@@ -593,6 +593,24 @@ html,body{
   border-radius: inherit;
 }
 
+/* Оверлей, блокирующий приложение в альбомной ориентации */
+.orientation-lock{
+  position:fixed;
+  inset:0;
+  z-index:2000;                /* выше модалок/стека */
+  display:none;                /* показываем только в ландшафте */
+  background:center/cover no-repeat;
+  /* картинка предупреждения */
+  background-image:image-set(
+    url("./bgicons/rotate-warning.png") 1x,
+    url("./bgicons/rotate-warning@2x.png") 2x
+  );
+  /* подложка на всякий случай, если картинка с прозрачностью */
+  background-color:#0f1115;
+}
+
+.orientation-lock.is-active{ display:block; }
+
 
 
 
