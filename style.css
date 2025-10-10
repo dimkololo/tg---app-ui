@@ -18,9 +18,9 @@
   --stump-x-l:580; --stump-y-l:840; --stump-w-l:220; --stump-h-l:180;
 
   /* Плюс-облако (иконка выведена слоем ::before) */
-  --plus-x-m:282; --plus-y-m:150; --plus-w-m:190; --plus-h-m:90;
-  --plus-x-s:233; --plus-y-s:122; --plus-w-s:140; --plus-h-s:60;
-  --plus-x-l:640; --plus-y-l:150; --plus-w-l:320; --plus-h-l:140;
+  --plus-x-m:290; --plus-y-m:145; --plus-w-m:190; --plus-h-m:90;
+  --plus-x-s:240; --plus-y-s:117; --plus-w-s:140; --plus-h-s:60;
+  --plus-x-l:640; --plus-y-l:145; --plus-w-l:320; --plus-h-l:140;
 
   /* Текст + иконка валюты внутри облака */
   --plus-font-m:20px;
