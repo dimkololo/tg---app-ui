@@ -69,6 +69,10 @@
     </div>
   </main>
 
+  <!-- Оверлей при горизонтальной ориентации -->
+<div id="orientationLock" class="orientation-lock" aria-hidden="true"></div>
+
+
   <!-- Универсальная модалка -->
   <div class="modal" data-modal-root hidden aria-hidden="true">
     <div class="modal__backdrop" data-dismiss></div>
@@ -118,13 +122,13 @@
       <div class="slider-row">
         <span class="label" data-stars>0 PLAMc</span>
         <input class="range" type="range" min="0" max="20" step="1" value="0" />
-        <span class="label" data-secs>0 sec</span>
+        <span class="label" data-secs>0 сек</span>
       </div>
     </div>
 
     <form class="card form-card" data-upload-form novalidate>
-      <input class="field" type="url" name="social" placeholder="...add your social media link" />
-      <textarea class="field" name="desc" rows="3" placeholder="...add a description" maxlength="160"></textarea>
+      <input class="field" type="url" name="social" placeholder="...ссылка на соц.сети" />
+      <textarea class="field" name="desc" rows="3" placeholder="...описание" maxlength="160"></textarea>
 
       <div class="u-center">
         <!-- теперь кнопку НЕ блокируем визуально -->
