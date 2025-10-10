@@ -301,7 +301,7 @@ html,body{
 .profile-header .avatar.has-crown::before{
   content:'';
   position:absolute;
-  top:-34px; left:14px;
+  top:-50px; left:14px;
   width:100px; aspect-ratio:1.45;
   background:center/contain no-repeat;
   background-image:image-set(
@@ -333,7 +333,7 @@ html,body{
 .profile-header .btn-premium{
   grid-column:2; grid-row:2;
   justify-self:start;                   /* выровнять по левому краю */
-  max-width:calc(100% - 38px);        /* 20px кружок + 8px gap */
+  max-width:calc(100% - 58px);        /* 20px кружок + 8px gap */
   position:relative;
   display:flex; align-items:center; justify-content:center; text-align:center;
 
@@ -350,8 +350,8 @@ html,body{
   left:100%;
   top:50%;
   transform:translate(8px,-50%);     /* gap = 8px */
-  width:30px; 
-  height:30px; 
+  width:50px; 
+  height:50px; 
   border-radius:50%;
   background:#D9D9D9; 
   color:#FF7300; 
@@ -366,10 +366,10 @@ html,body{
 /* Состояния */
 .btn-premium[disabled]{background:#FF7300; color:#fff; cursor:not-allowed}
 
-/* Когда премиум активен — плашка на всю ширину правой колонки, без «?» */
+/* Когда премиум активен — плашка тоже с «?» */
 .btn-premium.is-owned{
   justify-self:start;                   /* выровнять по левому краю */
-  max-width:calc(100% - 38px);           
+  max-width:calc(100% - 58px);           
   background:#FF7300; 
   color:#fff; 
   cursor:default;
