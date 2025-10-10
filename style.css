@@ -371,14 +371,14 @@ html,body{
 
 /* Когда премиум активен — плашка на всю ширину правой колонки, без «?» */
 .btn-premium.is-owned{
-  justify-self:stretch;
-  width:100%;                         /* ← вернули всю ширину */
+  justify-self:start;                   /* выровнять по левому краю */
+  max-width:calc(100% - 28px);           
   background:#D9D9D9; 
   color:#000; 
   cursor:default;
   padding:10px 18px;
 }
-.btn-premium.is-owned::after{ display:none; }
+
 
 /* Карточки профиля */
 .profile-card{width:100%; background:var(--chip); border-radius:16px; padding:12px; display:grid; gap:8px; border:1px solid rgba(0,0,0,.06)}
