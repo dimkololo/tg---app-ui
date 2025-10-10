@@ -188,6 +188,7 @@ function initUploadPopup(){
   const range       = root.querySelector('.range');
   const starsEl     = root.querySelector('[data-stars]');
   const secsEl      = root.querySelector('[data-secs]');
+  const urlInput    = root.querySelector('input[name="social"]');
 
   // предпросмотр
   const pickedEmpty = root.querySelector('.picked-empty');
@@ -195,32 +196,42 @@ function initUploadPopup(){
   const pickedImg   = root.querySelector('[data-picked-img]');
   const removeBtn   = root.querySelector('[data-remove-photo]');
 
-  // ——— выбор файла (только ОДИН) + показ превью
+  // === состояние «есть ли файл» управляет кнопкой «Отправить»
   let objectUrl = null;
+  let hasFile = false;
+
+  const updateSubmitState = ()=>{ submitBtn.disabled = !hasFile; };
+
   function showPreview(file){
-    // гасим прежний blob урл
     if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = null; }
-    if (!file){ 
-      pickedItem.hidden = true; pickedEmpty.style.display = 'block';
-      pickedImg.src = ''; return;
+    if (!file){
+      hasFile = false;
+      pickedItem.hidden = true;
+      pickedEmpty.style.display = 'block';
+      pickedImg.src = '';
+      updateSubmitState();
+      return;
     }
+    hasFile = true;
     objectUrl = URL.createObjectURL(file);
     pickedImg.src = objectUrl;
     pickedEmpty.style.display = 'none';
     pickedItem.hidden = false;
+    updateSubmitState();
   }
+
   btnPick?.addEventListener('click', ()=>fileInput?.click());
   fileInput?.addEventListener('change', ()=>{
     const f = fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
     showPreview(f);
   });
   removeBtn?.addEventListener('click', ()=>{
-    fileInput.value = '';               // сброс выбора
+    fileInput.value = '';
     showPreview(null);
   });
-  showPreview(null);                    // стартовое состояние
+  showPreview(null); // старт
 
-  // ——— слайдер
+  // слайдер
   if (range && starsEl && secsEl) {
     const update = () => {
       const v = Number(range.value);
@@ -231,8 +242,7 @@ function initUploadPopup(){
     update();
   }
 
-  // ——— мягкая валидация URL
-  const urlInput = root.querySelector('input[name="social"]');
+  // мягкая валидация URL
   function isValidUrlLike(v){
     if (!v) return true;
     const tme = /^https?:\/\/t\.me\/.+/i;
@@ -240,21 +250,20 @@ function initUploadPopup(){
     return tme.test(v) || http.test(v);
   }
 
-  // ——— отправка
+  // отправка
   form?.addEventListener('submit', (e)=>{
     e.preventDefault();
 
-    const file = fileInput?.files?.[0] || null;
-    const filesCount = file ? 1 : 0;
-
-    // если файла нет и подписка ещё не подтверждена — сначала подписка
-    if (!file && !window.PLAM.subsOk){
-      openStack('subs-required');
+    // без файла сюда обычно не попадём (кнопка disabled), но на всякий случай:
+    if (!hasFile){
+      try { window.Telegram?.WebApp?.showAlert?.('Прикрепите фото'); } catch(_) {}
       return;
     }
-    // если файла нет, но подписка уже подтверждена — попросим выбрать фото
-    if (!file && window.PLAM.subsOk){
-      try { window.Telegram?.WebApp?.showAlert?.('Прикрепите фото'); } catch(_) {}
+
+    // если подписка ещё не подтверждена — показываем попап и выходим.
+    // НИЧЕГО не сбрасываем: фото остаётся, кнопка активна.
+    if (!window.PLAM.subsOk){
+      openStack('subs-required');
       return;
     }
 
@@ -266,7 +275,7 @@ function initUploadPopup(){
       return;
     }
 
-    // проверка баланса по слайдеру
+    // проверка баланса
     const need = parseInt(range?.value || '0', 10) || 0;
     if (need > 0 && (window.PLAM.balance||0) <= 0) { alert('Недостаточно PLAMc'); return; }
     if (need > (window.PLAM.balance||0))          { alert('Недостаточно PLAMc'); return; }
@@ -275,21 +284,22 @@ function initUploadPopup(){
     window.PLAM.balance -= need;
     updatePlusBalanceUI();
 
-    // счетчики фото (+1 за отправку, т.к. ровно одно фото)
-    window.PLAM.photoCount = (window.PLAM.photoCount || 0) + filesCount;
+    // учтём одно фото
+    window.PLAM.photoCount = (window.PLAM.photoCount || 0) + 1;
 
-    // если профиль открыт — обновим плашки
+    // обновим профиль, если он открыт
     if (!modalRoot.hidden && modalRoot.querySelector('.profile-popup')){
       refreshProfileUI?.();
     }
 
-    // TODO: реальная отправка file/link/desc на сервер
+    // TODO: отправка на сервер/TG
 
-    // очистка превью и закрытие
+    // очистка и закрытие
     showPreview(null);
     closeModal();
   });
 }
+
 
 
 
@@ -306,29 +316,27 @@ function initSubsRequired(){
 
   const btnCheck = root.querySelector('[data-check-subs]');
 
-  btnCheck?.addEventListener('click', async ()=>{
-    // В реале: вызвать бэкенд, который проверит подписку через бота (getChatMember).
-    // Здесь — фронтенд-демо: считаем ок, если обе ссылки открывали.
-    if (!clickedYT || !clickedTG){
-      try { window.Telegram?.WebApp?.showAlert?.('Откройте обе ссылки и подпишитесь.'); } catch(_) {}
-      return;
-    }
+  btnCheck?.addEventListener('click', ()=>{
+  // здесь в бою должна быть реальная проверка
+  // фронтенд-демо: считаем ок, если ссылки открывали (можно оставить как есть)
 
-    // Условие выполнено
-    window.PLAM.subsOk = true;
-    btnCheck.textContent = 'Спасибо';
-    btnCheck.classList.add('is-ok');
-    btnCheck.disabled = true;
+  // считаем проверку успешной:
+  window.PLAM.subsOk = true;
+  btnCheck.textContent = 'Спасибо';
+  btnCheck.classList.add('is-ok');
+  btnCheck.disabled = true;
 
-    // Обновим состояние кнопки "Отправить" в открытом попапе загрузки
-    const uploadRoot = modalRoot.querySelector('.upload-popup');
-    if (uploadRoot){
-      const fileInput = uploadRoot.querySelector('#file-input');
-      const submitBtn = uploadRoot.querySelector('[data-submit]');
-      const hasFiles = fileInput?.files && fileInput.files.length > 0;
-      if (submitBtn) submitBtn.disabled = !(hasFiles && window.PLAM.subsOk === true);
-    }
-  });
+  // Ничего не блокируем в форме загрузки — просто
+  // если там прикреплено фото, кнопка уже активна.
+  const uploadRoot = modalRoot.querySelector('.upload-popup');
+  if (uploadRoot){
+    const fileInput = uploadRoot.querySelector('#file-input');
+    const submitBtn = uploadRoot.querySelector('[data-submit]');
+    const hasFiles = !!(fileInput?.files && fileInput.files.length > 0);
+    if (submitBtn) submitBtn.disabled = !hasFiles;  // ТОЛЬКО от наличия файла
+  }
+});
+
 }
 
 
