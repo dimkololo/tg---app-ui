@@ -127,8 +127,31 @@
     </div>
 
     <form class="card form-card" data-upload-form novalidate>
-      <input class="field" type="url" name="social" placeholder="...ссылка на соц.сети" />
-      <textarea class="field" name="desc" rows="3" placeholder="...описание" maxlength="160"></textarea>
+  <!-- Ссылка -->
+  <div class="field-wrap">
+    <input
+      class="field"
+      type="url"
+      name="social"
+      placeholder="...add your social media link"
+      maxlength="255"
+      inputmode="url"
+      data-counter="link"
+    />
+    <div class="field-counter" data-counter-for="link">0 / 255</div>
+  </div>
+      <!-- Описание -->
+  <div class="field-wrap">
+    <textarea
+      class="field"
+      name="desc"
+      rows="3"
+      placeholder="...add a description"
+      maxlength="220"
+      data-counter="desc"
+    ></textarea>
+    <div class="field-counter" data-counter-for="desc">0 / 220</div>
+  </div>
 
       <div class="u-center">
         <!-- теперь кнопку НЕ блокируем визуально -->
