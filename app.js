@@ -125,14 +125,16 @@ function initPremiumTimer(){
   tick();
   const timer = setInterval(tick, 1000);
 
-  // стопаем таймер при закрытии именно стека
+  // стопаем таймер при закрытии именно стека (клик по кресту/бэкдропу)
   root.addEventListener('click', (e)=>{
     if (e.target.matches('[data-dismiss-stack]') || e.target.closest('[data-dismiss-stack]')){
       clearInterval(timer);
     }
   });
+
+  // и по Esc — если открыт стек
   document.addEventListener('keydown', function escOnce(ev){
-    if (ev.key === 'Escape' && !modalRoot.hidden){
+    if (ev.key === 'Escape' && !stackRoot.hidden){
       clearInterval(timer);
       document.removeEventListener('keydown', escOnce);
     }
