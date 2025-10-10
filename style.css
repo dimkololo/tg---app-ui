@@ -215,8 +215,8 @@ html,body{
 .btn-submit{background:var(--accent); color:#fff; box-shadow:0 6px 14px rgba(255,115,0,.25)}
 /* неактивная */
 .btn-submit:disabled{
-  background:#D9D9D9;
-  color:#777;
+  background:#777;
+  color:#D9D9D9;
   box-shadow:none;
   cursor:not-allowed;
 }
