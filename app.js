@@ -267,29 +267,62 @@ btnPremium.addEventListener('click', ()=>{
 });
 }  
 
+function refreshProfileUI(){
+  const root = modalRoot.querySelector('.profile-popup');
+  if (!root) return;
+
+  // число фото и секунды
+  const photos = Number(window.PLAM.photoCount || 0);
+  root.querySelector('[data-photo-count]').textContent = String(photos);
+  const baseSecs = window.PLAM.premium ? 40 : 20;
+  const secs = baseSecs + Math.floor(photos / 100);
+  root.querySelector('[data-show-seconds]').textContent = `${secs} сек`;
+
+  // кнопка + корона
+  const avatarEl   = root.querySelector('[data-avatar]');
+  const btnPremium = root.querySelector('[data-btn-premium]');
+  if (window.PLAM.premium){
+    btnPremium.textContent = 'Премиум активен';
+    btnPremium.classList.add('is-owned');
+    avatarEl?.classList.add('has-crown');
+  } else {
+    btnPremium.textContent = 'Получить премиум';
+    btnPremium.classList.remove('is-owned');
+    avatarEl?.classList.remove('has-crown');
+  }
+}
+
+
 
 // --- Подтверждение покупки премиума ---
 function initConfirmPremium(){
-  const root = modalRoot.querySelector('.confirm-popup');
+  const root = stackRoot.querySelector('.confirm-popup'); // ← в стеке
   if (!root) return;
 
   root.querySelector('[data-confirm-yes]')?.addEventListener('click', ()=>{
-  const price = 1500;
-  if ((window.PLAM.balance||0) < price){
-    closeModal(); openModal('buy-stars'); return;
-  }
-  window.PLAM.balance -= price;
-  window.PLAM.premium  = true;
+    const price = 1500;
+    if ((window.PLAM.balance||0) < price){
+      // не хватает — закрываем ВЕРХНИЙ слой и профиль, открываем магазин
+      closeStack();
+      closeModal();
+      openModal('buy-stars');
+      return;
+    }
 
-  // 30 дней вперёд от текущего момента (сбрасывается при перезагрузке)
-  const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
-  window.PLAM.premiumUntil = Date.now() + THIRTY_DAYS;
+    // есть достаточно — списываем, активируем премиум, ставим таймер
+    window.PLAM.balance -= price;
+    window.PLAM.premium  = true;
+    const THIRTY_DAYS = 30*24*60*60*1000;
+    window.PLAM.premiumUntil = Date.now() + THIRTY_DAYS;
+    updatePlusBalanceUI();
 
-  updatePlusBalanceUI();
-  closeModal();
-  openModal('profile');
-});
-} 
+    // закрываем только подтверждение и обновляем профиль ПОД ним
+    closeStack();
+    refreshProfileUI();
+    try { window.Telegram?.WebApp?.showAlert?.('Премиум активирован на 30 дней'); } catch(_) {}
+  });
+}
+
 
 // --- DEBUG хот-спотов: ?debug=1 в URL или Shift+D ---
 (function debugHotspots(){
