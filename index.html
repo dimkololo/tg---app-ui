@@ -268,6 +268,32 @@
     </section>
   </template>
 
+<!-- Попап: обязательная подписка перед первой отправкой -->
+<template id="tpl-subs-required">
+  <section class="popup subs-popup">
+    <div class="chip subs-card">
+      <h3 class="subs-title">Подписка обязательна</h3>
+      <p class="subs-sub">Подпишитесь на наши каналы, чтобы отправлять фото.</p>
+
+      <div class="subs-links">
+        <a class="btn-link" href="https://youtube.com/@p.l.a.m?si=eYNmdfzUSjF8qwPk" target="_blank" rel="noopener" data-sub-yt>
+          Youtube канал
+        </a>
+        <a class="btn-link" href="https://t.me/ninaiart" target="_blank" rel="noopener" data-sub-tg>
+          Telegram канал
+        </a>
+      </div>
+
+      <div class="u-center">
+        <button class="btn-check" type="button" data-check-subs>Проверить подписки</button>
+      </div>
+
+      <p class="subs-note">После успешной проверки можно закрыть окно и отправить фото.</p>
+    </div>
+  </section>
+</template>
+
+  
   <!-- Подтверждение премиума -->
 <template id="tpl-confirm-premium">
   <section class="popup confirm-popup">
