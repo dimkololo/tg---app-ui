@@ -40,9 +40,10 @@ function openStack(id){
   stackRoot.hidden = false;
   stackRoot.setAttribute('aria-hidden','false');
 
-  // инициализаторы для шаблонов стека
-  if (id === 'premium-timer') initPremiumTimer();
+  if (id === 'premium-timer')   initPremiumTimer();
+  if (id === 'confirm-premium') initConfirmPremium();   // ← добавь это
 }
+
 
 function closeStack(){
   stackRoot.hidden = true;
@@ -262,9 +263,10 @@ btnPremium.addEventListener('click', ()=>{
   if (window.PLAM.premium){
     openStack('premium-timer');     // поверх профиля
   } else {
-    openStack('confirm-premium');   // ← вместо openModal
+    openStack('confirm-premium');   // ← вместо openModal(...)
   }
 });
+
 }  
 
 function refreshProfileUI(){
@@ -296,32 +298,34 @@ function refreshProfileUI(){
 
 // --- Подтверждение покупки премиума ---
 function initConfirmPremium(){
-  const root = stackRoot.querySelector('.confirm-popup'); // ← в стеке
+  const root = stackRoot.querySelector('.confirm-popup'); // ← ищем в стеке
   if (!root) return;
 
   root.querySelector('[data-confirm-yes]')?.addEventListener('click', ()=>{
     const price = 1500;
-    if ((window.PLAM.balance||0) < price){
-      // не хватает — закрываем ВЕРХНИЙ слой и профиль, открываем магазин
-      closeStack();
-      closeModal();
+
+    // НЕ хватает средств → закрываем подтверждение + профиль, открываем магазин
+    if ((window.PLAM.balance || 0) < price){
+      closeStack();        // закрыли верхний слой
+      closeModal();        // закрыли профиль
       openModal('buy-stars');
       return;
     }
 
-    // есть достаточно — списываем, активируем премиум, ставим таймер
+    // Достаточно средств → списываем и активируем
     window.PLAM.balance -= price;
     window.PLAM.premium  = true;
-    const THIRTY_DAYS = 30*24*60*60*1000;
+    const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
     window.PLAM.premiumUntil = Date.now() + THIRTY_DAYS;
+
     updatePlusBalanceUI();
 
-    // закрываем только подтверждение и обновляем профиль ПОД ним
+    // закрываем только подтверждение и обновляем открытый профиль
     closeStack();
     refreshProfileUI();
-    try { window.Telegram?.WebApp?.showAlert?.('Премиум активирован на 30 дней'); } catch(_) {}
   });
 }
+
 
 
 // --- DEBUG хот-спотов: ?debug=1 в URL или Shift+D ---
