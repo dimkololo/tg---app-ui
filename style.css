@@ -39,13 +39,7 @@
   --notebook-x-s:95;  --notebook-y-s:480; --notebook-w-s:120; --notebook-h-s:90;
   --notebook-x-l:170; --notebook-y-l:1070; --notebook-w-l:220; --notebook-h-l:160;
   
-  --picked-size: clamp(150px, 55vw, 220px);
-}
-@media (max-width:360px), (max-height:640px){
-  :root{
-    --picked-size: clamp(130px, 50vw, 180px);
-  }
-}
+ 
 
 /* ====== базовая сцена ====== */
 *{box-sizing:border-box;margin:0;padding:0}
@@ -684,12 +678,14 @@ html,body{
 }
 .picked-item{
   position: relative;
-  width: var(--picked-size);
-  aspect-ratio: 1;
+  width: 80px;           /* фикс ширины */
+  height: 80px;          /* фикс высоты */
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 6px 14px rgba(0,0,0,.18);
+  /* УДАЛИ, если было: aspect-ratio: 1; и width: var(--picked-size); */
 }
+
 
 .picked-item img{
   width:100%; height:100%; object-fit:cover; display:block;
@@ -751,25 +747,6 @@ html,body{
   transition: max-height .18s ease, opacity .12s ease, margin .18s ease, transform .18s ease;
 }
 
-/* на очень узких/низких экранах базовый размер превью чуть меньше */
-@media (max-width:360px), (max-height:640px){
-  :root { --picked-size: clamp(130px, 50vw, 180px); }
-}
-
-
-/* когда печатаем описание — делаем превью компактным */
-.is-writing-upload .upload-popup .picked-box{
-  max-height: 120px;      /* было фактически "auto" за счёт содержимого */
-  margin: 6px 0 4px;
-  opacity: .95;
-  overflow: hidden;
-  transform: translateZ(0); /* меньший шанс «мигания» на iOS */
-}
-
-/* совсем маленькие устройства — ещё компактнее */
-@media (max-width:360px), (max-height:640px){
-  .is-writing-upload .upload-popup .picked-box{ max-height: 96px; }
-}
 
 /* скролл внутри контента модалки, когда включаем его из JS */
 .modal__content.is-scrollable{
