@@ -368,6 +368,24 @@ html,body{
 /* второй слой поверх основной модалки */
 .modal--stack{ z-index: 1101; }
 
+/* FAQ: делаем диалог сплошным (без прозрачности) */
+.modal__dialog:has(.faq-popup){
+  background: var(--chip);      /* сплошная заливка */
+}
+
+/* (опционально) чтобы не было «карточка на карточке» */
+.modal__dialog:has(.faq-popup) .chip{
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+/* крестик на светлом фоне — тёмный */
+.modal__dialog:has(.faq-popup) .modal__close{
+  color:#000;
+}
+
+
 
 /* ====== попапы: общие ====== */
 .popup{display:grid; gap:12px; justify-items:center; width:100%; max-width:420px; margin-inline:auto}
