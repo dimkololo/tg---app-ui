@@ -53,32 +53,38 @@ html,body{
 /* фон подложки = цвет неба */
 .scene{ background: var(--sky); }
 
+/* Сцена занимает весь вьюпорт */
 .stage{
   position: relative;
-  display: inline-block;
-  /* ВАЖНО: эти переменные нужны для формул хот-спотов */
-  --design-w: var(--mw);
-  --design-h: var(--mh);
-
-  /* контейнер ограничивает изображение viewport'ом */
-  max-width: 100vw;
-  max-height: 100svh;
-
-  background: var(--sky);
-  overflow: hidden;
-}
-
-/* картинка всегда вписывается во viewport по contain и центрируется */
-.stage__img{
-  display: block;
-  width: 100vw;          /* даём рамку по контейнеру/вьюпорту */
+  width: 100vw;
   height: 100svh;
-  max-width: 100vw;
-  max-height: 100svh;
-  object-fit: contain;
-  object-position: center;
-  pointer-events: none;
+  overflow: hidden;           /* на всякий случай скрываем «лишнее» */
+  background: var(--sky);
 }
+
+/* <picture> и <img> растягиваем на всю сцену */
+.stage picture{ 
+  display:block; 
+  width:100%; 
+  height:100%; 
+}
+.stage__img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit: contain;        /* базово — вмещаем без обрезки */
+  object-position: center;
+  pointer-events:none;
+}
+
+/* SMALL — заполняем экран полностью без зазоров */
+@media (max-width:360px),(max-height:640px){
+  .stage__img{
+    object-fit: cover;        /* убирает пустые поля */
+    object-position: center top; /* по желанию можно сместить фокус */
+  }
+}
+
 
 
 /* ====== хот-споты ====== */
