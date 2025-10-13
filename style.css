@@ -20,7 +20,7 @@
 
   /* Плюс-облако (иконка выведена слоем ::before) */
   --plus-x-m:290; --plus-y-m:145; --plus-w-m:190; --plus-h-m:90;
-  --plus-x-s:240; --plus-y-s:117; --plus-w-s:140; --plus-h-s:60;
+  --plus-x-s:240; --plus-y-s:117; --plus-w-s:130; --plus-h-s:50;
   --plus-x-l:640; --plus-y-l:145; --plus-w-l:320; --plus-h-l:140;
 
   /* Текст + иконка валюты внутри облака */
