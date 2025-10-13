@@ -776,6 +776,41 @@ html,body{
   /* padding-bottom выставляем из JS в px */
 }
 
+/* Универсальный контроль размера превью: меньше и адаптивно */
+.upload-popup .picked-item{
+  width: min(var(--picked-size), 40vh) !important; /* <= перебиваем старые width */
+  aspect-ratio: 1;
+}
+
+:root{
+  /* ...твои переменные... */
+  --picked-size: clamp(140px, 48vw, 220px);
+}
+
+@media (max-width:360px), (max-height:640px){
+  :root{ --picked-size: clamp(120px, 44vw, 170px); }
+}
+
+/* Базовое ограничение: превью не выше 40% экрана */
+.upload-popup .picked-box{
+  max-height: min(40vh, calc(var(--picked-size) + 16px));
+  overflow: hidden;
+}
+
+/* Только для попапа загрузки: контент скроллится, диалог фиксированной высоты */
+.modal__dialog:has(.upload-popup) .modal__content{
+  max-height: calc(100svh - 140px);   /* «окно» контента */
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Было left:10px; — переносим вправо и ниже выреза */
+.modal__close{
+  top: calc(env(safe-area-inset-top, 0px) + 10px);
+  right: 12px;
+  left: auto;
+}
+
 
 
 
