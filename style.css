@@ -871,6 +871,12 @@ html,body{
   .faq-scroll{ max-height: calc(100svh - 180px); }
 }
 
+/* FAQ: прячем крестик у диалога с FAQ */
+.modal__dialog:has(.faq-popup) .modal__close{
+  display: none;
+}
+
+
 
 
 
