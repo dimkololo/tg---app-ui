@@ -78,6 +78,7 @@ function openStack(id){
   if (id === 'premium-timer')   initPremiumTimer();
   if (id === 'confirm-premium') initConfirmPremium();   // ← добавь это
   if (id === 'subs-required')  initSubsRequired();
+  if (id === 'premium-help')  initPremiumHelp();
 
 }
 
@@ -493,6 +494,27 @@ function initProfile(){
 };
 setBtn();
 
+  // Клик по зоне "вопросика" справа от кнопки премиума (псевдо-элемент ::after)
+root.addEventListener('click', (ev) => {
+  const btnRect = btnPremium.getBoundingClientRect();
+  const x = ev.clientX;
+  const y = ev.clientY;
+
+  // геометрия пузыря "?": ширина/высота 50px, отстоит на 8px правее кнопки, по центру по вертикали
+  const BUBBLE = 50;
+  const GAP = 8;
+  const left = btnRect.right + GAP;
+  const top  = btnRect.top + (btnRect.height - BUBBLE) / 2;
+  const hit = (x >= left && x <= left + BUBBLE && y >= top && y <= top + BUBBLE);
+
+  if (hit) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    openStack('premium-help');
+  }
+});
+
+
 btnPremium.addEventListener('click', ()=>{
   if (window.PLAM.premium){
     openStack('premium-timer');     // поверх профиля
@@ -584,7 +606,9 @@ function initConfirmPremium(){
   window.addEventListener('resize', update);
 })();
 
-
+function initPremiumHelp(){
+  // тут пока ничего не нужно: закрытие по [data-dismiss-stack] уже работает
+}
 
 
 // --- DEBUG хот-спотов: ?debug=1 в URL или Shift+D ---
