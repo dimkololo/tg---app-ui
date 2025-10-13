@@ -56,6 +56,13 @@
       </button>
 
       <button
+        class="hotspot hotspot--faq"
+        data-open-modal="faq"
+        aria-label="Открыть FAQ"
+      ></button>
+
+
+      <button
         class="hotspot hotspot--gift"
         data-open-modal="prizes"
         aria-label="Открыть попап призов"
@@ -247,6 +254,54 @@
       </div>
     </section>
   </template>
+
+  <!-- Попап: FAQ -->
+<template id="tpl-faq">
+  <section class="popup faq-popup">
+    <div class="chip faq-card">
+      <h3 class="faq-title">FAQ</h3>
+
+      <!-- Прокручиваемая область -->
+      <div class="faq-scroll">
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin nec pharetra nisl. 
+          Vivamus gravida, libero nec molestie interdum, purus metus luctus urna, ut placerat 
+          tortor velit in augue. Integer porta, sapien ut dictum aliquet, mi nisi tincidunt 
+          tortor, iaculis varius risus dui id sapien. Pellentesque a dignissim nulla.
+        </p>
+        <p>
+          Cras interdum feugiat est, vitae aliquet lacus egestas nec. Mauris maximus, magna quis
+          efficitur auctor, massa metus pulvinar dolor, a gravida ipsum mi id justo. Aenean eget 
+          massa id neque volutpat ullamcorper. Donec eu odio ac erat posuere euismod.
+        </p>
+
+        <!-- Плейсхолдеры под картинки (5 шт.) -->
+        <div class="faq-img" aria-hidden="true"></div>
+        <div class="faq-img" aria-hidden="true"></div>
+        <div class="faq-img" aria-hidden="true"></div>
+        <div class="faq-img" aria-hidden="true"></div>
+        <div class="faq-img" aria-hidden="true"></div>
+
+        <p>
+          Suspendisse potenti. Nunc a nunc vel turpis gravida semper. Fusce malesuada augue 
+          eget tellus placerat pulvinar. Curabitur at sagittis dolor. Sed finibus, justo 
+          id tempor rhoncus, odio libero faucibus elit, quis tincidunt odio diam non velit.
+        </p>
+        <p>
+          Praesent laoreet, mauris nec facilisis dictum, ligula lorem tristique nibh, sed 
+          venenatis massa augue a velit. Duis sodales, metus vitae elementum feugiat, magna 
+          nisi varius dui, a fringilla velit sem sed ipsum. Nam efficitur in ipsum vitae 
+          tristique. In bibendum commodo ligula vitae varius.
+        </p>
+      </div>
+
+      <div class="u-center">
+        <button class="btn-close-timer" type="button" data-dismiss>Закрыть</button>
+      </div>
+    </div>
+  </section>
+</template>
+
 
   <!-- Попап 3: призы/выплата -->
   <template id="tpl-prizes">
