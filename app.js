@@ -319,6 +319,71 @@ bindCounter(root.querySelector('[data-counter="desc"]'));
     showPreview(null);
     closeModal();
   });
+  
+  // --- комфортный ввод текста на мобильной клавиатуре ---
+(function enhanceKeyboardForUpload(){
+  const dialog = modalRoot.querySelector('.modal__dialog');
+  const scrollBox = modalRoot.querySelector('.modal__content'); // скроллим контент диалога
+  const desc = modalRoot.querySelector('textarea[name="desc"], textarea[name="description"], .upload-popup textarea');
+
+  if (!dialog || !scrollBox || !desc) return;
+
+  // делаем контейнер скроллируемым только на время ввода
+  function enableScroll() {
+    scrollBox.style.overflow = 'auto';
+  }
+  function disableScroll() {
+    scrollBox.style.overflow = 'visible';
+    dialog.style.paddingBottom = '';
+    document.documentElement.style.scrollBehavior = ''; // на всякий
+  }
+
+  // вычисление высоты клавиатуры (iOS/Android WebView)
+  function updateBottomInset() {
+    const vv = window.visualViewport;
+    if (!vv) return 0;
+    // сколько экран «сжали» + смещение сверху (для iOS)
+    const kb = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+    // добавим пару пикселей запаса
+    const safe = Math.round(kb + 12);
+    dialog.style.paddingBottom = safe ? safe + 'px' : '';
+    return safe;
+  }
+
+  // при фокусе — добавляем отступ и крутим поле в центр
+  function focusDesc() {
+    enableScroll();
+    // обновим padding сразу и после кадра — когда клавиатура уже открывается
+    updateBottomInset();
+    requestAnimationFrame(()=>{
+      updateBottomInset();
+      // гарантированно в зоне видимости
+      desc.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    });
+  }
+
+  function blurDesc() {
+    // маленькая задержка, чтобы не мигало при переходах фокуса
+    setTimeout(disableScroll, 150);
+  }
+
+  desc.addEventListener('focus', focusDesc);
+  desc.addEventListener('blur',  blurDesc);
+
+  // динамически реагируем на изменение клавиатуры (iOS visualViewport)
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', updateBottomInset);
+    window.visualViewport.addEventListener('scroll', updateBottomInset);
+  }
+
+  // если пользователь тапнул по подписи/контейнеру — пробрасываем фокус в textarea
+  // (разметку не трогаем, просто ловим клик на карточке формы)
+  scrollBox.addEventListener('click', (e)=>{
+    const wrap = e.target.closest('.field-wrap');
+    if (wrap && wrap.contains(desc)) desc.focus();
+  });
+})();
+
 }
 
 
