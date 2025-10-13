@@ -109,7 +109,7 @@ html,body{
 
 
 /* SMALL: маленький холст + убираем зазоры (cover) */
-@media (max-width:360px),(max-height:640px){
+@media (max-width:390px),(max-height:700px){
   .stage{ --design-w: var(--sw); --design-h: var(--sh); }
 }
 
