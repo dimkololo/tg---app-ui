@@ -84,8 +84,7 @@ html,body{
 }
 
 
-/* Сцена занимает весь вьюпорт */
-/* Сцена — размер задаёт картинка (как в макете). */
+/* Сцена — размер задаёт картинка как в макете */
 .stage{
   position: relative;
   display: inline-block;   /* ширина = ширине картинки */
@@ -105,9 +104,32 @@ html,body{
   pointer-events:none;
 }
 
+/* Любые кнопки внутри сцены без системного фона */
+.scene button{
+  background:transparent;
+  border:0;
+  box-shadow:none;
+}
 
-/* ====== хот-споты ====== */
-.hotspot{ position:absolute; transform:translate(-50%, -50%); z-index:20; }
+
+/* Полный reset для кликабельных зон */
+.hotspot{
+  position:absolute;
+  transform:translate(-50%, -50%);
+  z-index:20;
+
+  /* reset */
+  appearance:none;
+  -webkit-appearance:none;
+  background:transparent !important;
+  border:0 !important;
+  padding:0 !important;
+  margin:0;
+  box-shadow:none !important;
+  outline:none;
+  cursor:pointer;
+}
+
 
 /* пенёк */
 .hotspot--stump{
@@ -140,6 +162,7 @@ html,body{
   height:calc(var(--plus-h-m) / var(--design-h, 853) * 100%);
   z-index:25;
 }
+/* фон облака — на 0-м уровне */
 .hotspot--plus::before{
   content:"";
   position:absolute; inset:0;
@@ -149,16 +172,18 @@ html,body{
     url("./bgicons/cloud-plus@2x.png") 2x
   );
   pointer-events:none;
-  z-index:-1;
+  z-index:0;                 /* было -1 — могло уехать «под» сцену */
 }
 
-/* число + иконка валюты внутри облака */
+/* контент внутри облака — поверх фона */
 .hotspot--plus .plus-ui{
   position:absolute; inset:0;
   display:flex; align-items:center; justify-content:center;
   padding-left: var(--plus-padleft-m);
   pointer-events:none;
+  z-index:1;
 }
+
 .hotspot--plus .plus-value{
   color:#F6E3A8;
   font-weight:800;
