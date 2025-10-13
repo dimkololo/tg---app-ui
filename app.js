@@ -193,6 +193,56 @@ function initUploadPopup(){
   // --- управление клавиатурой ---
 const descEl = root.querySelector('textarea[name="desc"]');
 
+  // добавь:
+const descEl    = root.querySelector('textarea[name="desc"]');
+
+// --- фикс "смещения кликов" после закрытия клавиатуры ---
+function normalizeAfterKeyboard() {
+  // даём WebView отпустить клаву
+  setTimeout(() => {
+    // 1) возвращаем скролл к нулю (у некоторых webview остаётся смещение)
+    window.scrollTo(0, 0);
+
+    // 2) форсируем reflow/перерисовку диалога
+    const dlg = modalRoot.querySelector('.modal__dialog');
+    if (dlg) {
+      dlg.style.transform = 'translateZ(0)'; // включили слой
+      void dlg.offsetHeight;                 // форс-рефлоу
+      dlg.style.transform = '';              // выключили
+    }
+  }, 80);
+}
+
+// Enter на ссылке -> фокус в описание (как раньше)
+if (urlInput) {
+  urlInput.setAttribute('enterkeyhint', 'next');
+  urlInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); descEl?.focus(); }
+  });
+}
+
+// На описании: Enter/Готово -> скрыть клавиатуру и поправить хит-тест
+if (descEl) {
+  descEl.setAttribute('enterkeyhint', 'done');
+  const hideKb = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      descEl.blur();              // закрыли клавиатуру
+      normalizeAfterKeyboard();   // починили смещение кликов
+    }
+  };
+  descEl.addEventListener('keydown', hideKb);
+  descEl.addEventListener('keypress', hideKb); // iOS подстраховка
+  descEl.addEventListener('blur', normalizeAfterKeyboard);
+}
+
+// Доп. страховка: когда визуальный вьюпорт меняется (клава прячется) — тоже нормализуем
+if (window.visualViewport) {
+  const onVV = () => normalizeAfterKeyboard();
+  window.visualViewport.addEventListener('resize', onVV);
+  // слушатель можно не снимать — попапов немного, нагрузка нулевая
+}
+
 // 1) На поле ссылки: Enter -> фокус на описание (не отправляем форму)
 if (urlInput) {
   urlInput.setAttribute('enterkeyhint', 'next'); // на всякий случай
