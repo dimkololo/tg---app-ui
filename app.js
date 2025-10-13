@@ -386,6 +386,20 @@ bindCounter(root.querySelector('[data-counter="desc"]'));
   const scrollBox = modalRoot.querySelector('.modal__content'); // скроллим контент диалога
   const desc = modalRoot.querySelector('textarea[name="desc"], textarea[name="description"], .upload-popup textarea');
 
+  // Подсказать ОС: показать кнопку "Готово" вместо "Enter"
+desc.setAttribute('enterkeyhint', 'done');
+
+const isTouch = matchMedia('(hover: none) and (pointer: coarse)').matches;
+if (isTouch) {
+  desc.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();   // не вставлять перенос строки
+      desc.blur();          // скрыть клавиатуру
+    }
+  });
+}
+
+
   if (!dialog || !scrollBox || !desc) return;
 
   // делаем контейнер скроллируемым только на время ввода
