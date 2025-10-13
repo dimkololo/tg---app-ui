@@ -14,24 +14,24 @@
   <main class="scene">
     <div class="stage" data-stage>
       <picture>
-        <!-- LARGE -->
-        <source
-          media="(min-height: 1024px), (min-width: 768px)"
-          srcset="./bgicons/bg-large.png 1x, ./bgicons/bg-large@2x.png 2x"
-        />
-        <!-- SMALL -->
-        <source
-          media="(max-width: 360px), (max-height: 640px)"
-          srcset="./bgicons/bg-small.png 1x, ./bgicons/bg-small@2x.png 2x"
-        />
-        <!-- MEDIUM (default) -->
-        <img
-          class="stage__img"
-          alt="Main background"
-          src="./bgicons/bg-medium.png"
-          srcset="./bgicons/bg-medium.png 1x, ./bgicons/bg-medium@2x.png 2x"
-        />
-      </picture>
+  <!-- LARGE -->
+  <source
+    media="(min-height: 1024px), (min-width: 768px)"
+    srcset="./bgicons/bg-large.png 1x, ./bgicons/bg-large@2x.png 2x"
+  />
+  <!-- SMALL (тот же брейкпоинт, что в CSS) -->
+  <source
+    media="(max-width: 375px), (max-height: 667px)"
+    srcset="./bgicons/bg-small.png 1x, ./bgicons/bg-small@2x.png 2x"
+  />
+  <!-- MEDIUM (default) -->
+  <img
+    class="stage__img"
+    alt="Main background"
+    src="./bgicons/bg-medium.png"
+    srcset="./bgicons/bg-medium.png 1x, ./bgicons/bg-medium@2x.png 2x"
+  />
+</picture>
 
       <!-- Хот-споты -->
       <button
