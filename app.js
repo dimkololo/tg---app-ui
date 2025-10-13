@@ -61,6 +61,7 @@ function openModal(id){
   if (id === 'prizes')       initPrizes();
   if (id === 'profile')      initProfile();
   if (id === 'premium-timer') initPremiumTimer();
+  if (id === 'faq') initFAQ();
 }
 
 // второй слой модалки (стек)
@@ -609,6 +610,12 @@ function initConfirmPremium(){
 function initPremiumHelp(){
   // тут пока ничего не нужно: закрытие по [data-dismiss-stack] уже работает
 }
+
+function initFAQ(){
+  // Ничего особенного не нужно — закрытие по [data-dismiss] работает.
+  // Оставлено для расширений (подгрузка картинок/контента).
+}
+
 
 
 // --- DEBUG хот-спотов: ?debug=1 в URL или Shift+D ---
