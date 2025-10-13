@@ -735,6 +735,43 @@ html,body{
 
 .orientation-lock.is-active{ display:block; }
 
+/* --- Upload popup: writing mode --- */
+
+/* по умолчанию как было */
+.upload-popup .picked-box{
+  transition: max-height .18s ease, opacity .12s ease, margin .18s ease, transform .18s ease;
+}
+
+/* на очень узких/низких экранах базовый размер превью чуть меньше */
+@media (max-width:360px), (max-height:640px){
+  .upload-popup .picked-item{ width:min(200px, 72%); }
+}
+
+/* когда печатаем описание — делаем превью компактным */
+.is-writing-upload .upload-popup .picked-box{
+  max-height: 120px;      /* было фактически "auto" за счёт содержимого */
+  margin: 6px 0 4px;
+  opacity: .95;
+  overflow: hidden;
+  transform: translateZ(0); /* меньший шанс «мигания» на iOS */
+}
+
+/* совсем маленькие устройства — ещё компактнее */
+@media (max-width:360px), (max-height:640px){
+  .is-writing-upload .upload-popup .picked-box{ max-height: 96px; }
+}
+
+/* скролл внутри контента модалки, когда включаем его из JS */
+.modal__content.is-scrollable{
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* небольшая «подкладка» снизу, когда открыта клавиатура (ставим из JS) */
+.modal__content.has-kb-padding{
+  /* padding-bottom выставляем из JS в px */
+}
+
 
 
 
