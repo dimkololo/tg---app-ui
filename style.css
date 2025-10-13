@@ -54,36 +54,37 @@ html,body{
 .scene{ background: var(--sky); }
 
 /* Сцена занимает весь вьюпорт */
+./* Сцена — размер задаёт сама картинка, как и раньше */
 .stage{
   position: relative;
-  width: 100vw;
-  height: 100svh;
-  overflow: hidden;           /* на всякий случай скрываем «лишнее» */
-  background: var(--sky);
+  display: inline-block;
+  max-width: 100vw;
+  max-height: 100svh;
+
+  /* ВАЖНО: базовые дизайн-размеры для MEDIUM */
+  --design-w: var(--mw);
+  --design-h: var(--mh);
 }
 
-/* <picture> и <img> растягиваем на всю сцену */
-.stage picture{ 
-  display:block; 
-  width:100%; 
-  height:100%; 
-}
+.stage picture{ display:block; }
 .stage__img{
   display:block;
-  width:100%;
-  height:100%;
-  object-fit: contain;        /* базово — вмещаем без обрезки */
-  object-position: center;
+  max-width:100vw;
+  max-height:100svh;
+  width:auto;
+  height:auto;
+  object-fit: contain;   /* не кадрируем — хот-споты совпадают */
+  object-position:center;
   pointer-events:none;
 }
 
-/* SMALL — заполняем экран полностью без зазоров */
 @media (max-width:360px),(max-height:640px){
-  .stage__img{
-    object-fit: cover;        /* убирает пустые поля */
-    object-position: center top; /* по желанию можно сместить фокус */
-  }
+  .stage{ --design-w: var(--sw); --design-h: var(--sh); }
 }
+@media (min-width:768px),(min-height:1024px){
+  .stage{ --design-w: var(--lw); --design-h: var(--lh); }
+}
+
 
 
 
