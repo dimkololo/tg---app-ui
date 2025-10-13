@@ -10,17 +10,17 @@
 
   /* дизайн-холсты */
   --mw:393; --mh:853;      /* medium */
-  --sw:320; --sh:568;      /* small  */
+  --sw:375; --sh:667;      /* small  (обновлено) */
   --lw:834; --lh:1194;     /* large  */
 
   /* ПЕНЁК — координаты центра и размеры (в пикселях макета) */
   --stump-x-m:308; --stump-y-m:540; --stump-w-m:150; --stump-h-m:120;
-  --stump-x-s:252; --stump-y-s:360; --stump-w-s:120; --stump-h-s:100;
+  --stump-x-s:294; --stump-y-s:422; --stump-w-s:143; --stump-h-s:94;   /* обновлено */
   --stump-x-l:580; --stump-y-l:840; --stump-w-l:220; --stump-h-l:180;
 
   /* Плюс-облако (иконка выведена слоем ::before) */
   --plus-x-m:290; --plus-y-m:145; --plus-w-m:190; --plus-h-m:90;
-  --plus-x-s:240; --plus-y-s:117; --plus-w-s:130; --plus-h-s:50;
+  --plus-x-s:277; --plus-y-s:113; --plus-w-s:181; --plus-h-s:70;       /* обновлено */
   --plus-x-l:640; --plus-y-l:145; --plus-w-l:320; --plus-h-l:140;
 
   /* Текст + иконка валюты внутри облака */
@@ -31,17 +31,17 @@
 
   /* Подарок */
   --gift-x-m:305; --gift-y-m:740; --gift-w-m:130; --gift-h-m:100;
-  --gift-x-s:230; --gift-y-s:480; --gift-w-s:100; --gift-h-s:80;
+  --gift-x-s:291; --gift-y-s:579; --gift-w-s:124; --gift-h-s:78;       /* обновлено */
   --gift-x-l:680; --gift-y-l:1070; --gift-w-l:210; --gift-h-l:160;
 
   /* Дневник */
   --notebook-x-m:110; --notebook-y-m:740; --notebook-w-m:150; --notebook-h-m:110;
-  --notebook-x-s:95;  --notebook-y-s:480; --notebook-w-s:120; --notebook-h-s:90;
+  --notebook-x-s:105; --notebook-y-s:579; --notebook-w-s:143; --notebook-h-s:86; /* обновлено */
   --notebook-x-l:170; --notebook-y-l:1070; --notebook-w-l:220; --notebook-h-l:160;
 
   /* FAQ-облако (часть фона, слева от плюс-облака) — подгони размеры/координаты под макет */
   --faq-x-m: 115;  --faq-y-m: 145;  --faq-w-m: 170; --faq-h-m: 85;   /* medium */
-  --faq-x-s: 100;  --faq-y-s: 117;  --faq-w-s: 120; --faq-h-s: 55;   /* small  */
+  --faq-x-s: 110;  --faq-y-s: 113;  --faq-w-s: 162; --faq-h-s: 66;   /* small  (обновлено) */
   --faq-x-l: 260;  --faq-y-l: 145;  --faq-w-l: 260; --faq-h-l: 120;  /* large  */
   
 }
@@ -80,9 +80,6 @@ html,body{
   z-index:1;
 }
 
-
-
-
 /* Сцена — размер задаёт картинка */
 .stage{
   position: relative;
@@ -107,9 +104,8 @@ html,body{
   pointer-events:none;
 }
 
-
-/* SMALL: маленький холст + убираем зазоры (cover) */
-@media (max-width:380px),(max-height:640px){
+/* SMALL: маленький холст */
+@media (max-width:375px),(max-height:667px){
   .stage{ --design-w: var(--sw); --design-h: var(--sh); }
 }
 
@@ -124,14 +120,12 @@ html,body{
   }
 }
 
-
 /* Любые кнопки внутри сцены без системного фона */
 .scene button{
   background:transparent;
   border:0;
   box-shadow:none;
 }
-
 
 /* Полный reset для кликабельных зон */
 .hotspot{
@@ -162,7 +156,6 @@ html,body{
   cursor: pointer;
 }
 
-
 /* пенёк */
 .hotspot--stump{
   left:  calc(var(--stump-x-m)/var(--design-w)*100%);
@@ -187,7 +180,6 @@ html,body{
 }
 
 /* плюс-облако как отдельный слой (фон картинкой) */
-
 .hotspot--plus{
   left:  calc(var(--plus-x-m) / var(--design-w, 393) * 100%);
   top:   calc(var(--plus-y-m) / var(--design-h, 853) * 100%);
@@ -232,7 +224,7 @@ html,body{
 }
 
 /* ====== small ====== */
-@media (max-width:380px),(max-height:640px){
+@media (max-width:375px),(max-height:667px){
   .stage{--design-w:var(--sw); --design-h:var(--sh)}
   .hotspot--stump{
     left:  calc(var(--stump-x-s)/var(--design-w)*100%);
@@ -323,7 +315,7 @@ html,body{
 }
 
 /* small */
-@media (max-width:380px),(max-height:640px){
+@media (max-width:375px),(max-height:667px){
   .hotspot--faq{
     left:  calc(var(--faq-x-s)/var(--design-w)*100%);
     top:   calc(var(--faq-y-s)/var(--design-h)*100%);
@@ -341,7 +333,6 @@ html,body{
     height:calc(var(--faq-h-l)/var(--design-h)*100%);
   }
 }
-
 
 /* 3) iOS rounding fix – заставим WebKit рисовать слой чётче */
 @supports (-webkit-touch-callout: none) {
@@ -381,8 +372,6 @@ html,body{
 .modal__dialog:has(.faq-popup) .modal__close{
   color:#000;
 }
-
-
 
 /* ====== попапы: общие ====== */
 .popup{display:grid; gap:12px; justify-items:center; width:100%; max-width:420px; margin-inline:auto}
@@ -435,7 +424,6 @@ html,body{
 }
 .field:invalid{ outline:2px solid rgba(255,0,0,.35); }
 
-
 /* ====== попап 2: магазин ====== */
 .shop-header{width:100%; min-height:150px; display:grid; place-items:center; gap:4px; padding:14px 12px}
 .shop-header__icon{width:56px; height:auto; display:block}
@@ -452,7 +440,7 @@ html,body{
 .shop-item__right img{width:22px}
 .shop-num{min-width:36px; text-align:right}
 .shop-item:hover{filter:brightness(.98)}
-@media (max-width:380px),(max-height:640px){
+@media (max-width:375px),(max-height:667px){
   .shop-header{min-height:100px; padding:10px 8px}
   .shop-header__icon{width:40px}
   .shop-title{font-size:18px}
@@ -464,7 +452,7 @@ html,body{
 /* ====== попап 3: призы ====== */
 .prizes-popup{width:100%; max-width:420px; display:grid; gap:14px}
 .prizes-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
-@media (max-width:380px),(max-height:640px){ .prizes-grid{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:375px),(max-height:667px){ .prizes-grid{grid-template-columns:repeat(2,1fr)} }
 .prize-card{position:relative; min-height:110px; background:var(--chip); border-radius:16px; padding:12px; display:flex; align-items:flex-end}
 .check-input{position:absolute; opacity:0; pointer-events:none}
 .checkmark{position:absolute; top:12px; right:12px; width:26px; height:26px; border-radius:50%; border:2px solid #FF7300}
@@ -541,13 +529,11 @@ html,body{
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 
-/* Кнопка — под ником, выровнена по правому краю.
-   ВАЖНО: уменьшаем ширину на (20px кружок + 8px gap) = 28px,
-   чтобы "?" помещался внутри колонки и не обрезался. */
+/* Кнопка — под ником, выровнена по правому краю. */
 .profile-header .btn-premium{
   grid-column:2; grid-row:2;
-  justify-self:start;                   /* выровнять по левому краю */
-  max-width:calc(100% - 58px);        /* 20px кружок + 8px gap */
+  justify-self:start;
+  max-width:calc(100% - 58px);
   position:relative;
   display:flex; align-items:center; justify-content:center; text-align:center;
 
@@ -555,7 +541,6 @@ html,body{
   border-radius:18px; border:0; cursor:pointer;
   background:#FF7300; color:#fff; font-weight:800; font-size:15px; line-height:1.1;
 }
-
 
 /* «?» ОТДЕЛЬНО от кнопки, в выделенном справа месте (gap 8px) */
 .profile-header .btn-premium::after{
@@ -579,19 +564,18 @@ html,body{
 
 /* Состояния */
 .btn-premium[disabled]{
-  background:#D9D9D9; color:#777; cursor:not-allowed; /* это останется только для реального disabled */
+  background:#D9D9D9; color:#777; cursor:not-allowed;
 }
 
 /* Когда премиум активен — плашка тоже с «?» */
 .btn-premium.is-owned{
-  justify-self:start;                   /* выровнять по левому краю */
+  justify-self:start;
   max-width:calc(100% - 58px);           
   background:#FF7300; 
   color:#fff; 
   cursor:default;
   padding:10px 18px;
 }
-
 
 /* Карточки профиля */
 .profile-card{width:100%; background:var(--chip); border-radius:16px; padding:12px; display:grid; gap:8px; border:1px solid rgba(0,0,0,.06)}
@@ -665,7 +649,7 @@ html,body{
 /* ====== ОПАКОВЫЕ попапы (таймер и подтверждение) поверх профиля ====== */
 /* сам диалог в верхнем слое — сплошной фон */
 .modal--stack .modal__dialog{
-  background: var(--chip);             /* был полупрозрачным, стал сплошным */
+  background: var(--chip);
 }
 
 /* фон подложки можно сделать чуть темнее, чтобы читалось */
@@ -690,12 +674,9 @@ html,body{
   -webkit-overflow-scrolling: touch;
 }
 
-
 /* КНОПКИ внутри оставляем как есть (оранжевые) — ничего менять не нужно */
 
-
 /* --- универсальный фолбэк (если вдруг откроешь в обычной модалке) --- */
-/* диалог с этими попапами тоже делаем сплошным */
 .modal__dialog:has(.timer-popup),
 .modal__dialog:has(.confirm-popup){
   background: var(--chip);
@@ -752,7 +733,6 @@ html,body{
   box-shadow: 0 6px 14px rgba(0,0,0,.18);
   /* УДАЛИ, если было: aspect-ratio: 1; и width: var(--picked-size); */
 }
-
 
 .picked-item img{
   width:100%; height:100%; object-fit:cover; display:block;
@@ -814,7 +794,6 @@ html,body{
   transition: max-height .18s ease, opacity .12s ease, margin .18s ease, transform .18s ease;
 }
 
-
 /* скролл внутри контента модалки, когда включаем его из JS */
 .modal__content.is-scrollable{
   overflow: auto;
@@ -864,7 +843,7 @@ html,body{
   margin:10px 0;
 }
 
-@media (max-width:380px),(max-height:640px){
+@media (max-width:375px),(max-height:667px){
   .faq-scroll{ max-height: calc(100svh - 180px); }
 }
 
@@ -872,13 +851,6 @@ html,body{
 .modal__dialog:has(.faq-popup) .modal__close{
   display: none;
 }
-
-
-
-
-
-
-
 
 /* ====== DEBUG (включай <body class="__debug">) ====== */
 body.__debug .hotspot{outline:2px dashed rgba(0,200,255,.9); background:rgba(0,200,255,.10)}
