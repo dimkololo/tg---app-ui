@@ -111,14 +111,6 @@ html,body{
 /* SMALL: маленький холст + убираем зазоры (cover) */
 @media (max-width:360px),(max-height:640px){
   .stage{ --design-w: var(--sw); --design-h: var(--sh); }
- 
-
-  :root{
-    --plus-font-m:12px;
-    --plus-icon-m:14px;
-    --plus-gap-m:0px;
-    --plus-padleft-m:10px;
-  }
 }
 
 /* LARGE: большой холст */
@@ -238,7 +230,7 @@ html,body{
 }
 
 /* ====== small ====== */
-@media (max-width:360px),(max-height:640px){
+@media (max-width:390px),(max-height:700px){
   .stage{--design-w:var(--sw); --design-h:var(--sh)}
   .hotspot--stump{
     left:  calc(var(--stump-x-s)/var(--design-w)*100%);
