@@ -38,6 +38,13 @@
   --notebook-x-m:110; --notebook-y-m:740; --notebook-w-m:150; --notebook-h-m:110;
   --notebook-x-s:95;  --notebook-y-s:480; --notebook-w-s:120; --notebook-h-s:90;
   --notebook-x-l:170; --notebook-y-l:1070; --notebook-w-l:220; --notebook-h-l:160;
+  
+  --picked-size: clamp(150px, 55vw, 220px);
+}
+@media (max-width:360px), (max-height:640px){
+  :root{
+    --picked-size: clamp(130px, 50vw, 180px);
+  }
 }
 
 /* ====== базовая сцена ====== */
@@ -677,8 +684,8 @@ html,body{
 }
 .picked-item{
   position: relative;
-  width: clamp(150px, 55vw, 220px); /* было: min(240px, 80%) */
-  aspect-ratio: 1;                  /* квадрат */
+  width: var(--picked-size);
+  aspect-ratio: 1;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 6px 14px rgba(0,0,0,.18);
@@ -746,9 +753,7 @@ html,body{
 
 /* на очень узких/низких экранах базовый размер превью чуть меньше */
 @media (max-width:360px), (max-height:640px){
-  .picked-item{
-    width: clamp(130px, 50vw, 180px);
-  }
+  :root { --picked-size: clamp(130px, 50vw, 180px); }
 }
 
 
