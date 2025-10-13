@@ -188,13 +188,13 @@ html,body{
 
 /* плюс-облако как отдельный слой (фон картинкой) */
 
-/*.hotspot--plus{
+.hotspot--plus{
   left:  calc(var(--plus-x-m) / var(--design-w, 393) * 100%);
   top:   calc(var(--plus-y-m) / var(--design-h, 853) * 100%);
   width: calc(var(--plus-w-m) / var(--design-w, 393) * 100%);
   height:calc(var(--plus-h-m) / var(--design-h, 853) * 100%);
   z-index:25;
-}*/
+}
 
 /* фон облака — на 0-м уровне */
 .hotspot--plus::before{
