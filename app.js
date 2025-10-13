@@ -189,6 +189,66 @@ function initUploadPopup(){
   const starsEl     = root.querySelector('[data-stars]');
   const secsEl      = root.querySelector('[data-secs]');
   const urlInput    = root.querySelector('input[name="social"]');
+
+// --- Writing mode for description field (всплывающая клавиатура) ---
+const modalContentEl = modalRoot.querySelector('.modal__content');
+// Поищем поле описания: добавь атрибут data-desc на твою textarea, если name другое
+const descField = root.querySelector('textarea[name="desc"], textarea[data-desc], input[name="desc"], [data-desc]');
+
+(function enhanceWritingMode(){
+  if (!descField || !modalContentEl) return;
+
+  let vv;               // window.visualViewport
+  let onVVResize = null;
+
+  const applyKbPadding = () => {
+    if (!vv) return;
+    const kb = Math.max(0, window.innerHeight - vv.height); // высота клавиатуры
+    if (kb > 0) {
+      modalContentEl.classList.add('has-kb-padding');
+      modalContentEl.style.paddingBottom = (kb + 16) + 'px';
+    } else {
+      modalContentEl.classList.remove('has-kb-padding');
+      modalContentEl.style.paddingBottom = '';
+    }
+  };
+
+  const enter = () => {
+    modalContentEl.classList.add('is-scrollable');           // разрешаем скролл содержимого
+    document.documentElement.classList.add('is-writing-upload'); // ужимаем превью через CSS
+
+    // прокручиваем поле в видимую область
+    setTimeout(() => {
+      try { descField.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch(_) {}
+    }, 50);
+
+    vv = window.visualViewport || null;
+    if (vv) {
+      applyKbPadding();
+      onVVResize = () => { applyKbPadding(); };
+      vv.addEventListener('resize', onVVResize);
+    }
+  };
+
+  const leave = () => {
+    modalContentEl.classList.remove('is-scrollable', 'has-kb-padding');
+    modalContentEl.style.paddingBottom = '';
+    document.documentElement.classList.remove('is-writing-upload');
+
+    if (vv && onVVResize) {
+      vv.removeEventListener('resize', onVVResize);
+      onVVResize = null;
+    }
+    vv = null;
+  };
+
+  descField.addEventListener('focus', enter);
+  descField.addEventListener('blur',  leave);
+
+  // если уже в фокусе (редкий кейс при повторном открытии)
+  if (document.activeElement === descField) enter();
+})();
+
   
   // === счётчики символов ===
 function bindCounter(el){
