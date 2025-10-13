@@ -39,7 +39,7 @@
   --notebook-x-s:95;  --notebook-y-s:480; --notebook-w-s:120; --notebook-h-s:90;
   --notebook-x-l:170; --notebook-y-l:1070; --notebook-w-l:220; --notebook-h-l:160;
   
- 
+}
 
 /* ====== базовая сцена ====== */
 *{box-sizing:border-box;margin:0;padding:0}
