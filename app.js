@@ -193,8 +193,6 @@ function initUploadPopup(){
   // --- управление клавиатурой ---
 const descEl = root.querySelector('textarea[name="desc"]');
 
-  // добавь:
-const descEl    = root.querySelector('textarea[name="desc"]');
 
 // --- фикс "смещения кликов" после закрытия клавиатуры ---
 function normalizeAfterKeyboard() {
