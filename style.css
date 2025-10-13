@@ -14,7 +14,7 @@
   --lw:834; --lh:1194;     /* large  */
 
   /* ПЕНЁК — координаты центра и размеры (в пикселях макета) */
-  --stump-x-m:308; --stump-y-m:540; --stump-w-m:150; --stump-h-m:120;
+  --stump-x-m:300; --stump-y-m:540; --stump-w-m:160; --stump-h-m:120;
   --stump-x-s:264; --stump-y-s:442; --stump-w-s:110; --stump-h-s:94;   /* обновлено */
   --stump-x-l:580; --stump-y-l:840; --stump-w-l:220; --stump-h-l:180;
 
@@ -30,19 +30,19 @@
   --plus-padleft-m:50px;
 
   /* Подарок */
-  --gift-x-m:305; --gift-y-m:740; --gift-w-m:130; --gift-h-m:100;
+  --gift-x-m:305; --gift-y-m:740; --gift-w-m:130; --gift-h-m:110;
   --gift-x-s:291; --gift-y-s:590; --gift-w-s:124; --gift-h-s:78;       /* обновлено */
   --gift-x-l:680; --gift-y-l:1070; --gift-w-l:210; --gift-h-l:160;
 
   /* Дневник */
-  --notebook-x-m:110; --notebook-y-m:740; --notebook-w-m:150; --notebook-h-m:110;
+  --notebook-x-m:110; --notebook-y-m:740; --notebook-w-m:150; --notebook-h-m:120;
   --notebook-x-s:105; --notebook-y-s:590; --notebook-w-s:143; --notebook-h-s:86; /* обновлено */
-  --notebook-x-l:170; --notebook-y-l:1070; --notebook-w-l:220; --notebook-h-l:160;
+  --notebook-x-l:160; --notebook-y-l:1070; --notebook-w-l:220; --notebook-h-l:160;
 
   /* FAQ-облако (часть фона, слева от плюс-облака) — подгони размеры/координаты под макет */
-  --faq-x-m: 115;  --faq-y-m: 145;  --faq-w-m: 170; --faq-h-m: 85;   /* medium */
+  --faq-x-m: 100;  --faq-y-m: 145;  --faq-w-m: 140; --faq-h-m: 85;   /* medium */
   --faq-x-s: 90;  --faq-y-s: 80;  --faq-w-s: 152; --faq-h-s: 66;   /* small  (обновлено) */
-  --faq-x-l: 260;  --faq-y-l: 145;  --faq-w-l: 260; --faq-h-l: 120;  /* large  */
+  --faq-x-l: 210;  --faq-y-l: 145;  --faq-w-l: 260; --faq-h-l: 120;  /* large  */
   
 }
 
