@@ -189,6 +189,35 @@ function initUploadPopup(){
   const starsEl     = root.querySelector('[data-stars]');
   const secsEl      = root.querySelector('[data-secs]');
   const urlInput    = root.querySelector('input[name="social"]');
+
+  // --- управление клавиатурой ---
+const descEl = root.querySelector('textarea[name="desc"]');
+
+// 1) На поле ссылки: Enter -> фокус на описание (не отправляем форму)
+if (urlInput) {
+  urlInput.setAttribute('enterkeyhint', 'next'); // на всякий случай
+  urlInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();              // не сабмитим форму
+      descEl?.focus();                 // переводим фокус на описание
+    }
+  });
+}
+
+// 2) На описании: "Готово/Enter" -> спрятать клавиатуру (без перевода строки)
+if (descEl) {
+  descEl.setAttribute('enterkeyhint', 'done');   // на всякий случай
+  const hideKb = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {      // Shift+Enter оставим как перенос строки (если понадобится)
+      e.preventDefault();
+      descEl.blur();                              // закрывает клавиатуру
+    }
+  };
+  descEl.addEventListener('keydown', hideKb);
+  // iOS-подстраховка: некоторые вебвью шлют keypress
+  descEl.addEventListener('keypress', hideKb);
+}
+
   
   // === счётчики символов ===
 function bindCounter(el){
