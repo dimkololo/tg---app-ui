@@ -53,57 +53,67 @@ html,body{
 /* фон подложки = цвет неба */
 /* фон подложки = цвет неба */
 .scene{
-  /* фон-подложка, как было */
   background: var(--sky);
-
-  /* ключевое: сцена занимает весь экран и центрирует содержимое */
-  position: relative;             /* чтобы абсолютные хот-споты имели опорный контекст */
+  position: relative;
   display: grid;
   place-items: center;
   width: 100vw;
   height: 100svh;
+  overflow: hidden; /* важный фикс от прокрутки/сабпикселей */
+}
 
-  /* дизайн-размеры по умолчанию (MEDIUM) – теперь наследуются всеми детьми */
+
+
+/* Сцена — размер задаёт именно .stage, картинка вписывается */
+.stage{
+  position: relative;
+  width: 100vw;
+  height: 100svh;
+  overflow: hidden;
+
+  /* Дизайн-холст по умолчанию (MEDIUM) */
   --design-w: var(--mw);
   --design-h: var(--mh);
 }
 
-/* small: подменяем дизайн-размеры макета */
-@media (max-width:360px),(max-height:640px){
-  .scene{
-    --design-w: var(--sw);
-    --design-h: var(--sh);
-  }
-}
-
-/* large: подменяем дизайн-размеры макета */
-@media (min-width:768px),(min-height:1024px){
-  .scene{
-    --design-w: var(--lw);
-    --design-h: var(--lh);
-  }
-}
-
-
-/* Сцена — размер задаёт картинка как в макете */
-.stage{
-  position: relative;
-  display: inline-block;   /* ширина = ширине картинки */
-  max-width: 100vw;
-  max-height: 100svh;
-}
-
-.stage picture{ display:block; }
+/* <picture> и <img> во весь .stage */
+.stage picture{ display:block; width:100%; height:100%; }
 .stage__img{
   display:block;
-  max-width:100vw;
-  max-height:100svh;
-  width:auto;
-  height:auto;
-  object-fit: contain;     /* НИЧЕГО не кадрируем — хот-споты совпадают */
+  width:100%;
+  height:100%;
+  object-fit: contain;    /* базово — без обрезки, хот-споты совпадают */
   object-position: center;
   pointer-events:none;
 }
+
+/* SMALL: маленький холст + убираем зазоры (cover) */
+@media (max-width:360px),(max-height:640px){
+  .stage{ --design-w: var(--sw); --design-h: var(--sh); }
+  .stage__img{
+    object-fit: cover;
+    object-position: center top; /* фокус — верх/центр, как обсуждали */
+  }
+
+  :root{
+    --plus-font-m:12px;
+    --plus-icon-m:14px;
+    --plus-gap-m:0px;
+    --plus-padleft-m:10px;
+  }
+}
+
+/* LARGE: большой холст */
+@media (min-width:768px),(min-height:1024px){
+  .stage{ --design-w: var(--lw); --design-h: var(--lh); }
+  :root{
+    --plus-font-m:28px;
+    --plus-icon-m:28px;
+    --plus-gap-m:0px;
+    --plus-padleft-m:60px;
+  }
+}
+
 
 /* Любые кнопки внутри сцены без системного фона */
 .scene button{
