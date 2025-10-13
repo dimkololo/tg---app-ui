@@ -1,0 +1,790 @@
+/* ====== переменные ====== */
+:root{
+  --bg:#0f1115;
+  --text:#e7eaf0;
+  --accent:#FF7300;
+  --chip:#D9D9D9;
+  --popup-bg:rgba(221,221,221,.25);
+  --shadow:0 8px 16px rgba(0,0,0,.25);
+  --sky: #001B47; /* цвет неба сверху для пиксельной полосы */
+
+  /* дизайн-холсты */
+  --mw:393; --mh:853;      /* medium */
+  --sw:320; --sh:568;      /* small  */
+  --lw:834; --lh:1194;     /* large  */
+
+  /* ПЕНЁК — координаты центра и размеры (в пикселях макета) */
+  --stump-x-m:308; --stump-y-m:540; --stump-w-m:150; --stump-h-m:120;
+  --stump-x-s:252; --stump-y-s:360; --stump-w-s:120; --stump-h-s:100;
+  --stump-x-l:580; --stump-y-l:840; --stump-w-l:220; --stump-h-l:180;
+
+  /* Плюс-облако (иконка выведена слоем ::before) */
+  --plus-x-m:290; --plus-y-m:145; --plus-w-m:190; --plus-h-m:90;
+  --plus-x-s:240; --plus-y-s:117; --plus-w-s:130; --plus-h-s:50;
+  --plus-x-l:640; --plus-y-l:145; --plus-w-l:320; --plus-h-l:140;
+
+  /* Текст + иконка валюты внутри облака */
+  --plus-font-m:20px;
+  --plus-icon-m:22px;
+  --plus-gap-m:0px;
+  --plus-padleft-m:50px;
+
+  /* Подарок */
+  --gift-x-m:305; --gift-y-m:740; --gift-w-m:130; --gift-h-m:100;
+  --gift-x-s:230; --gift-y-s:480; --gift-w-s:100; --gift-h-s:80;
+  --gift-x-l:680; --gift-y-l:1070; --gift-w-l:210; --gift-h-l:160;
+
+  /* Дневник */
+  --notebook-x-m:110; --notebook-y-m:740; --notebook-w-m:150; --notebook-h-m:110;
+  --notebook-x-s:95;  --notebook-y-s:480; --notebook-w-s:120; --notebook-h-s:90;
+  --notebook-x-l:170; --notebook-y-l:1070; --notebook-w-l:220; --notebook-h-l:160;
+  
+  --picked-size: clamp(150px, 55vw, 220px);
+}
+@media (max-width:360px), (max-height:640px){
+  :root{
+    --picked-size: clamp(130px, 50vw, 180px);
+  }
+}
+
+/* ====== базовая сцена ====== */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  height:100%;
+  overflow:hidden;
+  background:var(--bg);
+  color:var(--text);
+  font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+}
+/* фон подложки = цвет неба */
+/* фон подложки = цвет неба */
+.scene{
+  /* фон-подложка, как было */
+  background: var(--sky);
+
+  /* ключевое: сцена занимает весь экран и центрирует содержимое */
+  position: relative;             /* чтобы абсолютные хот-споты имели опорный контекст */
+  display: grid;
+  place-items: center;
+  width: 100vw;
+  height: 100svh;
+
+  /* дизайн-размеры по умолчанию (MEDIUM) – теперь наследуются всеми детьми */
+  --design-w: var(--mw);
+  --design-h: var(--mh);
+}
+
+/* small: подменяем дизайн-размеры макета */
+@media (max-width:360px),(max-height:640px){
+  .scene{
+    --design-w: var(--sw);
+    --design-h: var(--sh);
+  }
+}
+
+/* large: подменяем дизайн-размеры макета */
+@media (min-width:768px),(min-height:1024px){
+  .scene{
+    --design-w: var(--lw);
+    --design-h: var(--lh);
+  }
+}
+
+
+/* Сцена — размер задаёт картинка как в макете */
+.stage{
+  position: relative;
+  display: inline-block;   /* ширина = ширине картинки */
+  max-width: 100vw;
+  max-height: 100svh;
+}
+
+.stage picture{ display:block; }
+.stage__img{
+  display:block;
+  max-width:100vw;
+  max-height:100svh;
+  width:auto;
+  height:auto;
+  object-fit: contain;     /* НИЧЕГО не кадрируем — хот-споты совпадают */
+  object-position: center;
+  pointer-events:none;
+}
+
+/* Любые кнопки внутри сцены без системного фона */
+.scene button{
+  background:transparent;
+  border:0;
+  box-shadow:none;
+}
+
+
+/* Полный reset для кликабельных зон */
+.hotspot{
+  position: absolute;
+  z-index: 20;
+
+  /* центрирование + собственный слой (одним свойством!) */
+  transform: translate3d(-50%, -50%, 0);
+
+  backface-visibility: hidden;
+  will-change: transform;
+
+  /* UX */
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+
+  /* reset — оставляю твои */
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  box-shadow: none;
+  outline: 0;
+  cursor: pointer;
+}
+
+
+/* пенёк */
+.hotspot--stump{
+  left:  calc(var(--stump-x-m)/var(--design-w)*100%);
+  top:   calc(var(--stump-y-m)/var(--design-h)*100%);
+  width: calc(var(--stump-w-m)/var(--design-w)*100%);
+  height:calc(var(--stump-h-m)/var(--design-h)*100%);
+  z-index:30;
+}
+
+/* подарок */
+.hotspot--gift{
+  left:calc(var(--gift-x-m)/var(--design-w)*100%); top:calc(var(--gift-y-m)/var(--design-h)*100%);
+  width:calc(var(--gift-w-m)/var(--design-w)*100%); height:calc(var(--gift-h-m)/var(--design-h)*100%);
+  z-index:30;
+}
+
+/* дневник */
+.hotspot--notebook{
+  left:calc(var(--notebook-x-m)/var(--design-w)*100%); top:calc(var(--notebook-y-m)/var(--design-h)*100%);
+  width:calc(var(--notebook-w-m)/var(--design-w)*100%); height:calc(var(--notebook-h-m)/var(--design-h)*100%);
+  z-index:30;
+}
+
+/* плюс-облако как отдельный слой (фон картинкой) */
+.hotspot--plus{
+  left:  calc(var(--plus-x-m) / var(--design-w, 393) * 100%);
+  top:   calc(var(--plus-y-m) / var(--design-h, 853) * 100%);
+  width: calc(var(--plus-w-m) / var(--design-w, 393) * 100%);
+  height:calc(var(--plus-h-m) / var(--design-h, 853) * 100%);
+  z-index:25;
+}
+/* фон облака — на 0-м уровне */
+.hotspot--plus::before{
+  content:"";
+  position:absolute; inset:0;
+  background:center/contain no-repeat;
+  background-image:image-set(
+    url("./bgicons/cloud-plus.png") 1x,
+    url("./bgicons/cloud-plus@2x.png") 2x
+  );
+  pointer-events:none;
+  z-index:0;                 /* было -1 — могло уехать «под» сцену */
+}
+
+/* контент внутри облака — поверх фона */
+.hotspot--plus .plus-ui{
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  padding-left: var(--plus-padleft-m);
+  pointer-events:none;
+  z-index:1;
+}
+
+.hotspot--plus .plus-value{
+  color:#F6E3A8;
+  font-weight:800;
+  font-size:var(--plus-font-m);
+  line-height:1; letter-spacing:.5px;
+  text-shadow:0 2px 4px rgba(0,0,0,.25);
+}
+.hotspot--plus .plus-currency{
+  width:var(--plus-icon-m); height:var(--plus-icon-m);
+  flex:0 0 auto; filter:drop-shadow(0 2px 2px rgba(0,0,0,.25));
+  margin-left:2px;
+}
+
+/* ====== small ====== */
+@media (max-width:360px),(max-height:640px){
+  .stage{--design-w:var(--sw); --design-h:var(--sh)}
+  .hotspot--stump{
+    left:  calc(var(--stump-x-s)/var(--design-w)*100%);
+    top:   calc(var(--stump-y-s)/var(--design-h)*100%);
+    width: calc(var(--stump-w-s)/var(--design-w)*100%);
+    height:calc(var(--stump-h-s)/var(--design-h)*100%);
+  }
+  .hotspot--plus{
+    left:calc(var(--plus-x-s)/var(--design-w)*100%); top:calc(var(--plus-y-s)/var(--design-h)*100%);
+    width:calc(var(--plus-w-s)/var(--design-w)*100%); height:calc(var(--plus-h-s)/var(--design-h)*100%);
+  }
+  .hotspot--gift{
+    left:calc(var(--gift-x-s)/var(--design-w)*100%); top:calc(var(--gift-y-s)/var(--design-h)*100%);
+    width:calc(var(--gift-w-s)/var(--design-w)*100%); height:calc(var(--gift-h-s)/var(--design-h)*100%);
+  }
+  .hotspot--notebook{
+    left:calc(var(--notebook-x-s)/var(--design-w)*100%); top:calc(var(--notebook-y-s)/var(--design-h)*100%);
+    width:calc(var(--notebook-w-s)/var(--design-w)*100%); height:calc(var(--notebook-h-s)/var(--design-h)*100%);
+  }
+
+  :root{
+    --plus-font-m:12px;
+    --plus-icon-m:14px;
+    --plus-gap-m:0px;
+    --plus-padleft-m:10px;
+  }
+}
+
+/* ====== large ====== */
+@media (min-width:768px),(min-height:1024px){
+  .stage{--design-w:var(--lw); --design-h:var(--lh)}
+  .hotspot--stump{
+    left:  calc(var(--stump-x-l)/var(--design-w)*100%);
+    top:   calc(var(--stump-y-l)/var(--design-h)*100%);
+    width: calc(var(--stump-w-l)/var(--design-w)*100%);
+    height:calc(var(--stump-h-l)/var(--design-h)*100%);
+  }
+  .hotspot--plus{
+    left:calc(var(--plus-x-l)/var(--design-w)*100%); top:calc(var(--plus-y-l)/var(--design-h)*100%);
+    width:calc(var(--plus-w-l)/var(--design-w)*100%); height:calc(var(--plus-h-l)/var(--design-h)*100%);
+  }
+  .hotspot--gift{
+    left:calc(var(--gift-x-l)/var(--design-w)*100%); top:calc(var(--gift-y-l)/var(--design-h)*100%);
+    width:calc(var(--gift-w-l)/var(--design-w)*100%); height:calc(var(--gift-h-l)/var(--design-h)*100%);
+  }
+  .hotspot--notebook{
+    left:calc(var(--notebook-x-l)/var(--design-w)*100%); top:calc(var(--notebook-y-l)/var(--design-h)*100%);
+    width:calc(var(--notebook-w-l)/var(--design-w)*100%); height:calc(var(--notebook-h-l)/var(--design-h)*100%);
+  }
+
+  :root{
+    --plus-font-m:28px;
+    --plus-icon-m:28px;
+    --plus-gap-m:0px;
+    --plus-padleft-m:60px;
+  }
+}
+
+/* убираем системный tap-highlight и фокус-обводку */
+.hotspot,
+.hotspot:active,
+.hotspot:focus,
+.hotspot:focus-visible{
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+/* на тач-устройствах фокус не нужен — оставим его только для клавиатуры */
+@media (hover: none) and (pointer: coarse) {
+  .hotspot:focus,
+  .hotspot:focus-visible { outline: none; }
+}
+
+/* псевдо-слой фона облака не перехватывает события и не мигает */
+.hotspot--plus::before {
+  pointer-events: none;
+  backface-visibility: hidden;
+  
+}
+
+
+/* 2) «Перекрытие» на случай сабпиксельного зазора */
+.stage::before{
+  content:"";
+  position:absolute;
+  top:-1px; left:0; right:0;
+  height:2px;
+  background: var(--sky);
+  pointer-events: none;
+  z-index: 1;                    /* ниже хот-спотов (они у тебя z-index:20+) */
+}
+/* 3) iOS rounding fix – заставим WebKit рисовать слой чётче */
+@supports (-webkit-touch-callout: none) {
+  .stage__img{ transform: translateZ(0); will-change: transform; }
+}
+
+/* ====== модалка ====== */
+.modal{position:fixed; inset:0; z-index:1000; display:grid; place-items:center}
+.modal[hidden]{display:none}
+.modal__backdrop{position:absolute; inset:0; background:rgba(0,0,0,.5)}
+.modal__dialog{
+  position:relative; width:min(560px,calc(100vw - 24px)); max-width:560px;
+  border-radius:42px; background:var(--popup-bg); box-shadow:var(--shadow); padding:18px 16px 22px;
+}
+.modal__content{
+  max-height: none;    /* снимем ограничение высоты */
+  overflow: visible;   /* ничего не обрезаем и не скроллим */
+}
+
+.modal__close{position:absolute; top:10px; left:10px; border:0; background:transparent; color:#fff; font-size:20px; cursor:pointer}
+/* второй слой поверх основной модалки */
+.modal--stack{ z-index: 1101; }
+
+
+/* ====== попапы: общие ====== */
+.popup{display:grid; gap:12px; justify-items:center; width:100%; max-width:420px; margin-inline:auto}
+.u-center{
+  display: flex;
+  justify-content: center;
+  align-items: center;     /* можно добавить, не повредит */
+  width: 100%;
+}
+.chip{background:var(--chip); border:1px solid rgba(0,0,0,.06); border-radius:16px}
+
+/* ====== попап 1: загрузка ====== */
+.btn-pick,.btn-submit{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:clamp(206px,90%,360px); height:56px; border-radius:35px;
+  font-size:18px; font-weight:700; border:0; cursor:pointer;
+}
+.btn-pick{background:var(--chip); color:#000}
+.btn-submit{background:var(--accent); color:#fff; box-shadow:0 6px 14px rgba(255,115,0,.25)}
+/* неактивная */
+.btn-submit:disabled{
+  background:#777;
+  color:#D9D9D9;
+  box-shadow:none;
+  cursor:not-allowed;
+}
+.card{width:100%; background:var(--chip); border-radius:16px; padding:12px; border:1px solid rgba(0,0,0,.06)}
+.slider-card{padding:14px}
+.slider-card .slider-title{
+  margin-bottom: 8px;
+  color:#000;
+  font-weight:500;
+  font-size:14px;
+  text-align:center;
+  line-height:1.2;
+}
+.slider-row{display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:12px}
+.label{color:#000; font-weight:700; opacity:.75}
+.range{-webkit-appearance:none; appearance:none; width:100%; height:16px; border-radius:200px; background:#D0D0D0; outline:none}
+.range::-webkit-slider-thumb{-webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:var(--accent); border:1px solid #fff; cursor:pointer}
+.range::-moz-range-thumb{width:18px; height:18px; border-radius:50%; background:var(--accent); border:1px solid #fff; cursor:pointer}
+.form-card{display:grid; gap:10px; padding:14px}
+.field{width:100%; padding:14px 16px; border-radius:16px; border:1px solid rgba(0,0,0,.08); background:#fff; color:#111; font:16px/1.4 inherit}
+.field::placeholder{color:#9aa3b2; opacity:.8}
+.field:focus{outline:2px solid rgba(255,115,0,.35)}
+.field-wrap{ display:grid; gap:6px; }
+.field-counter{
+  font-size:12px; line-height:1; color:#000; opacity:.55;
+  text-align:right;
+}
+.field:invalid{ outline:2px solid rgba(255,0,0,.35); }
+
+
+/* ====== попап 2: магазин ====== */
+.shop-header{width:100%; min-height:150px; display:grid; place-items:center; gap:4px; padding:14px 12px}
+.shop-header__icon{width:56px; height:auto; display:block}
+.shop-title{margin:4px 0 0; font-size:22px; font-weight:800; color:#000}
+.shop-subtitle{margin:0; font-size:14px; color:#000; opacity:.75}
+.shop-list{display:grid; width:100%; gap:10px}
+.shop-item{
+  width:100%; display:grid; grid-template-columns:1fr auto; align-items:center; gap:12px;
+  padding:12px 14px; border:0; background:var(--chip); border-radius:16px; cursor:pointer;
+}
+.shop-item__left{display:flex; align-items:center; gap:10px; color:#000; font-weight:700}
+.shop-item__left img{width:20px}
+.shop-item__right{display:flex; align-items:center; gap:8px; color:#000; font-weight:800}
+.shop-item__right img{width:22px}
+.shop-num{min-width:36px; text-align:right}
+.shop-item:hover{filter:brightness(.98)}
+@media (max-width:360px),(max-height:640px){
+  .shop-header{min-height:100px; padding:10px 8px}
+  .shop-header__icon{width:40px}
+  .shop-title{font-size:18px}
+  .shop-subtitle{font-size:12px}
+  .shop-item{padding:10px 12px}
+  .shop-item__left img,.shop-item__right img{width:18px}
+}
+
+/* ====== попап 3: призы ====== */
+.prizes-popup{width:100%; max-width:420px; display:grid; gap:14px}
+.prizes-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
+@media (max-width:360px),(max-height:640px){ .prizes-grid{grid-template-columns:repeat(2,1fr)} }
+.prize-card{position:relative; min-height:110px; background:var(--chip); border-radius:16px; padding:12px; display:flex; align-items:flex-end}
+.check-input{position:absolute; opacity:0; pointer-events:none}
+.checkmark{position:absolute; top:12px; right:12px; width:26px; height:26px; border-radius:50%; border:2px solid #FF7300}
+.checkmark::after{content:""; position:absolute; inset:5px; border-radius:50%; background:#FF7300; transform:scale(0); transition:transform .12s}
+.prize-card:has(.check-input:checked) .checkmark::after{transform:scale(1)}
+.prize-body{color:#000; opacity:.75; font-size:12px}
+.prize-title{font-weight:700; margin-bottom:4px; opacity:.9}
+.prize-sub{font-size:11px}
+.btn-pay{
+  display:inline-flex; align-items:center; justify-content:center;
+  min-width:220px; padding:0 18px; height:56px; border-radius:35px;
+  border:0; cursor:pointer; background:#FF7300; color:#fff; font-weight:800; font-size:18px;
+  box-shadow:0 6px 14px rgba(255,115,0,.25);
+}
+.btn-pay:disabled{background:#D9D9D9; color:#777; box-shadow:none; cursor:not-allowed}
+.pay-note{margin:0; padding:0 4px 4px; text-align:center; color:#fff; opacity:.8; font-size:11px; line-height:1.3}
+
+/* ====== попап 4: профиль ====== */
+.profile-popup{width:100%; max-width:420px; display:grid; gap:14px}
+
+/* ===== ШАПКА ПРОФИЛЯ: аватар слева, справа — ник и кнопка ===== */
+.chip.profile-header{
+  width:100%;
+  background:transparent;
+  border:0;
+  padding:12px 14px 8px;
+
+  display:grid;
+  grid-template-columns:100px 1fr;   /* 1: аватар, 2: правая колонка */
+  grid-auto-rows:min-content;
+  column-gap:10px;                   /* ближе к аватару */
+  row-gap:8px;                       /* маленький зазор ник↔кнопка */
+  align-items:start;
+}
+
+/* Аватар — «липнет» к левому краю и занимает 2 строки */
+.profile-header .avatar{
+  grid-column:1;
+  grid-row:1 / span 2;
+  position:relative;
+  width:100px; height:100px;
+  border-radius:50%;
+  background:#bbb center/cover no-repeat;
+  overflow:visible;
+}
+
+/* Корона (подстрой при желании top/left/width) */
+.profile-header .avatar.has-crown::before{
+  content:'';
+  position:absolute;
+  top:-50px; left:24px;
+  width:100px; aspect-ratio:1.45;
+  background:center/contain no-repeat;
+  background-image:image-set(
+    url('./bgicons/crown.png') 1x,
+    url('./bgicons/crown@2x.png') 2x
+  );
+  pointer-events:none;
+  z-index:2;
+}
+
+/* СБРОС старых areas, чтобы ничего не тянулось под всю шапку */
+.profile-header .profile-id,
+.profile-header .btn-premium{ grid-area:unset; }
+
+/* Плашка ника — занимает всю ширину правой колонки, по правому краю */
+.profile-header .profile-id{
+  grid-column:2; grid-row:1;
+  justify-self:stretch;               /* ширина = ширине колонки */
+  background:#D9D9D9;
+  border-radius:12px;
+  padding:10px 14px;
+  color:#000; font-weight:700; line-height:1.2; text-align:center;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+
+/* Кнопка — под ником, выровнена по правому краю.
+   ВАЖНО: уменьшаем ширину на (20px кружок + 8px gap) = 28px,
+   чтобы "?" помещался внутри колонки и не обрезался. */
+.profile-header .btn-premium{
+  grid-column:2; grid-row:2;
+  justify-self:start;                   /* выровнять по левому краю */
+  max-width:calc(100% - 58px);        /* 20px кружок + 8px gap */
+  position:relative;
+  display:flex; align-items:center; justify-content:center; text-align:center;
+
+  padding:10px 18px;
+  border-radius:18px; border:0; cursor:pointer;
+  background:#FF7300; color:#fff; font-weight:800; font-size:15px; line-height:1.1;
+}
+
+
+/* «?» ОТДЕЛЬНО от кнопки, в выделенном справа месте (gap 8px) */
+.profile-header .btn-premium::after{
+  content:'?';
+  position:absolute;
+  left:100%;
+  top:50%;
+  transform:translate(8px,-50%);     /* gap = 8px */
+  width:50px; 
+  height:50px; 
+  border-radius:50%;
+  background:#D9D9D9; 
+  color:#FF7300; 
+  font-weight:800; 
+  font-size:18px;
+  display:flex; 
+  align-items:center; 
+  justify-content:center;
+  pointer-events:none;
+}
+
+/* Состояния */
+.btn-premium[disabled]{
+  background:#D9D9D9; color:#777; cursor:not-allowed; /* это останется только для реального disabled */
+}
+
+/* Когда премиум активен — плашка тоже с «?» */
+.btn-premium.is-owned{
+  justify-self:start;                   /* выровнять по левому краю */
+  max-width:calc(100% - 58px);           
+  background:#FF7300; 
+  color:#fff; 
+  cursor:default;
+  padding:10px 18px;
+}
+
+
+/* Карточки профиля */
+.profile-card{width:100%; background:var(--chip); border-radius:16px; padding:12px; display:grid; gap:8px; border:1px solid rgba(0,0,0,.06)}
+.row{display:flex; align-items:center; justify-content:space-between; gap:10px}
+.label-left{color:#000; font-weight:700}
+.val-right{color:#000; font-weight:800}
+.pill{min-width:28px; height:28px; padding:0 10px; display:inline-flex; align-items:center; justify-content:center; border-radius:14px; color:#fff; font-weight:800; font-size:14px}
+.pill-orange{background:#FF7300}
+.hint{color:#000; opacity:.75; font-size:12px}
+
+/* подтверждение */
+.confirm-card{width:100%; max-width:420px; padding:16px; background:var(--chip); border-radius:16px; display:grid; gap:12px}
+.confirm-text{text-align:center; color:#000; font-weight:700}
+.confirm-actions{display:flex; gap:12px; justify-content:center}
+.btn-confirm{min-width:120px; height:44px; border-radius:35px; border:0; cursor:pointer; font-weight:800; font-size:16px}
+.btn-confirm.yes{background:#FF7300; color:#fff}
+.btn-confirm.no{background:#C7C4C4; color:#000}
+
+/* ====== Попап таймера премиума ====== */
+.timer-popup{width:100%; max-width:420px; display:grid; gap:14px}
+
+.timer-card{
+  width:100%;
+  background:var(--chip);
+  border-radius:16px;
+  padding:16px;
+  display:grid;
+  gap:12px;
+  border:1px solid rgba(0,0,0,.06);
+}
+
+.timer-title{
+  margin:0;
+  text-align:center;
+  color:#000;
+  font-weight:800;
+  font-size:18px;
+}
+
+.timer-remaining{
+  text-align:center;
+  color:#000;
+  font-weight:900;
+  font-size:28px;
+  line-height:1;
+}
+
+.timer-note{
+  margin:0;
+  text-align:center;
+  color:#000;
+  opacity:.75;
+  font-size:12px;
+}
+
+.btn-close-timer{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:160px;
+  height:44px;
+  border-radius:35px;
+  border:0;
+  cursor:pointer;
+  background:#FF7300;
+  color:#fff;
+  font-weight:800;
+  font-size:16px;
+}
+
+/* ====== ОПАКОВЫЕ попапы (таймер и подтверждение) поверх профиля ====== */
+/* сам диалог в верхнем слое — сплошной фон */
+.modal--stack .modal__dialog{
+  background: var(--chip);             /* был полупрозрачным, стал сплошным */
+}
+
+/* фон подложки можно сделать чуть темнее, чтобы читалось */
+.modal--stack .modal__backdrop{
+  background: rgba(0,0,0,.6);
+}
+
+/* убираем внутренние «карточки» — они становятся прозрачными (без рамки) */
+.modal--stack .chip{
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+/* крестик на светлом фоне должен быть тёмным */
+.modal--stack .modal__close{ color:#000; }
+
+/* КНОПКИ внутри оставляем как есть (оранжевые) — ничего менять не нужно */
+
+
+/* --- универсальный фолбэк (если вдруг откроешь в обычной модалке) --- */
+/* диалог с этими попапами тоже делаем сплошным */
+.modal__dialog:has(.timer-popup),
+.modal__dialog:has(.confirm-popup){
+  background: var(--chip);
+}
+/* и выключаем «плашки» внутри */
+.modal__dialog:has(.timer-popup) .chip,
+.modal__dialog:has(.confirm-popup) .chip{
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+/* крестик на светлом фоне */
+.modal__dialog:has(.timer-popup) .modal__close,
+.modal__dialog:has(.confirm-popup) .modal__close{
+  color:#000;
+}
+
+/* ===== Попап обязательной подписки ===== */
+.subs-popup{width:100%; max-width:420px; display:grid; gap:14px}
+.subs-card{width:100%; background:var(--chip); border-radius:16px; padding:16px; display:grid; gap:12px; border:1px solid rgba(0,0,0,.06)}
+.subs-title{margin:0; text-align:center; color:#000; font-weight:800; font-size:18px}
+.subs-sub{margin:0; text-align:center; color:#000; opacity:.85; font-size:14px}
+.subs-links{display:grid; gap:10px}
+.btn-link{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:100%; height:44px; border-radius:14px; text-decoration:none;
+  background:#fff; color:#000; font-weight:800; border:1px solid rgba(0,0,0,.08);
+}
+.btn-check{
+  display:inline-flex; align-items:center; justify-content:center;
+  min-width:200px; height:44px; border-radius:35px; border:0; cursor:pointer;
+  background:#FF7300; color:#fff; font-weight:800; font-size:16px;
+}
+.btn-check.is-ok{ background:#14ae5c; } /* зелёная после успешной проверки */
+.subs-note{margin:0; text-align:center; color:#000; opacity:.7; font-size:12px}
+
+/* предпросмотр выбранного фото */
+.picked-box{
+  width: 100%;
+  display: grid;
+  place-items: center;
+  margin: 2px 0 6px;  /* было: 4px 0 6px */
+}
+
+.picked-empty{
+  color:#fff; opacity:.7; font-size:12px;
+}
+.picked-item{
+  position: relative;
+  width: var(--picked-size);
+  aspect-ratio: 1;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 6px 14px rgba(0,0,0,.18);
+}
+
+.picked-item img{
+  width:100%; height:100%; object-fit:cover; display:block;
+}
+.picked-remove{
+  position:absolute; top:6px; right:6px;
+  width:28px; height:28px; border-radius:50%;
+  border:0; cursor:pointer;
+  background:#fff; color:#000; font-weight:800; line-height:1;
+  box-shadow:0 2px 6px rgba(0,0,0,.2);
+}
+/* Центрированная обёртка под кнопку выбора файла */
+.pick-wrap{
+  position: relative;
+  display: block;
+  width: clamp(206px, 90%, 360px); /* такая же логика ширины, как у кнопки */
+  margin-inline: auto;             /* по центру */
+}
+
+/* Кнопка внутри обёртки всегда на всю её ширину */
+.pick-wrap .btn-pick{
+  width: 100%;
+}
+
+/* Невидимый, но кликабельный инпут поверх кнопки */
+.file-input-overlay{
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  -webkit-appearance: none;
+  border-radius: inherit;
+}
+
+/* Оверлей, блокирующий приложение в альбомной ориентации */
+.orientation-lock{
+  position:fixed;
+  inset:0;
+  z-index:2000;                /* выше модалок/стека */
+  display:none;                /* показываем только в ландшафте */
+  background:center/cover no-repeat;
+  /* картинка предупреждения */
+  background-image:image-set(
+    url("./bgicons/rotate-warning.png") 1x,
+    url("./bgicons/rotate-warning@2x.png") 2x
+  );
+  /* подложка на всякий случай, если картинка с прозрачностью */
+  background-color:#0f1115;
+}
+
+.orientation-lock.is-active{ display:block; }
+
+/* --- Upload popup: writing mode --- */
+
+/* по умолчанию как было */
+.upload-popup .picked-box{
+  transition: max-height .18s ease, opacity .12s ease, margin .18s ease, transform .18s ease;
+}
+
+/* на очень узких/низких экранах базовый размер превью чуть меньше */
+@media (max-width:360px), (max-height:640px){
+  :root { --picked-size: clamp(130px, 50vw, 180px); }
+}
+
+
+/* когда печатаем описание — делаем превью компактным */
+.is-writing-upload .upload-popup .picked-box{
+  max-height: 120px;      /* было фактически "auto" за счёт содержимого */
+  margin: 6px 0 4px;
+  opacity: .95;
+  overflow: hidden;
+  transform: translateZ(0); /* меньший шанс «мигания» на iOS */
+}
+
+/* совсем маленькие устройства — ещё компактнее */
+@media (max-width:360px), (max-height:640px){
+  .is-writing-upload .upload-popup .picked-box{ max-height: 96px; }
+}
+
+/* скролл внутри контента модалки, когда включаем его из JS */
+.modal__content.is-scrollable{
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* небольшая «подкладка» снизу, когда открыта клавиатура (ставим из JS) */
+.modal__content.has-kb-padding{
+  /* padding-bottom выставляем из JS в px */
+}
+
+
+
+
+
+/* ====== DEBUG (включай <body class="__debug">) ====== */
+body.__debug .hotspot{outline:2px dashed rgba(0,200,255,.9); background:rgba(0,200,255,.10)}
