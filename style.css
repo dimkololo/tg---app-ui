@@ -114,20 +114,31 @@ html,body{
 
 /* Полный reset для кликабельных зон */
 .hotspot{
-  position:absolute;
-  transform:translate(-50%, -50%);
-  z-index:20;
+  position: absolute;
+  z-index: 20;
 
-  /* reset */
-  appearance:none;
-  -webkit-appearance:none;
-  background:transparent !important;
-  border:0 !important;
-  padding:0 !important;
-  margin:0;
-  box-shadow:none !important;
-  outline:none;
-  cursor:pointer;
+  /* центрирование + собственный слой (одним свойством!) */
+  transform: translate3d(-50%, -50%, 0);
+
+  backface-visibility: hidden;
+  will-change: transform;
+
+  /* UX */
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+
+  /* reset — оставляю твои */
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  box-shadow: none;
+  outline: 0;
+  cursor: pointer;
 }
 
 
@@ -261,11 +272,9 @@ html,body{
 .hotspot,
 .hotspot:active,
 .hotspot:focus,
-.hotspot:focus-visible {
-  -webkit-tap-highlight-color: transparent; /* iOS/Safari */
+.hotspot:focus-visible{
+  -webkit-tap-highlight-color: transparent;
   outline: none;
-  background: transparent !important;
-  box-shadow: none !important;
 }
 
 /* на тач-устройствах фокус не нужен — оставим его только для клавиатуры */
@@ -274,21 +283,11 @@ html,body{
   .hotspot:focus-visible { outline: none; }
 }
 
-/* ускоряем обработку тапа и убираем «перетаскивание страницы» */
-.hotspot {
-  touch-action: manipulation;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-  backface-visibility: hidden;   /* предотвращает «мигание» при композитинге */
-  transform: translateZ(0);      /* свой слой для плавности */
-}
-
 /* псевдо-слой фона облака не перехватывает события и не мигает */
 .hotspot--plus::before {
   pointer-events: none;
   backface-visibility: hidden;
-  transform: translateZ(0);
+  
 }
 
 
