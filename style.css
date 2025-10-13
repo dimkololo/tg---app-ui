@@ -666,22 +666,24 @@ html,body{
 
 /* предпросмотр выбранного фото */
 .picked-box{
-  width:100%;
-  display:grid;
-  place-items:center;
-  margin:4px 0 6px;
+  width: 100%;
+  display: grid;
+  place-items: center;
+  margin: 2px 0 6px;  /* было: 4px 0 6px */
 }
+
 .picked-empty{
   color:#fff; opacity:.7; font-size:12px;
 }
 .picked-item{
-  position:relative;
-  width:min(240px, 80%);
-  aspect-ratio:1;                /* квадратное превью */
-  border-radius:16px;
-  overflow:hidden;
-  box-shadow:0 6px 14px rgba(0,0,0,.18);
+  position: relative;
+  width: clamp(150px, 55vw, 220px); /* было: min(240px, 80%) */
+  aspect-ratio: 1;                  /* квадрат */
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 6px 14px rgba(0,0,0,.18);
 }
+
 .picked-item img{
   width:100%; height:100%; object-fit:cover; display:block;
 }
@@ -744,8 +746,11 @@ html,body{
 
 /* на очень узких/низких экранах базовый размер превью чуть меньше */
 @media (max-width:360px), (max-height:640px){
-  .upload-popup .picked-item{ width:min(200px, 72%); }
+  .picked-item{
+    width: clamp(130px, 50vw, 180px);
+  }
 }
+
 
 /* когда печатаем описание — делаем превью компактным */
 .is-writing-upload .upload-popup .picked-box{
