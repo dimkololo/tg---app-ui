@@ -633,6 +633,14 @@ html,body{
 /* крестик на светлом фоне должен быть тёмным */
 .modal--stack .modal__close{ color:#000; }
 
+/* Прокрутка контента в верхнем слое модалки (стек) */
+.modal--stack .modal__content{
+  max-height: calc(100svh - 140px);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+
 /* КНОПКИ внутри оставляем как есть (оранжевые) — ничего менять не нужно */
 
 
@@ -767,6 +775,7 @@ html,body{
 .modal__content.has-kb-padding{
   /* padding-bottom выставляем из JS в px */
 }
+
 
 
 
