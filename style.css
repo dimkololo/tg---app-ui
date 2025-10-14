@@ -246,10 +246,10 @@ html,body{
   }
 
   :root{
-    --plus-font-m:12px;
-    --plus-icon-m:14px;
+    --plus-font-m:20px;
+    --plus-icon-m:20px;
     --plus-gap-m:0px;
-    --plus-padleft-m:10px;
+    --plus-padleft-m:40px;
   }
 }
 
