@@ -20,7 +20,7 @@
 
   /* Плюс-облако (иконка выведена слоем ::before) */
   --plus-x-m:290; --plus-y-m:145; --plus-w-m:190; --plus-h-m:90;
-  --plus-x-s:277; --plus-y-s:90; --plus-w-s:181; --plus-h-s:70;       /* обновлено */
+  --plus-x-s:277; --plus-y-s:110; --plus-w-s:181; --plus-h-s:70;       /* обновлено */
   --plus-x-l:640; --plus-y-l:145; --plus-w-l:320; --plus-h-l:140;
 
   /* Текст + иконка валюты внутри облака */
@@ -31,17 +31,17 @@
 
   /* Подарок */
   --gift-x-m:305; --gift-y-m:740; --gift-w-m:130; --gift-h-m:110;
-  --gift-x-s:291; --gift-y-s:590; --gift-w-s:124; --gift-h-s:78;       /* обновлено */
+  --gift-x-s:291; --gift-y-s:590; --gift-w-s:105; --gift-h-s:78;       /* обновлено */
   --gift-x-l:680; --gift-y-l:1070; --gift-w-l:210; --gift-h-l:160;
 
   /* Дневник */
   --notebook-x-m:110; --notebook-y-m:740; --notebook-w-m:150; --notebook-h-m:120;
-  --notebook-x-s:105; --notebook-y-s:590; --notebook-w-s:143; --notebook-h-s:86; /* обновлено */
+  --notebook-x-s:105; --notebook-y-s:590; --notebook-w-s:133; --notebook-h-s:86; /* обновлено */
   --notebook-x-l:160; --notebook-y-l:1070; --notebook-w-l:220; --notebook-h-l:160;
 
   /* FAQ-облако (часть фона, слева от плюс-облака) — подгони размеры/координаты под макет */
   --faq-x-m: 80;  --faq-y-m: 145;  --faq-w-m: 130; --faq-h-m: 85;   /* medium */
-  --faq-x-s: 80;  --faq-y-s: 80;  --faq-w-s: 140; --faq-h-s: 75;   /* small  (обновлено) */
+  --faq-x-s: 80;  --faq-y-s: 100;  --faq-w-s: 140; --faq-h-s: 75;   /* small  (обновлено) */
   --faq-x-l: 160;  --faq-y-l: 145;  --faq-w-l: 240; --faq-h-l: 120;  /* large  */
   
 }
