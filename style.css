@@ -1015,10 +1015,22 @@ html,body{
   max-height: calc(100svh - 140px);
   overflow: auto;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: 12px; /* небольшой запас под «липкую» кнопку */
+  padding-bottom: 4px; /* небольшой запас под «липкую» кнопку */
 }
 
 .modal__dialog:has(.leaderboard-popup) .modal__close{ display:none; }
+/* Обрезаем содержимое по радиусу самого диалога — углы больше не «торчат» */
+.modal__dialog:has(.leaderboard-popup),
+.modal__dialog:has(.actions-popup){
+  overflow: hidden;                 /* всё внутри режется по radius:42px */
+}
+
+/* Карточка списка: реальное скругление и небольшой зазор перед кнопкой */
+.lb-list.card{
+  border-radius:16px;
+  overflow:hidden;                  /* границы <li> не вылезают снизу */
+  margin-bottom:8px;                /* минимальный зазор над кнопкой */
+}
 
 /* Контейнер попапа */
 .leaderboard-popup{
