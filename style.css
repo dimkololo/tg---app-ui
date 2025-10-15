@@ -1168,6 +1168,20 @@ html,body{
   background: transparent;  /* ← убрали градиент */
 }
 
+/* Лидерборд: меньше отступ снизу у диалога и контейнера со скроллом */
+.modal__dialog:has(.leaderboard-popup){ 
+  padding-bottom: 8px;           /* было 22px */
+}
+.modal__dialog:has(.leaderboard-popup) .modal__content.is-scrollable{
+  padding-bottom: 6px;           /* было 12px */
+}
+
+/* Под кнопкой вообще без отступа, сверху небольшой, чтобы не липла к списку */
+.lb-footer{
+  padding: 6px 0 0;              /* было 10px 0 4px */
+}
+
+
 /* Хотспот «Действия» */
 .hotspot--actions{
   left:  calc(var(--actions-x-m)/var(--design-w)*100%);
