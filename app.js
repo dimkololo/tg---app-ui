@@ -283,11 +283,17 @@ function fmtMMSS(ms){
 
 // контейнер с зелёной кнопкой (создаём один раз, скрыт по умолчанию)
 const submitRow = submitBtn?.closest('.u-center');
-const resetRow = document.createElement('div');
-resetRow.className = 'u-center';
-resetRow.hidden = true;
-resetRow.innerHTML = '<button class="btn-reset" type="button" data-open-reset>Сбросить таймер</button>';
-submitRow?.insertAdjacentElement('afterend', resetRow);
+
+let resetRow = root.querySelector('[data-reset-row]');
+if (!resetRow) {
+  resetRow = document.createElement('div');
+  resetRow.className = 'u-center';
+  resetRow.setAttribute('data-reset-row', '');
+  resetRow.hidden = true; // ← гарантируем скрыто по умолчанию
+  resetRow.innerHTML = '<button class="btn-reset" type="button" data-open-reset>Сбросить таймер</button>';
+  submitRow?.insertAdjacentElement('afterend', resetRow);
+}
+const showReset = (show) => { resetRow.hidden = !show; };
 
 // показать/скрыть «Сбросить таймер»
 function showReset(show){ resetRow.hidden = !show; }
