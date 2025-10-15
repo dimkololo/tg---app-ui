@@ -1015,7 +1015,7 @@ html,body{
   max-height: calc(100svh - 140px);
   overflow: auto;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: 4px; /* небольшой запас под «липкую» кнопку */
+  padding-bottom: 8px; /* небольшой запас под «липкую» кнопку */
 }
 
 .modal__dialog:has(.leaderboard-popup) .modal__close{ display:none; }
