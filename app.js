@@ -500,7 +500,11 @@ bindCounter(root.querySelector('[data-counter="desc"]'));
       pickedItem.hidden = true;
       pickedEmpty.style.display = 'block';
       pickedImg.src = '';
-      updateSubmitState();
+      function updateSubmitState(){
+  // кнопка доступна ТОЛЬКО если есть файл и нет кулдауна
+  submitBtn.disabled = !hasFile || isCooldownActive();
+}
+
       return;
     }
     hasFile = true;
@@ -508,7 +512,11 @@ bindCounter(root.querySelector('[data-counter="desc"]'));
     pickedImg.src = objectUrl;
     pickedEmpty.style.display = 'none';
     pickedItem.hidden = false;
-    updateSubmitState();
+    function updateSubmitState(){
+  // кнопка доступна ТОЛЬКО если есть файл и нет кулдауна
+  submitBtn.disabled = !hasFile || isCooldownActive();
+}
+
     syncCooldownUI();
   }
 
