@@ -70,11 +70,11 @@
 
   /* Хотспот «Действия» (центр-координаты) */
   /* medium 393×853: w=175 h=215, x=10 y=425 → центр: (97.5, 532.5) */
-  --actions-x-m: 97.5;  --actions-y-m: 532.5;  --actions-w-m: 175; --actions-h-m: 200;
+  --actions-x-m: 97.5;  --actions-y-m: 532.5;  --actions-w-m: 175; --actions-h-m: 180;
   /* small 375×667: w=110 h=150, x=50 y=360 → центр: (105, 435) */
-  --actions-x-s: 105;   --actions-y-s: 435;    --actions-w-s: 110; --actions-h-s: 135;
+  --actions-x-s: 105;   --actions-y-s: 435;    --actions-w-s: 110; --actions-h-s: 130;
   /* large 834×1194: w=250 h=290, x=100 y=660 → центр: (225, 805) */
-  --actions-x-l: 225;   --actions-y-l: 805;    --actions-w-l: 250; --actions-h-l: 260;
+  --actions-x-l: 225;   --actions-y-l: 805;    --actions-w-l: 250; --actions-h-l: 240;
 
   /* самолет */
 
