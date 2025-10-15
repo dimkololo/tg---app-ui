@@ -1124,12 +1124,6 @@ html,body{
   border-radius:0;
   border-bottom:1px solid rgba(0,0,0,.08);
 }
-/* Карточка списка: скругление всех углов + обрезка содержимого */
-.lb-list.card{
-  padding: 0;          /* как и было у .lb-list */
-  border-radius: 16px; /* 4 угла */
-  overflow: hidden;    /* чтобы границы <li> не вылезали по низу */
-}
 
 .lb-item:last-child{ border-bottom:0; }
 /* сам кружок-аватар */
