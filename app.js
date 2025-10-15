@@ -126,18 +126,21 @@ function initPremiumTimer(){
   tick();
   const timer = setInterval(tick, 1000);
 
+  
+  // сохраним ссылку, чтобы снять позже
+  const escOnce = (ev)=>{
+    if (ev.key === 'Escape' && !stackRoot.hidden){
+      clearInterval(timer);
+      document.removeEventListener('keydown', escOnce);
+    }
+  };
+  document.addEventListener('keydown', escOnce);
+
   // стопаем таймер при закрытии именно стека (клик по кресту/бэкдропу)
   root.addEventListener('click', (e)=>{
     if (e.target.matches('[data-dismiss-stack]') || e.target.closest('[data-dismiss-stack]')){
       clearInterval(timer);
-    }
-  });
-
-  // и по Esc — если открыт стек
-  document.addEventListener('keydown', function escOnce(ev){
-    if (ev.key === 'Escape' && !stackRoot.hidden){
-      clearInterval(timer);
-      document.removeEventListener('keydown', escOnce);
+      document.removeEventListener('keydown', escOnce); // ← ДОБАВЬ
     }
   });
 }
@@ -626,13 +629,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function open() {
     modal.hidden = false;
-    document.body.style.overflow = 'hidden';   // блокируем скрол страницы
+    document.documentElement.style.overflow = 'hidden';   // блокируем скрол страницы
     content && content.classList.add('is-scrollable'); // у тебя этот класс уже есть в CSS
   }
 
   function close() {
     modal.hidden = true;
-    document.body.style.overflow = '';         // возвращаем скрол
+    document.documentElement.style.overflow = '';         // возвращаем скрол
   }
 
   // открыть по клику на «листочек»
@@ -661,12 +664,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const open = () => {
     modal.hidden = false;
-    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
     content && content.classList.add('is-scrollable');
   };
   const close = () => {
     modal.hidden = true;
-    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
   };
 
   opener.addEventListener('click', open);
