@@ -989,6 +989,19 @@ html,body{
 
 /* Попап-лидерборд: непрозрачная подложка и скрываем крестик */
 .modal--opaque .modal__backdrop{ background:#000; }
+/* Сделать карточку диалога сплошной как в FAQ */
+.modal--opaque .modal__dialog{
+  background: var(--chip);
+}
+
+/* Включить реальный скролл у длинного попапа */
+.modal__content.is-scrollable{
+  max-height: calc(100svh - 140px);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 12px; /* небольшой запас под «липкую» кнопку */
+}
+
 .modal__dialog:has(.leaderboard-popup) .modal__close{ display:none; }
 
 /* Контейнер попапа */
@@ -1024,9 +1037,11 @@ html,body{
 /* Пьедестал — схематично прямоугольниками */
 .lb-podium{
   position:relative;
-  width:240px;                 /* близко к макету */
+  width:240px;
   height:172px;
+  margin-inline:auto; /* центрируем */
 }
+
 .lb-col{
   position:absolute;
   background:#BABABA;
@@ -1035,6 +1050,22 @@ html,body{
   width:80px; height:145px;
   left:116px; top:35px;
   border-radius:20px 20px 0 0;
+}
+/* Иконка подарка внизу среднего прямоугольника */
+.lb-col--mid::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:8px;
+  transform:translateX(-50%);
+  width:70px;                /* близко к макету ~69.5×89.4 */
+  height:90px;
+  background:center/contain no-repeat;
+  background-image:image-set(
+    url("./bgicons/openedbox.png") 1x,
+    url("./bgicons/openedbox@2x.png") 2x
+  );
+  pointer-events:none;
 }
 .lb-col--left{
   width:80px; height:100px;
@@ -1067,21 +1098,22 @@ html,body{
 .lb-prize--20{ left:136px; top:65px; }
 .lb-prize--10{ left:215px; top:151px; }
 
-/* Список лидеров */
+/* сам список — без нумерации и без внутренних зазоров */
 .lb-list{
+  list-style:none;
+  margin:0;
+  padding:0;
   display:grid;
-  gap:10px;
-  padding:14px;
+  gap:0; /* было 10px */
 }
+/* строки — без фона и скруглений, только разделитель снизу */
 .lb-item{
-  display:grid;
-  grid-template-columns: 28px 1fr auto;
-  align-items:center;
-  gap:10px;
-  padding:6px 8px;
-  border-radius:12px;
-  background: rgba(0,0,0,.06);
+  background:transparent;       /* было rgba(0,0,0,.06) */
+  border-radius:0;
+  padding:10px 12px;
+  border-bottom:1px solid rgba(0,0,0,.08);
 }
+.lb-item:last-child{ border-bottom:0; }
 .lb-ava{
   width:20px; height:20px;
   border-radius:50%;
