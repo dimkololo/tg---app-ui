@@ -265,7 +265,6 @@ function initUploadPopup(){
 
   // элементы
   const fileInput   = root.querySelector('#file-input');
-  const btnPick     = root.querySelector('.btn-pick');
   const submitBtn   = root.querySelector('[data-submit]');
   const form        = root.querySelector('[data-upload-form]');
   const range       = root.querySelector('.range');
@@ -273,239 +272,70 @@ function initUploadPopup(){
   const secsEl      = root.querySelector('[data-secs]');
   const urlInput    = root.querySelector('input[name="social"]');
 
-  // мини-хелпер форматирования 00мин. 00сек.
-function fmtMMSS(ms){
-  const total = Math.max(0, Math.floor(ms/1000));
-  const mm = String(Math.floor(total/60)).padStart(2,'0');
-  const ss = String(total%60).padStart(2,'0');
-  return `${mm}мин. ${ss}сек.`;
-}
-
-// контейнер с зелёной кнопкой (создаём один раз, скрыт по умолчанию)
-const submitRow = submitBtn?.closest('.u-center');
-
-let resetRow = root.querySelector('[data-reset-row]');
-if (!resetRow) {
-  resetRow = document.createElement('div');
-  resetRow.className = 'u-center';
-  resetRow.setAttribute('data-reset-row', '');
-  resetRow.hidden = true; // ← гарантируем скрыто по умолчанию
-  resetRow.innerHTML = '<button class="btn-reset" type="button" data-open-reset>Сбросить таймер</button>';
-  submitRow?.insertAdjacentElement('afterend', resetRow);
-}
-const showReset = (show) => { resetRow.hidden = !show; };
-
-// показать/скрыть «Сбросить таймер»
-function showReset(show){ resetRow.hidden = !show; }
-
-  // === состояние «есть ли файл» управляет кнопкой «Отправить»
+  // состояние предпросмотра
   let objectUrl = null;
   let hasFile = false;
 
-function syncCooldownUI(leftMs){
-  if (!submitBtn) return;
-
-  const left = (typeof leftMs === 'number')
-    ? leftMs
-    : Math.max(0, (window.PLAM.cooldownUntil||0) - Date.now());
-
-  if (isCooldownActive()){
-    // таймер активен: блокируем кнопку и показываем таймер
-    submitBtn.disabled = true;
-    submitBtn.textContent = fmtMMSS(left);
-    // зелёную кнопку показываем ТОЛЬКО после первой успешной отправки
-    showReset(!!window.PLAM.hasUploaded);
-  } else {
-    // таймера нет: текст "В эфир на …", доступность зависит от файла
-    const filePresent = hasFile || !!(fileInput?.files && fileInput.files.length);
-    submitBtn.disabled = !filePresent;
-    updateBroadcastSeconds();
-    showReset(false);
-  }
-}
-
-
-// первичная отрисовка при открытии попапа
-function fmtMMSS(ms){
-  const total = Math.max(0, Math.floor(ms/1000));
-  const mm = String(Math.floor(total/60)).padStart(2,'0');
-  const ss = String(total%60).padStart(2,'0');
-  return `${mm}мин. ${ss}сек.`;
-}
-
-function syncCooldownUI(leftMs){
-  if (!submitBtn) return;
-
-  const cdActive = isCooldownActive();
-  if (cdActive){
-    const left = (typeof leftMs === 'number')
-      ? leftMs
-      : Math.max(0, (window.PLAM.cooldownUntil||0) - Date.now());
-    // режим обратного отсчёта в самой кнопке
-    submitBtn.disabled = true;
-    submitBtn.textContent = fmtMMSS(left);
-    // зелёная кнопка видна ТОГДА ЖЕ, когда в кнопке таймер
-    showReset(true);
-  } else {
-    // режим «В эфир на … сек»
-    updateBroadcastSeconds(); // только текст
-    updateSubmitState();      // доступность решает hasFile + кулдаун
-    showReset(false);         // таймера нет → зелёной нет
-  }
-}
-
-
-// подписки на глобальные события кулдауна
-const onTick = (e)=> syncCooldownUI(e.detail?.leftMs);
-const onEnd  = ()=> syncCooldownUI(0);
-document.addEventListener('plam:cooldown-tick', onTick);
-document.addEventListener('plam:cooldown-ended', onEnd);
-
-// очистим только подписки, НО НЕ СБРАСЫВАЕМ таймер!
-document.addEventListener('plam:modal-closed', function once(ev){
-  if (ev.detail?.wasUpload){
-    document.removeEventListener('plam:cooldown-tick', onTick);
-    document.removeEventListener('plam:cooldown-ended', onEnd);
-    document.removeEventListener('plam:modal-closed', once);
-  }
-});
-
-// обработчик открытия попапа «Сброс таймера»
-resetRow.addEventListener('click', (e)=>{
-  if (!e.target.closest('[data-open-reset]')) return;
-
-  // целые минуты без секунд
-  const leftMs = Math.max(0, (window.PLAM.cooldownUntil||0) - Date.now());
-  const leftMin = Math.floor(leftMs / 60000);
-  if (leftMin <= 0){ window.PLAM_clearCooldown(); return; }
-
-  openStack('reset-cooldown');
-
-  // 50% чёрная подложка именно для этого стека
-  const backdrop = stackRoot.querySelector('.modal__backdrop');
-  const prevBg = backdrop ? backdrop.style.background : '';
-  if (backdrop) backdrop.style.background = 'rgba(0,0,0,.5)';
-
-  const box = stackRoot.querySelector('.reset-popup');
-  box?.querySelector('[data-mins]')?.replaceChildren(String(leftMin));
-  box?.querySelector('[data-coins]')?.replaceChildren(String(leftMin));
-
-  box?.querySelector('[data-reset-now]')?.addEventListener('click', ()=>{
-    const need = leftMin;
-    const bal = Number(window.PLAM.balance||0);
-    if (bal < need){ alert('Недостаточно PLAMc'); return; }
-    window.PLAM.balance = bal - need;
-    updatePlusBalanceUI();
-    window.PLAM_clearCooldown(); // ← снимаем кулдаун глобально
-    try { window.Telegram?.WebApp?.showAlert?.('Удачно! Скорее отправляй еще фото'); } catch(_) { alert('Удачно! Скорее отправляй еще фото'); }
-    if (backdrop) backdrop.style.background = prevBg;
-    closeStack();
-  });
-
-  // вернуть подложку при закрытии по крестику/бэкдропу
-  stackRoot.addEventListener('click', function once2(ev2){
-    const isBackdrop = ev2.target.classList.contains('modal__backdrop');
-    const isClose = ev2.target.closest('[data-dismiss-stack]');
-    if (isBackdrop || isClose){
-      if (backdrop) backdrop.style.background = prevBg;
-      stackRoot.removeEventListener('click', once2);
-    }
-  }, { once:true });
-});
-
-
-  // --- склонение "секунда/секунды/секунд"
-function plural(n, one, few, many){
-  const n10 = n % 10, n100 = n % 100;
-  if (n10 === 1 && n100 !== 11) return one;               // 1, 21, 31...
-  if (n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14)) return few;  // 2-4, 22-24...
-  return many;                                             // всё остальное
-}
-
-// --- обновление текста на кнопке "В эфир на … секунд"
-function updateBroadcastSeconds(){
-  const base = window.PLAM.premium ? 40 : 20;             // из профиля
-  const extra = Number(range?.value || 0);                 // слайдер (0..20)
-  const total = base + extra;
-  const word = plural(total, 'секунду', 'секунды', 'секунд');
-  if (submitBtn) submitBtn.textContent = `В эфир на ${total} ${word}`;
-}
-
-
-  // --- управление клавиатурой ---
-const descEl = root.querySelector('textarea[name="desc"]');
-
-
-// --- фикс "смещения кликов" после закрытия клавиатуры ---
-function normalizeAfterKeyboard() {
-  // даём WebView отпустить клаву
-  setTimeout(() => {
-    // 1) возвращаем скролл к нулю (у некоторых webview остаётся смещение)
-    window.scrollTo(0, 0);
-
-    // 2) форсируем reflow/перерисовку диалога
-    const dlg = modalRoot.querySelector('.modal__dialog');
-    if (dlg) {
-      dlg.style.transform = 'translateZ(0)'; // включили слой
-      void dlg.offsetHeight;                 // форс-рефлоу
-      dlg.style.transform = '';              // выключили
-    }
-  }, 80);
-}
-
-// Enter на ссылке -> фокус в описание (как раньше)
-if (urlInput) {
-  urlInput.setAttribute('enterkeyhint', 'next');
-  urlInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') { e.preventDefault(); descEl?.focus(); }
-  });
-}
-
-// На описании: Enter/Готово -> скрыть клавиатуру и поправить хит-тест
-if (descEl) {
-  descEl.setAttribute('enterkeyhint', 'done');
-  const hideKb = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      descEl.blur();              // закрыли клавиатуру
-      normalizeAfterKeyboard();   // починили смещение кликов
-    }
-  };
-  descEl.addEventListener('keydown', hideKb);
-  descEl.addEventListener('keypress', hideKb); // iOS подстраховка
-  descEl.addEventListener('blur', normalizeAfterKeyboard);
-}
-
-// Доп. страховка: когда визуальный вьюпорт меняется (клава прячется) — тоже нормализуем
-if (window.visualViewport) {
-  const onVV = () => normalizeAfterKeyboard();
-  window.visualViewport.addEventListener('resize', onVV);
-  // слушатель можно не снимать — попапов немного, нагрузка нулевая
-}
-
-
-
-  
-  // === счётчики символов ===
-function bindCounter(el){
-  if (!el) return;
-  const id  = el.getAttribute('data-counter');
-  const box = root.querySelector(`[data-counter-for="${id}"]`);
-  const max = Number(el.getAttribute('maxlength')) || 0;
-
-  const update = () => {
-    const len = el.value.length;
-    if (box) box.textContent = `${len} / ${max}`;
+  // --- helpers ---
+  const fmtMMSS = (ms)=>{
+    const total = Math.max(0, Math.floor(ms/1000));
+    const mm = String(Math.floor(total/60)).padStart(2,'0');
+    const ss = String(total%60).padStart(2,'0');
+    return `${mm}мин. ${ss}сек.`;
   };
 
-  el.addEventListener('input', update);
-  update(); // первичная отрисовка
-}
+  // блок «Сбросить таймер»
+  const submitRow = submitBtn?.closest('.u-center');
+  let resetRow = root.querySelector('[data-reset-row]');
+  if (!resetRow) {
+    resetRow = document.createElement('div');
+    resetRow.className = 'u-center';
+    resetRow.setAttribute('data-reset-row', '');
+    resetRow.innerHTML = '<button class="btn-reset" type="button" data-open-reset>Сбросить таймер</button>';
+    submitRow?.insertAdjacentElement('afterend', resetRow);
+  }
+  // гарантированно скрываем при открытии попапа
+  resetRow.hidden = true;
+  const showReset = (show)=>{ resetRow.hidden = !show; };
 
-// привязываем к полям
-bindCounter(root.querySelector('[data-counter="link"]'));
-bindCounter(root.querySelector('[data-counter="desc"]'));
+  // склонение и текст кнопки «В эфир на …»
+  function plural(n, one, few, many){
+    const n10 = n % 10, n100 = n % 100;
+    if (n10 === 1 && n100 !== 11) return one;
+    if (n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14)) return few;
+    return many;
+  }
+  function updateBroadcastSeconds(){
+    const base  = window.PLAM.premium ? 40 : 20;
+    const extra = Number(range?.value || 0);
+    const total = base + extra;
+    const word  = plural(total, 'секунду', 'секунды', 'секунд');
+    if (submitBtn) submitBtn.textContent = `В эфир на ${total} ${word}`;
+  }
 
+  // доступность основной кнопки
+  function updateSubmitState(){
+    submitBtn.disabled = !hasFile || isCooldownActive();
+  }
+
+  // синхронизация UI с кулдауном
+  function syncCooldownUI(leftMs){
+    if (!submitBtn) return;
+    const cdActive = isCooldownActive();
+
+    if (cdActive){
+      const left = (typeof leftMs === 'number')
+        ? leftMs
+        : Math.max(0, (window.PLAM.cooldownUntil||0) - Date.now());
+      submitBtn.disabled = true;
+      submitBtn.textContent = fmtMMSS(left);      // таймер в кнопке
+      showReset(!!window.PLAM.hasUploaded);       // зелёная — только после 1-й успешной отправки
+    } else {
+      updateBroadcastSeconds();                   // текст «В эфир на …»
+      updateSubmitState();                        // доступность = файл && !кулдаун
+      showReset(false);                           // таймера нет → кнопку скрываем
+    }
+  }
 
   // предпросмотр
   const pickedEmpty = root.querySelector('.picked-empty');
@@ -513,68 +343,26 @@ bindCounter(root.querySelector('[data-counter="desc"]'));
   const pickedImg   = root.querySelector('[data-picked-img]');
   const removeBtn   = root.querySelector('[data-remove-photo]');
 
-  
-
-  const updateSubmitState = ()=>{
-  submitBtn.disabled = !hasFile || isCooldownActive();
-};
-
-
   function showPreview(file){
     if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = null; }
     if (!file){
       hasFile = false;
-      pickedItem.hidden = true;
-      pickedEmpty.style.display = 'block';
-      pickedImg.src = '';
-      function updateSubmitState(){
-  // кнопка доступна ТОЛЬКО если есть файл и нет кулдауна
-  submitBtn.disabled = !hasFile || isCooldownActive();
-}
-
+      if (pickedItem) pickedItem.hidden = true;
+      if (pickedEmpty) pickedEmpty.style.display = 'block';
+      if (pickedImg) pickedImg.src = '';
+      updateSubmitState();
+      syncCooldownUI();     // пересчёт состояния после снятия файла
       return;
     }
     hasFile = true;
     objectUrl = URL.createObjectURL(file);
-    pickedImg.src = objectUrl;
-    pickedEmpty.style.display = 'none';
-    pickedItem.hidden = false;
-    function updateSubmitState(){
-  // кнопка доступна ТОЛЬКО если есть файл и нет кулдауна
-  submitBtn.disabled = !hasFile || isCooldownActive();
-}
-
-    function fmtMMSS(ms){
-  const total = Math.max(0, Math.floor(ms/1000));
-  const mm = String(Math.floor(total/60)).padStart(2,'0');
-  const ss = String(total%60).padStart(2,'0');
-  return `${mm}мин. ${ss}сек.`;
-}
-
-function syncCooldownUI(leftMs){
-  if (!submitBtn) return;
-
-  const cdActive = isCooldownActive();
-  if (cdActive){
-    const left = (typeof leftMs === 'number')
-      ? leftMs
-      : Math.max(0, (window.PLAM.cooldownUntil||0) - Date.now());
-    // режим обратного отсчёта в самой кнопке
-    submitBtn.disabled = true;
-    submitBtn.textContent = fmtMMSS(left);
-    // зелёная кнопка видна ТОГДА ЖЕ, когда в кнопке таймер
-    showReset(true);
-  } else {
-    // режим «В эфир на … сек»
-    updateBroadcastSeconds(); // только текст
-    updateSubmitState();      // доступность решает hasFile + кулдаун
-    showReset(false);         // таймера нет → зелёной нет
-  }
-}
-
+    if (pickedImg)   pickedImg.src = objectUrl;
+    if (pickedEmpty) pickedEmpty.style.display = 'none';
+    if (pickedItem)  pickedItem.hidden = false;
+    updateSubmitState();
+    syncCooldownUI();       // пересчёт состояния после добавления файла
   }
 
-  
   fileInput?.addEventListener('change', ()=>{
     const f = fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
     showPreview(f);
@@ -582,52 +370,103 @@ function syncCooldownUI(leftMs){
   removeBtn?.addEventListener('click', ()=>{
     fileInput.value = '';
     showPreview(null);
-    syncCooldownUI();
   });
-  
 
-  // слайдер
+  // слайдер (+секунды и стоимость)
   if (range && starsEl && secsEl) {
-  const update = () => {
-    const v = Number(range.value);
-    starsEl.textContent = `${v} PLAMc`;
-    secsEl.textContent  = (v === 0) ? '0 сек' : `+${v} сек`;
-    updateBroadcastSeconds();                             // ← обновляем кнопку
-  };
-  range.addEventListener('input', update);
-  update();                                               // первичный рендер
-} else {
-  // если по какой-то причине нет слайдера — всё равно покажем базовое значение
-  updateBroadcastSeconds();
-}
-
+    const onRange = () => {
+      const v = Number(range.value);
+      starsEl.textContent = `${v} PLAMc`;
+      secsEl.textContent  = (v === 0) ? '0 сек' : `+${v} сек`;
+      updateBroadcastSeconds();
+    };
+    range.addEventListener('input', onRange);
+    onRange();
+  } else {
+    updateBroadcastSeconds();
+  }
 
   // мягкая валидация URL
   function isValidUrlLike(v){
     if (!v) return true;
-    const tme = /^https?:\/\/t\.me\/.+/i;
+    const tme  = /^https?:\/\/t\.me\/.+/i;
     const http = /^https?:\/\/.+/i;
     return tme.test(v) || http.test(v);
   }
+
+  // подписки на глобальные события кулдауна
+  const onTick = (e)=> syncCooldownUI(e.detail?.leftMs);
+  const onEnd  = ()=> syncCooldownUI(0);
+  document.addEventListener('plam:cooldown-tick', onTick);
+  document.addEventListener('plam:cooldown-ended', onEnd);
+
+  // очистка подписок при закрытии именно этого попапа
+  document.addEventListener('plam:modal-closed', function once(ev){
+    if (ev.detail?.wasUpload){
+      document.removeEventListener('plam:cooldown-tick', onTick);
+      document.removeEventListener('plam:cooldown-ended', onEnd);
+      document.removeEventListener('plam:modal-closed', once);
+    }
+  });
+
+  // обработчик «Сбросить таймер»
+  resetRow.addEventListener('click', (e)=>{
+    if (!e.target.closest('[data-open-reset]')) return;
+
+    const leftMs  = Math.max(0, (window.PLAM.cooldownUntil||0) - Date.now());
+    const leftMin = Math.floor(leftMs / 60000);
+    if (leftMin <= 0){ window.PLAM_clearCooldown(); return; }
+
+    openStack('reset-cooldown');
+
+    const backdrop = stackRoot.querySelector('.modal__backdrop');
+    const prevBg = backdrop ? backdrop.style.background : '';
+    if (backdrop) backdrop.style.background = 'rgba(0,0,0,.5)';
+
+    const box = stackRoot.querySelector('.reset-popup');
+    box?.querySelector('[data-mins]')?.replaceChildren(String(leftMin));
+    box?.querySelector('[data-coins]')?.replaceChildren(String(leftMin));
+
+    box?.querySelector('[data-reset-now]')?.addEventListener('click', ()=>{
+      const need = leftMin;
+      const bal = Number(window.PLAM.balance||0);
+      if (bal < need){ alert('Недостаточно PLAMc'); return; }
+      window.PLAM.balance = bal - need;
+      updatePlusBalanceUI();
+      window.PLAM_clearCooldown();
+      try { window.Telegram?.WebApp?.showAlert?.('Удачно! Скорее отправляй еще фото'); } catch(_) { alert('Удачно! Скорее отправляй еще фото'); }
+      if (backdrop) backdrop.style.background = prevBg;
+      closeStack();
+    });
+
+    stackRoot.addEventListener('click', function once2(ev2){
+      const isBackdrop = ev2.target.classList.contains('modal__backdrop');
+      const isClose = ev2.target.closest('[data-dismiss-stack]');
+      if (isBackdrop || isClose){
+        if (backdrop) backdrop.style.background = prevBg;
+        stackRoot.removeEventListener('click', once2);
+      }
+    }, { once:true });
+  });
+
+  // начальный рендер
+  showPreview(null);   // приведём UI к «файла нет»
+  syncCooldownUI();    // и синхронизируемся с текущим кулдауном
 
   // отправка
   form?.addEventListener('submit', (e)=>{
     e.preventDefault();
 
-    // без файла сюда обычно не попадём (кнопка disabled), но на всякий случай:
     if (!hasFile){
       try { window.Telegram?.WebApp?.showAlert?.('Прикрепите фото'); } catch(_) {}
       return;
     }
 
-    // если подписка ещё не подтверждена — показываем попап и выходим.
-    // НИЧЕГО не сбрасываем: фото остаётся, кнопка активна.
     if (!window.PLAM.subsOk){
       openStack('subs-required');
       return;
     }
 
-    // проверка URL
     const link = urlInput?.value.trim();
     if (link && !isValidUrlLike(link)){
       alert('Ссылка должна начинаться с http:// или https:// (поддерживается и https://t.me/...)');
@@ -635,64 +474,30 @@ function syncCooldownUI(leftMs){
       return;
     }
 
-    // проверка баланса
     const need = parseInt(range?.value || '0', 10) || 0;
-    if (need > 0 && (window.PLAM.balance||0) <= 0) { alert('Недостаточно PLAMc'); return; }
-    if (need > (window.PLAM.balance||0))          { alert('Недостаточно PLAMc'); return; }
+    if (need > (window.PLAM.balance||0)) { alert('Недостаточно PLAMc'); return; }
 
-    // списание
     window.PLAM.balance -= need;
     updatePlusBalanceUI();
 
-    // учтём одно фото
     window.PLAM.photoCount = (window.PLAM.photoCount || 0) + 1;
-
-    // обновим профиль, если он открыт
     if (!modalRoot.hidden && modalRoot.querySelector('.profile-popup')){
       refreshProfileUI?.();
     }
 
-    // TODO: отправка на сервер/TG
-    
-    // зафиксировать, что была первая удачная отправка
-      window.PLAM.hasUploaded = true;
-      localStorage.setItem('plam.hasUploaded', '1');
+    // TODO: реальная отправка
 
+    // отметим первую удачную отправку
+    window.PLAM.hasUploaded = true;
+    localStorage.setItem('plam.hasUploaded', '1');
 
-    // очистка и закрытие
+    // запускаем кулдаун → сбрасываем форму → сразу показываем таймер в кнопке
+    window.PLAM_startCooldown();
     showPreview(null);
     syncCooldownUI();
-    window.PLAM_startCooldown();        // ← глобальный запуск на 30/20 мин
-    function fmtMMSS(ms){
-  const total = Math.max(0, Math.floor(ms/1000));
-  const mm = String(Math.floor(total/60)).padStart(2,'0');
-  const ss = String(total%60).padStart(2,'0');
-  return `${mm}мин. ${ss}сек.`;
-}
-
-function syncCooldownUI(leftMs){
-  if (!submitBtn) return;
-
-  const cdActive = isCooldownActive();
-  if (cdActive){
-    const left = (typeof leftMs === 'number')
-      ? leftMs
-      : Math.max(0, (window.PLAM.cooldownUntil||0) - Date.now());
-    // режим обратного отсчёта в самой кнопке
-    submitBtn.disabled = true;
-    submitBtn.textContent = fmtMMSS(left);
-    // зелёная кнопка видна ТОГДА ЖЕ, когда в кнопке таймер
-    showReset(true);
-  } else {
-    // режим «В эфир на … сек»
-    updateBroadcastSeconds(); // только текст
-    updateSubmitState();      // доступность решает hasFile + кулдаун
-    showReset(false);         // таймера нет → зелёной нет
-  }
-}
-                   // моментально обновим кнопку
   });
 }
+
 
 
 
