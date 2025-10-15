@@ -921,11 +921,6 @@ html,body{
   transition: max-height .18s ease, opacity .12s ease, margin .18s ease, transform .18s ease;
 }
 
-/* скролл внутри контента модалки, когда включаем его из JS */
-.modal__content.is-scrollable{
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
-}
 
 /* небольшая «подкладка» снизу, когда открыта клавиатура (ставим из JS) */
 .modal__content.has-kb-padding{
@@ -1178,7 +1173,7 @@ html,body{
   bottom: 2px;              /* небольшой отступ от низа попапа */
   display: flex;
   justify-content: center;
-  padding: 8px 0;           /* без подложки */
+  padding: 6px 0 4px;              /* было 10px 0 4px */
   background: transparent;  /* ← убрали градиент */
 }
 
@@ -1188,11 +1183,6 @@ html,body{
 }
 .modal__dialog:has(.leaderboard-popup) .modal__content.is-scrollable{
   padding-bottom: 8px;           /* было 12px */
-}
-
-/* Под кнопкой вообще без отступа, сверху небольшой, чтобы не липла к списку */
-.lb-footer{
-  padding: 6px 0 4px;              /* было 10px 0 4px */
 }
 
 
