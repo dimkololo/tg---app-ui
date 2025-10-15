@@ -616,43 +616,41 @@ function initFAQ(){
   // Оставлено для расширений (подгрузка картинок/контента).
 }
 
-// инициализация попапа таблицы лидеров
-(function initLeadersModal(){
-  // ждём, если файл не с defer
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initLeadersModal);
-    return;
-  }
-
-  const openBtn = document.querySelector('.hotspot--wintable');
+// Таблица лидеров — открытие/закрытие попапа
+document.addEventListener('DOMContentLoaded', () => {
   const modal   = document.getElementById('leadersModal');
-  if (!openBtn || !modal) return; // если разметки ещё нет — выходим
+  const openBtn = document.querySelector('.hotspot--wintable');
+  if (!modal || !openBtn) return;
 
   const content = modal.querySelector('.modal__content');
 
-  function open(){
+  function open() {
     modal.hidden = false;
-    document.documentElement.style.overflow = 'hidden';
-    content.classList.add('is-scrollable');
-  }
-  function close(){
-    modal.hidden = true;
-    document.documentElement.style.overflow = '';
+    document.body.style.overflow = 'hidden';   // блокируем скрол страницы
+    content && content.classList.add('is-scrollable'); // у тебя этот класс уже есть в CSS
   }
 
+  function close() {
+    modal.hidden = true;
+    document.body.style.overflow = '';         // возвращаем скрол
+  }
+
+  // открыть по клику на «листочек»
   openBtn.addEventListener('click', open);
 
-  modal.addEventListener('click', (e)=>{
-    const t = e.target;
-    if (t.dataset.close === 'leadersModal' || t.closest('[data-close="leadersModal"]')) {
-      close();
-    }
+  // закрыть по клику на подложку или на любую кнопку/элемент с data-close="leadersModal"
+  modal.addEventListener('click', (e) => {
+    const isBackdrop = e.target.classList.contains('modal__backdrop');
+    const isCloseBtn = e.target.closest('[data-close="leadersModal"]');
+    if (isBackdrop || isCloseBtn) close();
   });
 
-  window.addEventListener('keydown', (e)=>{
+  // закрыть по Esc
+  window.addEventListener('keydown', (e) => {
     if (!modal.hidden && e.key === 'Escape') close();
   });
-})();
+});
+
 
 
 // --- DEBUG хот-спотов: ?debug=1 в URL или Shift+D ---
