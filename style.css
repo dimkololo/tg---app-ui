@@ -1124,21 +1124,11 @@ html,body{
   border-radius:0;
   border-bottom:1px solid rgba(0,0,0,.08);
 }
-
-/* Имитация округлённого низа без лишнего отступа */
-.lb-list.card::after{
-  content:"";
-  position: sticky;
-  bottom: 0;                     /* всегда у нижней кромки скролла */
-  display:block;
-  height:16px;                   /* = радиусу карточки */
-  margin-top:-1px;               /* перекрыть нижнюю границу .card */
-  background: var(--chip);       /* как фон диалога */
-  border-bottom-left-radius:16px;
-  border-bottom-right-radius:16px;
-  box-shadow: 0 1px 0 rgba(0,0,0,.06) inset;  /* тонкая нижняя «рамка» */
-  pointer-events:none;
-  z-index:1;
+/* Карточка списка: скругление всех углов + обрезка содержимого */
+.lb-list.card{
+  padding: 0;          /* как и было у .lb-list */
+  border-radius: 16px; /* 4 угла */
+  overflow: hidden;    /* чтобы границы <li> не вылезали по низу */
 }
 
 .lb-item:last-child{ border-bottom:0; }
