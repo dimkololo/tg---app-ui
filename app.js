@@ -98,7 +98,7 @@ function initPremiumTimer(){
 
   const box = root.querySelector('[data-remaining]');
   if (!window.PLAM.premiumUntil) {
-    window.PLAM.premiumUntil = Date.now() + 30*24*60*60*1000;
+    window.PLAM.premiumUntil = Date.now() + 7*24*60*60*1000;
   }
 
   const tick = ()=>{
@@ -110,7 +110,9 @@ function initPremiumTimer(){
     const hours   = Math.floor((totalMinutes - days*24*60) / 60);
     const minutes = totalMinutes - days*24*60 - hours*60;
 
-    box.textContent = `${days}д. ${hours}ч. ${minutes}мин.`;
+    const hh = String(hours).padStart(2, '0');
+    const mm = String(minutes).padStart(2, '0');
+    box.textContent = `${days}д. ${hh}ч. ${mm}мин.`;
 
     if (ms <= 0){
       clearInterval(timer);
@@ -562,7 +564,7 @@ function initConfirmPremium(){
   if (!root) return;
 
   root.querySelector('[data-confirm-yes]')?.addEventListener('click', ()=>{
-    const price = 1500;
+    const price = 350;
 
     // НЕ хватает средств → закрываем подтверждение + профиль, открываем магазин
     if ((window.PLAM.balance || 0) < price){
@@ -575,8 +577,8 @@ function initConfirmPremium(){
     // Достаточно средств → списываем и активируем
     window.PLAM.balance -= price;
     window.PLAM.premium  = true;
-    const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
-    window.PLAM.premiumUntil = Date.now() + THIRTY_DAYS;
+    const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
+    window.PLAM.premiumUntil = Date.now() + SEVEN_DAYS;
 
     updatePlusBalanceUI();
 
