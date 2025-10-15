@@ -525,6 +525,14 @@ html,body{
   box-shadow:none;
   cursor:not-allowed;
 }
+/* Зелёная кнопка "Сбросить таймер" / "Сбросить" */
+.btn-reset{
+  display:inline-flex; align-items:center; justify-content:center;
+  min-width:180px; height:44px; border-radius:35px; border:0; cursor:pointer;
+  background:#14ae5c; color:#fff; font-weight:800; font-size:16px;
+}
+.btn-reset:disabled{ opacity:.6; cursor:not-allowed; }
+
 .card{width:100%; background:var(--chip); border-radius:16px; padding:12px; border:1px solid rgba(0,0,0,.06)}
 .slider-card{padding:14px}
 .slider-card .slider-title{
