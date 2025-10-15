@@ -1037,10 +1037,11 @@ html,body{
 /* Пьедестал — схематично прямоугольниками */
 .lb-podium{
   position:relative;
-  width:240px;
+  width:312px;           /* чтобы слева и справа было по ~36px */
   height:172px;
-  margin-inline:auto; /* центрируем */
+  margin:0 auto;         /* центрируем внутри шапки */
 }
+
 
 .lb-col{
   position:absolute;
@@ -1107,17 +1108,25 @@ html,body{
   gap:0; /* было 10px */
 }
 /* строки — без фона и скруглений, только разделитель снизу */
+/* компактная строка-лидера с сеткой */
 .lb-item{
-  background:transparent;       /* было rgba(0,0,0,.06) */
-  border-radius:0;
+  display:grid;
+  grid-template-columns: 28px 1fr auto; /* аватар | тексты | место */
+  align-items:center;
+  column-gap:10px;        /* только горизонтальный зазор */
   padding:10px 12px;
+  background:transparent;
+  border-radius:0;
   border-bottom:1px solid rgba(0,0,0,.08);
 }
 .lb-item:last-child{ border-bottom:0; }
+/* сам кружок-аватар */
 .lb-ava{
-  width:20px; height:20px;
+  display:block;          /* чтобы width/height работали всегда */
+  width:20px;
+  height:20px;
   border-radius:50%;
-  background:#555; /* плейсхолдер под аватар */
+  background:#555;
 }
 .lb-text{ display:grid; line-height:1.1; }
 .lb-nick{
