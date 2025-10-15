@@ -4,7 +4,21 @@ if (window.Telegram && window.Telegram.WebApp) {
 }
 
 // --- Глобальный state ---
-window.PLAM = window.PLAM || { balance: 0, premium: false, photoCount: 0, premiumUntil: null, subsOk: false };
+window.PLAM = window.PLAM || {
+  balance: 0,
+  premium: false,
+  photoCount: 0,
+  premiumUntil: null,
+  subsOk: false,
+  cooldownUntil: null,          // ← когда можно снова отправлять
+};
+
+
+// восстановим кулдаун из localStorage (если был)
+const savedCd = Number(localStorage.getItem('plam.cooldownUntil') || 0);
+if (savedCd && savedCd > Date.now()) {
+  window.PLAM.cooldownUntil = savedCd;
+}
 
 // --- Автозакрытие через 15 минут (анти-автозагрузка/макросы) ---
 (function setupAutoClose(){
@@ -89,6 +103,56 @@ function closeStack(){
   stackRoot.setAttribute('aria-hidden','true');
   stackContent.innerHTML = '';
 }
+
+function getCooldownMinutes(){ return window.PLAM.premium ? 20 : 30; }
+function isCooldownActive(){
+  return typeof window.PLAM.cooldownUntil === 'number' && Date.now() < window.PLAM.cooldownUntil;
+}
+function setCooldownUntil(ts){
+  window.PLAM.cooldownUntil = ts;
+  if (!ts) localStorage.removeItem('plam.cooldownUntil');
+  else     localStorage.setItem('plam.cooldownUntil', String(ts));
+}
+
+// Глобальный тикер: раз в 250мс шлём событие с остатком времени
+(function setupCooldownTicker(){
+  let timer = null;
+  const tick = ()=>{
+    const left = Math.max(0, (window.PLAM.cooldownUntil||0) - Date.now());
+    document.dispatchEvent(new CustomEvent('plam:cooldown-tick', { detail: { leftMs: left } }));
+    if (left <= 0) {
+      if (window.PLAM.cooldownUntil) {
+        setCooldownUntil(null);
+        document.dispatchEvent(new CustomEvent('plam:cooldown-ended'));
+      }
+      stop();
+    }
+  };
+  function start(){
+    if (timer) return;
+    timer = setInterval(tick, 250);
+    tick();
+  }
+  function stop(){
+    if (timer){ clearInterval(timer); timer = null; }
+  }
+  // запускаем, если при старте уже есть кулдаун
+  if (isCooldownActive()) start();
+
+  // публичный запуск
+  window.PLAM_startCooldown = function(){
+    const ms = getCooldownMinutes()*60*1000;
+    setCooldownUntil(Date.now()+ms);
+    start();
+  };
+  // публичный сброс
+  window.PLAM_clearCooldown = function(){
+    setCooldownUntil(null);
+    stop();
+    document.dispatchEvent(new CustomEvent('plam:cooldown-ended'));
+  };
+})();
+
 
 
 // --- Попап: таймер премиума ---
