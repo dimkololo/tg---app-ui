@@ -1161,11 +1161,11 @@ html,body{
 /* Нижняя приклеенная кнопка */
 .lb-footer{
   position: sticky;
-  bottom: 0;
-  display:flex;
-  justify-content:center;
-  padding:10px 0 4px;
-  background: linear-gradient(to top, var(--chip) 60%, rgba(217,217,217,0));
+  bottom: 8px;              /* небольшой отступ от низа попапа */
+  display: flex;
+  justify-content: center;
+  padding: 8px 0;           /* без подложки */
+  background: transparent;  /* ← убрали градиент */
 }
 
 /* Хотспот «Действия» */
