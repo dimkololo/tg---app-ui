@@ -651,6 +651,36 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+// Попап «Действия»
+document.addEventListener('DOMContentLoaded', () => {
+  const modal   = document.getElementById('actionsModal');
+  const opener  = document.querySelector('.hotspot--actions');
+  if (!modal || !opener) return;
+
+  const content = modal.querySelector('.modal__content');
+
+  const open = () => {
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    content && content.classList.add('is-scrollable');
+  };
+  const close = () => {
+    modal.hidden = true;
+    document.body.style.overflow = '';
+  };
+
+  opener.addEventListener('click', open);
+  modal.addEventListener('click', (e) => {
+    const isBackdrop = e.target.classList.contains('modal__backdrop');
+    const isCloseBtn = e.target.closest('[data-close="actionsModal"]');
+    if (isBackdrop || isCloseBtn) close();
+  });
+  window.addEventListener('keydown', (e) => {
+    if (!modal.hidden && e.key === 'Escape') close();
+  });
+});
+
+
 
 
 // --- DEBUG хот-спотов: ?debug=1 в URL или Shift+D ---
