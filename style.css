@@ -1223,15 +1223,27 @@ html,body{
 
 .decal--plane{
   position:absolute;
+  /* ВАЖНО: отменяем центрирование базового .decal */
+  transform: none;
+
+  /* Привязываем к левому краю сцены */
+  left: 0;
   top:   calc(var(--plane-y-m)/var(--design-h)*100%);
-  left:  0;
-  width: calc(var(--plane-w-m)/var(--design-w)*100%);
-  height:calc(var(--plane-h-m)/var(--design-h)*100%);
+
+  /* Размеры по макету → проценты сцены */
+  width:  calc(var(--plane-w-m)/var(--design-w)*100%);
+  height: calc(var(--plane-h-m)/var(--design-h)*100%);
+
   z-index:19;
   pointer-events:none;
-  background:center/contain no-repeat;
-  background-image:url("./bgicons/plane.gif");
+
+  /* Гиф растягиваем под контейнер без обрезки и стартуем от левого края */
+  background-position: left center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-image: url("./bgicons/plane.gif");
 }
+
 @media (max-width:375px),(max-height:667px){
   .decal--plane{
     top:   calc(var(--plane-y-s)/var(--design-h)*100%);
