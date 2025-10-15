@@ -8,6 +8,30 @@
   --shadow:0 8px 16px rgba(0,0,0,.25);
   --sky: #001B47; /* цвет неба сверху для пиксельной полосы */
 
+   /* ===== mrplam (табличка на кресло) ===== */
+  /* medium 393×853: w=87 h=52, x=14 y=520 (→ center: 57.5, 546) */
+  --mrplam-x-m:57.5;  --mrplam-y-m:546;   --mrplam-w-m:87;  --mrplam-h-m:52;
+  /* small 375×667: w=63 h=38, x=51 y=414 (→ center: 82.5, 433) */
+  --mrplam-x-s:82.5;  --mrplam-y-s:433;   --mrplam-w-s:63;  --mrplam-h-s:38;
+  /* large 834×1194: w=129 h=77, x=120 y=783 (→ center: 184.5, 821.5) */
+  --mrplam-x-l:184.5; --mrplam-y-l:821.5; --mrplam-w-l:129; --mrplam-h-l:77;
+
+  /* ===== photohereru (текст у пенька) ===== */
+  /* medium: w=71 h=70, x=248 y=536 (→ center: 283.5, 571) */
+  --photohereru-x-m:283.5;  --photohereru-y-m:571;   --photohereru-w-m:71;  --photohereru-h-m:70;
+  /* small: w=56 h=55, x=232 y=436 (→ center: 260, 463.5) */
+  --photohereru-x-s:260;    --photohereru-y-s:463.5; --photohereru-w-s:56;  --photohereru-h-s:55;
+  /* large: w=105 h=103, x=498 y=826 (→ center: 550.5, 877.5) */
+  --photohereru-x-l:550.5;  --photohereru-y-l:877.5; --photohereru-w-l:105; --photohereru-h-l:103;
+
+  /* ===== wintable (листочек на телевизор) ===== */
+  /* medium: w=77 h=108, x=284 y=318 (→ center: 322.5, 372) */
+  --wintable-x-m:322.5;  --wintable-y-m:372;   --wintable-w-m:77;  --wintable-h-m:108;
+  /* small: w=52 h=74, x=263 y=282 (→ center: 289, 319) */
+  --wintable-x-s:289;    --wintable-y-s:319;   --wintable-w-s:52;  --wintable-h-s:74;
+  /* large: w=94 h=133, x=562 y=530 (→ center: 609, 596.5) */
+  --wintable-x-l:609;    --wintable-y-l:596.5; --wintable-w-l:94;  --wintable-h-l:133;
+
   /* дизайн-холсты */
   --mw:393; --mh:853;      /* medium */
   --sw:375; --sh:667;      /* small  (обновлено) */
@@ -371,6 +395,92 @@ html,body{
 /* крестик на светлом фоне — тёмный */
 .modal__dialog:has(.faq-popup) .modal__close{
   color:#000;
+}
+
+/* Декоративные наклейки поверх фона, под хотспотами */
+.decal{
+  position:absolute;
+  transform: translate3d(-50%, -50%, 0); /* используем центр-координаты */
+  pointer-events:none;                   /* не перехватывают клики */
+  z-index:18;                            /* ниже хотспотов (20–30), выше фона */
+  background-position:center;
+  background-repeat:no-repeat;
+  background-size:contain;               /* сохраняем пропорции */
+}
+/* MRPLAM (табличка на кресло) — medium по умолчанию */
+.decal--mrplam{
+  left:  calc(var(--mrplam-x-m)/var(--design-w)*100%);
+  top:   calc(var(--mrplam-y-m)/var(--design-h)*100%);
+  width: calc(var(--mrplam-w-m)/var(--design-w)*100%);
+  height:calc(var(--mrplam-h-m)/var(--design-h)*100%);
+  background-image:image-set(
+    url("./bgicons/mrplam.png") 1x,
+    url("./bgicons/mrplam@2x.png") 2x
+  );
+}
+
+/* PHOTOHERERU (текст у пенька) — medium */
+.decal--photohereru{
+  left:  calc(var(--photohereru-x-m)/var(--design-w)*100%);
+  top:   calc(var(--photohereru-y-m)/var(--design-h)*100%);
+  width: calc(var(--photohereru-w-m)/var(--design-w)*100%);
+  height:calc(var(--photohereru-h-m)/var(--design-h)*100%);
+  background-image:image-set(
+    url("./bgicons/photohereru.png") 1x,
+    url("./bgicons/photohereru@2x.png") 2x
+  );
+}
+
+/* WINTABLE (листочек на телевизор) — medium */
+.decal--wintable{
+  left:  calc(var(--wintable-x-m)/var(--design-w)*100%);
+  top:   calc(var(--wintable-y-m)/var(--design-h)*100%);
+  width: calc(var(--wintable-w-m)/var(--design-w)*100%);
+  height:calc(var(--wintable-h-m)/var(--design-h)*100%);
+  background-image:image-set(
+    url("./bgicons/wintable.png") 1x,
+    url("./bgicons/wintable@2x.png") 2x
+  );
+}
+@media (max-width:375px),(max-height:667px){
+  .decal--mrplam{
+    left:  calc(var(--mrplam-x-s)/var(--design-w)*100%);
+    top:   calc(var(--mrplam-y-s)/var(--design-h)*100%);
+    width: calc(var(--mrplam-w-s)/var(--design-w)*100%);
+    height:calc(var(--mrplam-h-s)/var(--design-h)*100%);
+  }
+  .decal--photohereru{
+    left:  calc(var(--photohereru-x-s)/var(--design-w)*100%);
+    top:   calc(var(--photohereru-y-s)/var(--design-h)*100%);
+    width: calc(var(--photohereru-w-s)/var(--design-w)*100%);
+    height:calc(var(--photohereru-h-s)/var(--design-h)*100%);
+  }
+  .decal--wintable{
+    left:  calc(var(--wintable-x-s)/var(--design-w)*100%);
+    top:   calc(var(--wintable-y-s)/var(--design-h)*100%);
+    width: calc(var(--wintable-w-s)/var(--design-w)*100%);
+    height:calc(var(--wintable-h-s)/var(--design-h)*100%);
+  }
+}
+@media (min-width:768px),(min-height:1024px){
+  .decal--mrplam{
+    left:  calc(var(--mrplam-x-l)/var(--design-w)*100%);
+    top:   calc(var(--mrplam-y-l)/var(--design-h)*100%);
+    width: calc(var(--mrplam-w-l)/var(--design-w)*100%);
+    height:calc(var(--mrplam-h-l)/var(--design-h)*100%);
+  }
+  .decal--photohereru{
+    left:  calc(var(--photohereru-x-l)/var(--design-w)*100%);
+    top:   calc(var(--photohereru-y-l)/var(--design-h)*100%);
+    width: calc(var(--photohereru-w-l)/var(--design-w)*100%);
+    height:calc(var(--photohereru-h-l)/var(--design-h)*100%);
+  }
+  .decal--wintable{
+    left:  calc(var(--wintable-x-l)/var(--design-w)*100%);
+    top:   calc(var(--wintable-y-l)/var(--design-h)*100%);
+    width: calc(var(--wintable-w-l)/var(--design-w)*100%);
+    height:calc(var(--wintable-h-l)/var(--design-h)*100%);
+  }
 }
 
 /* ====== попапы: общие ====== */
