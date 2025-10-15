@@ -616,6 +616,43 @@ function initFAQ(){
   // Оставлено для расширений (подгрузка картинок/контента).
 }
 
+// инициализация попапа таблицы лидеров
+(function initLeadersModal(){
+  // ждём, если файл не с defer
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initLeadersModal);
+    return;
+  }
+
+  const openBtn = document.querySelector('.hotspot--wintable');
+  const modal   = document.getElementById('leadersModal');
+  if (!openBtn || !modal) return; // если разметки ещё нет — выходим
+
+  const content = modal.querySelector('.modal__content');
+
+  function open(){
+    modal.hidden = false;
+    document.documentElement.style.overflow = 'hidden';
+    content.classList.add('is-scrollable');
+  }
+  function close(){
+    modal.hidden = true;
+    document.documentElement.style.overflow = '';
+  }
+
+  openBtn.addEventListener('click', open);
+
+  modal.addEventListener('click', (e)=>{
+    const t = e.target;
+    if (t.dataset.close === 'leadersModal' || t.closest('[data-close="leadersModal"]')) {
+      close();
+    }
+  });
+
+  window.addEventListener('keydown', (e)=>{
+    if (!modal.hidden && e.key === 'Escape') close();
+  });
+})();
 
 
 // --- DEBUG хот-спотов: ?debug=1 в URL или Shift+D ---
