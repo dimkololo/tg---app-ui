@@ -582,8 +582,9 @@ function syncCooldownUI(leftMs){
   removeBtn?.addEventListener('click', ()=>{
     fileInput.value = '';
     showPreview(null);
+    syncCooldownUI();
   });
-  showPreview(null); // старт
+  
 
   // слайдер
   if (range && starsEl && secsEl) {
@@ -660,6 +661,7 @@ function syncCooldownUI(leftMs){
 
     // очистка и закрытие
     showPreview(null);
+    syncCooldownUI();
     window.PLAM_startCooldown();        // ← глобальный запуск на 30/20 мин
     function fmtMMSS(ms){
   const total = Math.max(0, Math.floor(ms/1000));
