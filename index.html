@@ -462,6 +462,21 @@
   </section>
 </template>
 
+  <!-- Попап: сброс таймера кулдауна -->
+<template id="tpl-reset-cooldown">
+  <section class="popup reset-popup">
+    <div class="chip" style="width:100%; max-width:420px; padding:16px;">
+      <p class="subs-sub" style="margin:0 0 12px; text-align:center; color:#000;">
+        Сбросить <span data-mins>0</span> минут за <span data-coins>0</span> PLAMc
+      </p>
+      <div class="u-center">
+        <button class="btn-reset" type="button" data-reset-now>Сбросить</button>
+      </div>
+    </div>
+  </section>
+</template>
+
+
   <!-- Попап с двумя кнопками -->
 <div class="modal" id="actionsModal" hidden>
   <div class="modal__backdrop" data-close="actionsModal"></div>
