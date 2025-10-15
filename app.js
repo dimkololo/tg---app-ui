@@ -502,6 +502,7 @@ bindCounter(root.querySelector('[data-counter="desc"]'));
     pickedEmpty.style.display = 'none';
     pickedItem.hidden = false;
     updateSubmitState();
+    syncCooldownUI();
   }
 
   
