@@ -1034,70 +1034,59 @@ html,body{
   opacity:.85;
 }
 
-/* Пьедестал — схематично прямоугольниками */
-.lb-podium{
-  position:relative;
-  width:312px;           /* чтобы слева и справа было по ~36px */
-  height:172px;
-  margin:0 auto;         /* центрируем внутри шапки */
+/* === Герой-блок в шапке: картинка пьедестала + слоты над ней === */
+
+/* базовый размер слотов (средние экраны) */
+.lb-hero{ --lb-slot: 70px; }
+
+.lb-hero{
+  position: relative;
+  width: 312px;                 /* ширина шапки ≈ под картинку */
+  margin: calc(var(--lb-slot) + 12px) auto 8px; /* запас сверху под слоты */
 }
 
-
-.lb-col{
-  position:absolute;
-  background:#BABABA;
-}
-.lb-col--mid{
-  width:80px; height:145px;
-  left:116px; top:35px;
-  border-radius:20px 20px 0 0;
-}
-/* Иконка подарка внизу среднего прямоугольника */
-.lb-col--mid::after{
-  content:"";
-  position:absolute;
-  left:50%;
-  bottom:5px;
-  transform:translateX(-50%);
-  width:70px;                /* близко к макету ~69.5×89.4 */
-  height:90px;
-  background:center/contain no-repeat;
-  background-image:image-set(
-    url("./bgicons/openedbox.png") 1x,
-    url("./bgicons/openedbox@2x.png") 2x
+/* Картинка пьедестала */
+.lb-podium-img{
+  width: 100%;
+  aspect-ratio: 280 / 138;      /* у podium.png примерно такое соотношение */
+  background: center / contain no-repeat;
+  background-image: image-set(
+    url("./bgicons/podium.png") 1x,
+    url("./bgicons/podium@2x.png") 2x
   );
-  pointer-events:none;
 }
-.lb-col--left{
-  width:80px; height:100px;
-  left:36px; top:80px;
-  border-radius:20px 0 0 0;
-}
-.lb-col--right{
-  width:80px; height:72px;
-  left:196px; top:108px;
-  border-radius:0 20px 0 0;
-}
-/* Цифры мест */
-.lb-num{
-  position:absolute;
-  font-weight:800;
-  color:#000;
-}
-.lb-num--1{ left:146px; top:5px;  font-size:28px; }
-.lb-num--2{ left:68px;  top:50px; font-size:28px; }
-.lb-num--3{ left:224px; top:80px; font-size:28px; }
 
-/* Подписи призов */
-.lb-prize{
-  position:absolute;
-  font-weight:800;
-  font-size:15px;
-  color:#000;
+/* Пустые квадраты над картинкой (под будущие иконки/аватарки) */
+.lb-slot{
+  position: absolute;
+  top: calc(-1 * (var(--lb-slot) + 8px)); /* над верхом картинки */
+  width: var(--lb-slot);
+  height: var(--lb-slot);
+  transform: translateX(-50%);
+  border-radius: 12px;
+  background: transparent;      /* «прозрачные блоки» как просили */
+  /* если нужна видимая сетка-ориентир — раскомментируй:
+  outline: 1px dashed rgba(0,0,0,.25);
+  */
+  pointer-events: none;
 }
-.lb-prize--15{ left:56px;  top:136px; }
-.lb-prize--20{ left:136px; top:50px; }
-.lb-prize--10{ left:215px; top:151px; }
+
+/* позиционирование по горизонтали:
+   2 — слева, 1 — центр, 3 — справа */
+.lb-slot--2{ left: 25%; }
+.lb-slot--1{ left: 50%; }
+.lb-slot--3{ left: 75%; }
+
+/* Маленькие экраны (как в проекте) — слоты поменьше */
+@media (max-width:375px),(max-height:667px){
+  .lb-hero{ --lb-slot: 58px; width: 288px; }
+}
+
+/* Большие экраны — слоты побольше */
+@media (min-width:768px),(min-height:1024px){
+  .lb-hero{ --lb-slot: 84px; width: 360px; }
+}
+
 
 /* сам список — без нумерации и без внутренних зазоров */
 .lb-list{
