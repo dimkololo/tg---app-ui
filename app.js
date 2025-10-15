@@ -467,7 +467,10 @@ bindCounter(root.querySelector('[data-counter="desc"]'));
   let objectUrl = null;
   let hasFile = false;
 
-  const updateSubmitState = ()=>{ submitBtn.disabled = !hasFile; };
+  const updateSubmitState = ()=>{
+  submitBtn.disabled = !hasFile || isCooldownActive();
+};
+
 
   function showPreview(file){
     if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = null; }
