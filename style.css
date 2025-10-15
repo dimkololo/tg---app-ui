@@ -79,11 +79,11 @@
   /* самолет */
 
    /* medium 393×853 */
-  --plane-y-m: 220;  --plane-w-m: 393;  --plane-h-m: 263.94;
+  --plane-y-m: 50;  --plane-w-m: 393;  --plane-h-m: 263.94;
   /* small 375×667 */
-  --plane-y-s: 200;  --plane-w-s: 375;  --plane-h-s: 251.85;
+  --plane-y-s: 50;  --plane-w-s: 375;  --plane-h-s: 251.85;
   /* large 834×1194 */
-  --plane-y-l: 320;  --plane-w-l: 834; --plane-h-l: 560.11;
+  --plane-y-l: 100;  --plane-w-l: 834; --plane-h-l: 560.11;
   
 }
 
