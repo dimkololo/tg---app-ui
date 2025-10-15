@@ -1241,6 +1241,21 @@ html,body{
   gap:12px;
   justify-items:center;
 }
+
+/* Кнопки в попапе «Действия» без оранжевой тени */
+.modal__dialog:has(.actions-popup) .btn-pay{
+  box-shadow: none;                 /* или, если нужен нейтральный: 0 4px 10px rgba(0,0,0,.08) */
+}
+
+/* Меньше воздуха снизу у самого диалога для «Действий» */
+.modal__dialog:has(.actions-popup){
+  padding-bottom: 10px;             /* было 22px; подбери 8–12px по вкусу */
+}
+
+/* Чуть плотнее вертикальный ритм в попапе «Действия» (опционально) */
+.actions-popup{ gap: 10px; }
+.actions-buttons{ gap: 10px; }
+
 /* диалог — непрозрачный, скролл включён (у тебя это уже есть для .modal--opaque) */
 .modal--opaque .modal__dialog{ background: var(--chip); }
 .modal__content.is-scrollable{
