@@ -326,7 +326,34 @@ function syncCooldownUI(leftMs){
 
 
 // первичная отрисовка при открытии попапа
-syncCooldownUI();
+function fmtMMSS(ms){
+  const total = Math.max(0, Math.floor(ms/1000));
+  const mm = String(Math.floor(total/60)).padStart(2,'0');
+  const ss = String(total%60).padStart(2,'0');
+  return `${mm}мин. ${ss}сек.`;
+}
+
+function syncCooldownUI(leftMs){
+  if (!submitBtn) return;
+
+  const cdActive = isCooldownActive();
+  if (cdActive){
+    const left = (typeof leftMs === 'number')
+      ? leftMs
+      : Math.max(0, (window.PLAM.cooldownUntil||0) - Date.now());
+    // режим обратного отсчёта в самой кнопке
+    submitBtn.disabled = true;
+    submitBtn.textContent = fmtMMSS(left);
+    // зелёная кнопка видна ТОГДА ЖЕ, когда в кнопке таймер
+    showReset(true);
+  } else {
+    // режим «В эфир на … сек»
+    updateBroadcastSeconds(); // только текст
+    updateSubmitState();      // доступность решает hasFile + кулдаун
+    showReset(false);         // таймера нет → зелёной нет
+  }
+}
+
 
 // подписки на глобальные события кулдауна
 const onTick = (e)=> syncCooldownUI(e.detail?.leftMs);
@@ -517,7 +544,34 @@ bindCounter(root.querySelector('[data-counter="desc"]'));
   submitBtn.disabled = !hasFile || isCooldownActive();
 }
 
-    syncCooldownUI();
+    function fmtMMSS(ms){
+  const total = Math.max(0, Math.floor(ms/1000));
+  const mm = String(Math.floor(total/60)).padStart(2,'0');
+  const ss = String(total%60).padStart(2,'0');
+  return `${mm}мин. ${ss}сек.`;
+}
+
+function syncCooldownUI(leftMs){
+  if (!submitBtn) return;
+
+  const cdActive = isCooldownActive();
+  if (cdActive){
+    const left = (typeof leftMs === 'number')
+      ? leftMs
+      : Math.max(0, (window.PLAM.cooldownUntil||0) - Date.now());
+    // режим обратного отсчёта в самой кнопке
+    submitBtn.disabled = true;
+    submitBtn.textContent = fmtMMSS(left);
+    // зелёная кнопка видна ТОГДА ЖЕ, когда в кнопке таймер
+    showReset(true);
+  } else {
+    // режим «В эфир на … сек»
+    updateBroadcastSeconds(); // только текст
+    updateSubmitState();      // доступность решает hasFile + кулдаун
+    showReset(false);         // таймера нет → зелёной нет
+  }
+}
+
   }
 
   
@@ -607,7 +661,34 @@ bindCounter(root.querySelector('[data-counter="desc"]'));
     // очистка и закрытие
     showPreview(null);
     window.PLAM_startCooldown();        // ← глобальный запуск на 30/20 мин
-    syncCooldownUI();                   // моментально обновим кнопку
+    function fmtMMSS(ms){
+  const total = Math.max(0, Math.floor(ms/1000));
+  const mm = String(Math.floor(total/60)).padStart(2,'0');
+  const ss = String(total%60).padStart(2,'0');
+  return `${mm}мин. ${ss}сек.`;
+}
+
+function syncCooldownUI(leftMs){
+  if (!submitBtn) return;
+
+  const cdActive = isCooldownActive();
+  if (cdActive){
+    const left = (typeof leftMs === 'number')
+      ? leftMs
+      : Math.max(0, (window.PLAM.cooldownUntil||0) - Date.now());
+    // режим обратного отсчёта в самой кнопке
+    submitBtn.disabled = true;
+    submitBtn.textContent = fmtMMSS(left);
+    // зелёная кнопка видна ТОГДА ЖЕ, когда в кнопке таймер
+    showReset(true);
+  } else {
+    // режим «В эфир на … сек»
+    updateBroadcastSeconds(); // только текст
+    updateSubmitState();      // доступность решает hasFile + кулдаун
+    showReset(false);         // таймера нет → зелёной нет
+  }
+}
+                   // моментально обновим кнопку
   });
 }
 
