@@ -1249,6 +1249,9 @@ html,body{
   -webkit-overflow-scrolling:touch;
 }
 
+.modal__dialog:has(.actions-popup){ background: var(--chip); }
+
+
 .decal--plane{
   position:absolute;
   /* ВАЖНО: отменяем центрирование базового .decal */
