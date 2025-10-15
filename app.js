@@ -528,12 +528,12 @@ function initSubsRequired(){
   // Ничего не блокируем в форме загрузки — просто
   // если там прикреплено фото, кнопка уже активна.
   const uploadRoot = modalRoot.querySelector('.upload-popup');
-  if (uploadRoot){
-    const fileInput = uploadRoot.querySelector('#file-input');
-    const submitBtn = uploadRoot.querySelector('[data-submit]');
-    const hasFiles = !!(fileInput?.files && fileInput.files.length > 0);
-    if (submitBtn) submitBtn.disabled = !hasFiles;  // ТОЛЬКО от наличия файла
-  }
+if (uploadRoot){
+  const fileInput = uploadRoot.querySelector('#file-input');
+  const submitBtn = uploadRoot.querySelector('[data-submit]');
+  const hasFiles  = !!(fileInput?.files && fileInput.files.length > 0);
+  if (submitBtn) submitBtn.disabled = !hasFiles || isCooldownActive();
+}
 });
 
 }
