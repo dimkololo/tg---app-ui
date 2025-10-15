@@ -268,23 +268,108 @@ function initUploadPopup(){
   const secsEl      = root.querySelector('[data-secs]');
   const urlInput    = root.querySelector('input[name="social"]');
 
+  // мини-хелпер форматирования 00мин. 00сек.
+function fmtMMSS(ms){
+  const total = Math.max(0, Math.floor(ms/1000));
+  const mm = String(Math.floor(total/60)).padStart(2,'0');
+  const ss = String(total%60).padStart(2,'0');
+  return `${mm}мин. ${ss}сек.`;
+}
+
+// контейнер с зелёной кнопкой (создаём один раз, скрыт по умолчанию)
+const submitRow = submitBtn?.closest('.u-center');
+const resetRow = document.createElement('div');
+resetRow.className = 'u-center';
+resetRow.hidden = true;
+resetRow.innerHTML = '<button class="btn-reset" type="button" data-open-reset>Сбросить таймер</button>';
+submitRow?.insertAdjacentElement('afterend', resetRow);
+
+// показать/скрыть «Сбросить таймер»
+function showReset(show){ resetRow.hidden = !show; }
+
+// синхронизация UI кнопки отправки с кулдауном
+function syncCooldownUI(leftMs){
+  if (!submitBtn) return;
+  if (isCooldownActive()){
+    const left = (typeof leftMs === 'number') ? leftMs : Math.max(0, (window.PLAM.cooldownUntil||0)-Date.now());
+    submitBtn.disabled = true;
+    submitBtn.textContent = fmtMMSS(left);
+    showReset(true);
+  } else {
+    submitBtn.disabled = false;
+    updateBroadcastSeconds();      // ← твоя функция из предыдущего шага
+    showReset(false);
+  }
+}
+
+// первичная отрисовка при открытии попапа
+syncCooldownUI();
+
+// подписки на глобальные события кулдауна
+const onTick = (e)=> syncCooldownUI(e.detail?.leftMs);
+const onEnd  = ()=> syncCooldownUI(0);
+document.addEventListener('plam:cooldown-tick', onTick);
+document.addEventListener('plam:cooldown-ended', onEnd);
+
+// очистим только подписки, НО НЕ СБРАСЫВАЕМ таймер!
+document.addEventListener('plam:modal-closed', function once(ev){
+  if (ev.detail?.wasUpload){
+    document.removeEventListener('plam:cooldown-tick', onTick);
+    document.removeEventListener('plam:cooldown-ended', onEnd);
+    document.removeEventListener('plam:modal-closed', once);
+  }
+});
+
+// обработчик открытия попапа «Сброс таймера»
+resetRow.addEventListener('click', (e)=>{
+  if (!e.target.closest('[data-open-reset]')) return;
+
+  // целые минуты без секунд
+  const leftMs = Math.max(0, (window.PLAM.cooldownUntil||0) - Date.now());
+  const leftMin = Math.floor(leftMs / 60000);
+  if (leftMin <= 0){ window.PLAM_clearCooldown(); return; }
+
+  openStack('reset-cooldown');
+
+  // 50% чёрная подложка именно для этого стека
+  const backdrop = stackRoot.querySelector('.modal__backdrop');
+  const prevBg = backdrop ? backdrop.style.background : '';
+  if (backdrop) backdrop.style.background = 'rgba(0,0,0,.5)';
+
+  const box = stackRoot.querySelector('.reset-popup');
+  box?.querySelector('[data-mins]')?.replaceChildren(String(leftMin));
+  box?.querySelector('[data-coins]')?.replaceChildren(String(leftMin));
+
+  box?.querySelector('[data-reset-now]')?.addEventListener('click', ()=>{
+    const need = leftMin;
+    const bal = Number(window.PLAM.balance||0);
+    if (bal < need){ alert('Недостаточно PLAMc'); return; }
+    window.PLAM.balance = bal - need;
+    updatePlusBalanceUI();
+    window.PLAM_clearCooldown(); // ← снимаем кулдаун глобально
+    try { window.Telegram?.WebApp?.showAlert?.('Удачно! Скорее отправляй еще фото'); } catch(_) { alert('Удачно! Скорее отправляй еще фото'); }
+    if (backdrop) backdrop.style.background = prevBg;
+    closeStack();
+  });
+
+  // вернуть подложку при закрытии по крестику/бэкдропу
+  stackRoot.addEventListener('click', function once2(ev2){
+    const isBackdrop = ev2.target.classList.contains('modal__backdrop');
+    const isClose = ev2.target.closest('[data-dismiss-stack]');
+    if (isBackdrop || isClose){
+      if (backdrop) backdrop.style.background = prevBg;
+      stackRoot.removeEventListener('click', once2);
+    }
+  }, { once:true });
+});
+
+
 
 // минут (30 — обычные, 20 — премиум)
 function getCooldownMinutes(){
   return window.PLAM.premium ? 20 : 30;
 }
   
-
-
-
-// клик по зелёной кнопке "Сбросить таймер"
-resetRow.addEventListener('click', (e)=>{
-  if (e.target.closest('[data-open-reset]')){
-    e.preventDefault();
-    openResetPopup();
-  }
-});
-
 
   // --- склонение "секунда/секунды/секунд"
 function plural(n, one, few, many){
