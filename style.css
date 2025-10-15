@@ -67,6 +67,14 @@
   --faq-x-m: 80;  --faq-y-m: 145;  --faq-w-m: 130; --faq-h-m: 85;   /* medium */
   --faq-x-s: 80;  --faq-y-s: 100;  --faq-w-s: 140; --faq-h-s: 75;   /* small  (обновлено) */
   --faq-x-l: 160;  --faq-y-l: 145;  --faq-w-l: 240; --faq-h-l: 120;  /* large  */
+
+  /* Хотспот «Действия» (центр-координаты) */
+  /* medium 393×853: w=175 h=215, x=10 y=425 → центр: (97.5, 532.5) */
+  --actions-x-m: 97.5;  --actions-y-m: 532.5;  --actions-w-m: 175; --actions-h-m: 215;
+  /* small 375×667: w=110 h=150, x=50 y=360 → центр: (105, 435) */
+  --actions-x-s: 105;   --actions-y-s: 435;    --actions-w-s: 110; --actions-h-s: 150;
+  /* large 834×1194: w=250 h=290, x=100 y=660 → центр: (225, 805) */
+  --actions-x-l: 225;   --actions-y-l: 805;    --actions-w-l: 250; --actions-h-l: 290;
   
 }
 
@@ -1151,6 +1159,60 @@ html,body{
   padding:10px 0 4px;
   background: linear-gradient(to top, var(--chip) 60%, rgba(217,217,217,0));
 }
+
+/* Хотспот «Действия» */
+.hotspot--actions{
+  left:  calc(var(--actions-x-m)/var(--design-w)*100%);
+  top:   calc(var(--actions-y-m)/var(--design-h)*100%);
+  width: calc(var(--actions-w-m)/var(--design-w)*100%);
+  height:calc(var(--actions-h-m)/var(--design-h)*100%);
+  z-index: 30;
+}
+@media (max-width:375px),(max-height:667px){
+  .hotspot--actions{
+    left:  calc(var(--actions-x-s)/var(--design-w)*100%);
+    top:   calc(var(--actions-y-s)/var(--design-h)*100%);
+    width: calc(var(--actions-w-s)/var(--design-w)*100%);
+    height:calc(var(--actions-h-s)/var(--design-h)*100%);
+  }
+}
+@media (min-width:768px),(min-height:1024px){
+  .hotspot--actions{
+    left:  calc(var(--actions-x-l)/var(--design-w)*100%);
+    top:   calc(var(--actions-y-l)/var(--design-h)*100%);
+    width: calc(var(--actions-w-l)/var(--design-w)*100%);
+    height:calc(var(--actions-h-l)/var(--design-h)*100%);
+  }
+}
+
+/* Попап «Действия» (используем твои общие стили + чуть дополнений) */
+.actions-popup{
+  width:100%;
+  max-width:420px;
+  margin-inline:auto;
+  display:grid;
+  gap:14px;
+}
+.actions-title{
+  margin:0;
+  text-align:center;
+  color:#000;
+  font-weight:800;
+  font-size:20px;
+}
+.actions-buttons{
+  display:grid;
+  gap:12px;
+  justify-items:center;
+}
+/* диалог — непрозрачный, скролл включён (у тебя это уже есть для .modal--opaque) */
+.modal--opaque .modal__dialog{ background: var(--chip); }
+.modal__content.is-scrollable{
+  max-height: calc(100svh - 140px);
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+}
+
 
 
 /* ====== DEBUG (включай <body class="__debug">) ====== */
