@@ -75,6 +75,15 @@
   --actions-x-s: 105;   --actions-y-s: 435;    --actions-w-s: 110; --actions-h-s: 150;
   /* large 834×1194: w=250 h=290, x=100 y=660 → центр: (225, 805) */
   --actions-x-l: 225;   --actions-y-l: 805;    --actions-w-l: 250; --actions-h-l: 290;
+
+  /* самолет */
+
+   /* medium 393×853 */
+  --plane-y-m: 220;  --plane-w-m: 96;  --plane-h-m: 48;
+  /* small 375×667 */
+  --plane-y-s: 200;  --plane-w-s: 84;  --plane-h-s: 42;
+  /* large 834×1194 */
+  --plane-y-l: 320;  --plane-w-l: 140; --plane-h-l: 70;
   
 }
 
