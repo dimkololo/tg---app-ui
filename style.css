@@ -1184,10 +1184,10 @@ html,body{
 
 /* Лидерборд: меньше отступ снизу у диалога и контейнера со скроллом */
 .modal__dialog:has(.leaderboard-popup){ 
-  padding-bottom: 4px;           /* было 22px */
+  padding-bottom: 8px;           /* было 22px */
 }
 .modal__dialog:has(.leaderboard-popup) .modal__content.is-scrollable{
-  padding-bottom: 4px;           /* было 12px */
+  padding-bottom: 8px;           /* было 12px */
 }
 
 /* Под кнопкой вообще без отступа, сверху небольшой, чтобы не липла к списку */
