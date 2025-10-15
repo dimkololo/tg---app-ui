@@ -197,6 +197,24 @@ function initUploadPopup(){
   const secsEl      = root.querySelector('[data-secs]');
   const urlInput    = root.querySelector('input[name="social"]');
 
+  // --- склонение "секунда/секунды/секунд"
+function plural(n, one, few, many){
+  const n10 = n % 10, n100 = n % 100;
+  if (n10 === 1 && n100 !== 11) return one;               // 1, 21, 31...
+  if (n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14)) return few;  // 2-4, 22-24...
+  return many;                                             // всё остальное
+}
+
+// --- обновление текста на кнопке "В эфир на … секунд"
+function updateBroadcastSeconds(){
+  const base = window.PLAM.premium ? 40 : 20;             // из профиля
+  const extra = Number(range?.value || 0);                 // слайдер (0..20)
+  const total = base + extra;
+  const word = plural(total, 'секунду', 'секунды', 'секунд');
+  if (submitBtn) submitBtn.textContent = `В эфир на ${total} ${word}`;
+}
+
+
   // --- управление клавиатурой ---
 const descEl = root.querySelector('textarea[name="desc"]');
 
@@ -315,14 +333,19 @@ bindCounter(root.querySelector('[data-counter="desc"]'));
 
   // слайдер
   if (range && starsEl && secsEl) {
-    const update = () => {
-      const v = Number(range.value);
-      starsEl.textContent = `${v} PLAMc`;
-      secsEl.textContent  = (v === 0) ? '0 сек' : `+${v} сек`;
-    };
-    range.addEventListener('input', update);
-    update();
-  }
+  const update = () => {
+    const v = Number(range.value);
+    starsEl.textContent = `${v} PLAMc`;
+    secsEl.textContent  = (v === 0) ? '0 сек' : `+${v} сек`;
+    updateBroadcastSeconds();                             // ← обновляем кнопку
+  };
+  range.addEventListener('input', update);
+  update();                                               // первичный рендер
+} else {
+  // если по какой-то причине нет слайдера — всё равно покажем базовое значение
+  updateBroadcastSeconds();
+}
+
 
   // мягкая валидация URL
   function isValidUrlLike(v){
