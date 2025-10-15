@@ -995,8 +995,7 @@ html,body{
   }
 }
 
-/* Попап-лидерборд: непрозрачная подложка и скрываем крестик */
-.modal--opaque .modal__backdrop{ background:#000; }
+
 /* Сделать карточку диалога сплошной как в FAQ */
 .modal--opaque .modal__dialog{
   background: var(--chip);
