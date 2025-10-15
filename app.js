@@ -364,13 +364,6 @@ resetRow.addEventListener('click', (e)=>{
 });
 
 
-
-// минут (30 — обычные, 20 — премиум)
-function getCooldownMinutes(){
-  return window.PLAM.premium ? 20 : 30;
-}
-  
-
   // --- склонение "секунда/секунды/секунд"
 function plural(n, one, few, many){
   const n10 = n % 10, n100 = n % 100;
