@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+  name="viewport"
+  content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+/>
+  <title>Plam — WebApp</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="stylesheet" href="./style.css?v=51" />
+</head>
+<body class="__debug">
+  <main class="scene">
+    <div class="stage" data-stage>
+      <picture>
+  <!-- LARGE -->
+  <source
+    media="(min-height: 1024px), (min-width: 768px)"
+    srcset="./bgicons/bg-large.png 1x, ./bgicons/bg-large@2x.png 2x"
+  />
+  <!-- SMALL (тот же брейкпоинт, что в CSS) -->
+  <source
+    media="(max-width: 375px), (max-height: 667px)"
+    srcset="./bgicons/bg-small.png 1x, ./bgicons/bg-small@2x.png 2x"
+  />
+  <!-- MEDIUM (default) -->
+  <img
+    class="stage__img"
+    alt="Main background"
+    src="./bgicons/bg-medium.png"
+    srcset="./bgicons/bg-medium.png 1x, ./bgicons/bg-medium@2x.png 2x"
+  />
+</picture>
+
+<div class="decal decal--plane" aria-hidden="true"></div>
+      
+      <!-- Кликабельная зона «Действия» -->
+<button class="hotspot hotspot--actions" type="button" aria-label="Открыть меню действий"></button>
+
+
+<!-- декоративные наклейки поверх фона -->
+<div class="decal decal--mrplam" aria-hidden="true"></div>
+<div class="decal decal--photohereru" aria-hidden="true"></div>
+<div class="decal decal--wintable" aria-hidden="true"></div>
+      
+<!-- Кликабельная зона по листочку на телевизоре -->
+<button class="hotspot hotspot--wintable" type="button" aria-label="Таблица лидеров"></button>
+
+
+
+      <!-- Хот-споты -->
+      <button
+        class="hotspot hotspot--stump"
+        type="button"
+        data-open-modal="upload-popup"
+        aria-label="Открыть попап загрузки"
+      ></button>
+
+      <!-- Плюс-облако отдельным слоем с индикатором баланса -->
+      <button
+        class="hotspot hotspot--plus"
+        type="button"
+        data-open-modal="buy-stars"
+        aria-label="Открыть попап звёзд"
+      >
+        <span class="plus-ui" aria-hidden="true">
+          <span id="plusValue" class="plus-value">0</span>
+          <img class="plus-currency"
+               src="./bgicons/earth-item.png"
+               srcset="./bgicons/earth-item.png 1x, ./bgicons/earth-item@2x.png 2x"
+               alt="">
+        </span>
+      </button>
+
+      <button
+        class="hotspot hotspot--faq"
+        type="button"
+        data-open-modal="faq"
+        aria-label="Открыть FAQ"
+      ></button>
+
+
+      <button
+        class="hotspot hotspot--gift"
+        type="button"
+        data-open-modal="prizes"
+        aria-label="Открыть попап призов"
+      ></button>
+
+      <button
+        class="hotspot hotspot--notebook"
+        type="button"
+        data-open-modal="profile"
+        aria-label="Открыть профиль"
+      ></button>
+    </div>
+  </main>
+
+  <!-- Оверлей при горизонтальной ориентации -->
+<div id="orientationLock" class="orientation-lock" aria-hidden="true"></div>
+
+
+  <!-- Универсальная модалка -->
+  <div class="modal" data-modal-root hidden aria-hidden="true">
+    <div class="modal__backdrop" data-dismiss></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true">
+      <button class="modal__close" type="button" aria-label="Закрыть" data-dismiss>×</button>
+      <div class="modal__content" data-modal-content></div>
+    </div>
+  </div>
+
+  <!-- ВТОРОЙ СЛОЙ МОДАЛКИ (для таймера и пр.) -->
+<div class="modal modal--stack" data-modal-stack hidden aria-hidden="true">
+  <div class="modal__backdrop" data-dismiss-stack></div>
+  <div class="modal__dialog" role="dialog" aria-modal="true">
+    <button class="modal__close" type="button" aria-label="Закрыть" data-dismiss-stack>×</button>
+    <div class="modal__content" data-stack-content></div>
+  </div>
+</div>
+
+
+  <!-- Попап 1: загрузка фото -->
+<template id="tpl-upload-popup">
+  <section class="popup upload-popup">
+    <div class="u-center">
+  <div class="pick-wrap">
+    <button class="btn-pick" type="button">Выбрать фото</button>
+    <!-- ВАЖНО: без hidden, без display:none -->
+    <input id="file-input"
+           class="file-input-overlay"
+           type="file"
+           accept="image/*"
+            />
+  </div>
+</div>
+
+
+    <!-- ПРЕДПРОСМОТР (между кнопкой и слайдером) -->
+    <div class="picked-box" data-picked>
+      <div class="picked-empty">Фото не выбрано</div>
+      <figure class="picked-item" hidden>
+        <img data-picked-img alt="">
+        <button type="button" class="picked-remove" aria-label="Убрать фото" data-remove-photo>×</button>
+      </figure>
+    </div>
+
+    <div class="card slider-card">
+      <div class="slider-title">Увеличить эфирное время</div>
+      <div class="slider-row">
+        <span class="label" data-stars>0 PLAMc</span>
+        <input class="range" type="range" min="0" max="20" step="1" value="0" />
+        <span class="label" data-secs>0 сек</span>
+      </div>
+    </div>
+
+    <form class="card form-card" data-upload-form novalidate>
+  <!-- Ссылка -->
+  <div class="field-wrap">
+    <input
+      class="field"
+      type="url"
+      name="social"
+      placeholder="...ссылка на соц.сеть или сайт"
+      maxlength="255"
+      inputmode="url"
+      enterkeyhint="next" 
+      data-counter="link"
+    />
+    <div class="field-counter" data-counter-for="link">0 / 255</div>
+  </div>
+      <!-- Описание -->
+  <div class="field-wrap">
+    <textarea
+      class="field"
+      name="desc"
+      rows="3"
+      placeholder="...описание"
+      maxlength="220"
+      enterkeyhint="done" 
+      data-counter="desc"
+    ></textarea>
+    <div class="field-counter" data-counter-for="desc">0 / 220</div>
+  </div>
+
+      <div class="u-center">
+        <!-- теперь кнопку НЕ блокируем визуально -->
+        <button class="btn-submit" type="submit" data-submit>В эфир на</button>
+      </div>
+    </form>
+  </section>
+</template>
+
+
+  <!-- Попап 2: покупка PLAMc -->
+  <template id="tpl-buy-stars">
+    <section class="popup shop-popup">
+      <div class="chip shop-header">
+        <img
+          class="shop-header__icon"
+          src="./bgicons/star-header.png"
+          srcset="./bgicons/star-header.png 1x, ./bgicons/star-header@2x.png 2x"
+          alt=""
+        />
+        <h3 class="shop-title">Обменять</h3>
+        <p class="shop-subtitle">Выберите количество звезд</p>
+      </div>
+
+      <div class="shop-list">
+        <button class="chip shop-item" type="button" data-amount="25">
+          <span class="shop-item__left">
+            <img src="./bgicons/star-item.png" srcset="./bgicons/star-item.png 1x, ./bgicons/star-item@2x.png 2x" alt="">
+            <span>25 звезд</span>
+          </span>
+          <span class="shop-item__right">
+            <span class="shop-num">25 PLAMc</span>
+            <img src="./bgicons/earth-item.png" srcset="./bgicons/earth-item.png 1x, ./bgicons/earth-item@2x.png 2x" alt="">
+          </span>
+        </button>
+
+        <button class="chip shop-item" type="button" data-amount="75">
+          <span class="shop-item__left">
+            <img src="./bgicons/star-item.png" srcset="./bgicons/star-item.png 1x, ./bgicons/star-item@2x.png 2x" alt="">
+            <span>75 звезд</span>
+          </span>
+          <span class="shop-item__right">
+            <span class="shop-num">75 PLAMc</span>
+            <img src="./bgicons/earth-item.png" srcset="./bgicons/earth-item.png 1x, ./bgicons/earth-item@2x.png 2x" alt="">
+          </span>
+        </button>
+
+        <button class="chip shop-item" type="button" data-amount="100">
+          <span class="shop-item__left">
+            <img src="./bgicons/star-item.png" srcset="./bgicons/star-item.png 1x, ./bgicons/star-item@2x.png 2x" alt="">
+            <span>100 звезд</span>
+          </span>
+          <span class="shop-item__right">
+            <span class="shop-num">100 PLAMc</span>
+            <img src="./bgicons/earth-item.png" srcset="./bgicons/earth-item.png 1x, ./bgicons/earth-item@2x.png 2x" alt="">
+          </span>
+        </button>
+
+        <button class="chip shop-item" type="button" data-amount="350">
+          <span class="shop-item__left">
+            <img src="./bgicons/star-item.png" srcset="./bgicons/star-item.png 1x, ./bgicons/star-item@2x.png 2x" alt="">
+            <span>350 звезд</span>
+          </span>
+          <span class="shop-item__right">
+            <span class="shop-num">350 PLAMc</span>
+            <img src="./bgicons/earth-item.png" srcset="./bgicons/earth-item.png 1x, ./bgicons/earth-item@2x.png 2x" alt="">
+          </span>
+        </button>
+
+        <button class="chip shop-item" type="button" data-amount="750">
+          <span class="shop-item__left">
+            <img src="./bgicons/star-item.png" srcset="./bgicons/star-item.png 1x, ./bgicons/star-item@2x.png 2x" alt="">
+            <span>750 звезд</span>
+          </span>
+          <span class="shop-item__right">
+            <span class="shop-num">750 PLAMc</span>
+            <img src="./bgicons/earth-item.png" srcset="./bgicons/earth-item.png 1x, ./bgicons/earth-item@2x.png 2x" alt="">
+          </span>
+        </button>
+
+        <button class="chip shop-item" type="button" data-amount="1500">
+          <span class="shop-item__left">
+            <img src="./bgicons/star-item.png" srcset="./bgicons/star-item.png 1x, ./bgicons/star-item@2x.png 2x" alt="">
+            <span>1500 звезд</span>
+          </span>
+          <span class="shop-item__right">
+            <span class="shop-num">1500 PLAMc</span>
+            <img src="./bgicons/earth-item.png" srcset="./bgicons/earth-item.png 1x, ./bgicons/earth-item@2x.png 2x" alt="">
+          </span>
+        </button>
+      </div>
+    </section>
+  </template>
+
+  <!-- Попап: FAQ -->
+<template id="tpl-faq">
+  <section class="popup faq-popup">
+    <div class="chip faq-card">
+      <h3 class="faq-title">FAQ</h3>
+
+      <!-- Прокручиваемая область -->
+      <div class="faq-scroll">
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin nec pharetra nisl. 
+          Vivamus gravida, libero nec molestie interdum, purus metus luctus urna, ut placerat 
+          tortor velit in augue. Integer porta, sapien ut dictum aliquet, mi nisi tincidunt 
+          tortor, iaculis varius risus dui id sapien. Pellentesque a dignissim nulla.
+        </p>
+        <p>
+          Cras interdum feugiat est, vitae aliquet lacus egestas nec. Mauris maximus, magna quis
+          efficitur auctor, massa metus pulvinar dolor, a gravida ipsum mi id justo. Aenean eget 
+          massa id neque volutpat ullamcorper. Donec eu odio ac erat posuere euismod.
+        </p>
+
+        <!-- Плейсхолдеры под картинки (5 шт.) -->
+        <div class="faq-img" aria-hidden="true"></div>
+        <div class="faq-img" aria-hidden="true"></div>
+        <div class="faq-img" aria-hidden="true"></div>
+        <div class="faq-img" aria-hidden="true"></div>
+        <div class="faq-img" aria-hidden="true"></div>
+
+        <p>
+          Suspendisse potenti. Nunc a nunc vel turpis gravida semper. Fusce malesuada augue 
+          eget tellus placerat pulvinar. Curabitur at sagittis dolor. Sed finibus, justo 
+          id tempor rhoncus, odio libero faucibus elit, quis tincidunt odio diam non velit.
+        </p>
+        <p>
+          Praesent laoreet, mauris nec facilisis dictum, ligula lorem tristique nibh, sed 
+          venenatis massa augue a velit. Duis sodales, metus vitae elementum feugiat, magna 
+          nisi varius dui, a fringilla velit sem sed ipsum. Nam efficitur in ipsum vitae 
+          tristique. In bibendum commodo ligula vitae varius.
+        </p>
+      </div>
+
+      <div class="u-center">
+        <button class="btn-close-timer" type="button" data-dismiss>Закрыть</button>
+      </div>
+    </div>
+  </section>
+</template>
+
+
+  <!-- Попап 3: призы/выплата -->
+  <template id="tpl-prizes">
+    <section class="popup prizes-popup">
+      <div class="prizes-grid" data-prizes>
+        <label class="prize-card chip"><input type="checkbox" class="check-input" /><span class="checkmark"></span><div class="prize-body"><div class="prize-title">Приз 1</div><div class="prize-sub">Описание</div></div></label>
+        <label class="prize-card chip"><input type="checkbox" class="check-input" /><span class="checkmark"></span><div class="prize-body"><div class="prize-title">Приз 2</div><div class="prize-sub">Описание</div></div></label>
+        <label class="prize-card chip"><input type="checkbox" class="check-input" /><span class="checkmark"></span><div class="prize-body"><div class="prize-title">Приз 3</div><div class="prize-sub">Описание</div></div></label>
+        <label class="prize-card chip"><input type="checkbox" class="check-input" /><span class="checkmark"></span><div class="prize-body"><div class="prize-title">Приз 4</div><div class="prize-sub">Описание</div></div></label>
+        <label class="prize-card chip"><input type="checkbox" class="check-input" /><span class="checkmark"></span><div class="prize-body"><div class="prize-title">Приз 5</div><div class="prize-sub">Описание</div></div></label>
+        <label class="prize-card chip"><input type="checkbox" class="check-input" /><span class="checkmark"></span><div class="prize-body"><div class="prize-title">Приз 6</div><div class="prize-sub">Описание</div></div></label>
+      </div>
+
+      <div class="u-center"><button class="btn-pay" type="button" disabled>Выплатить</button></div>
+      <p class="pay-note">Нажимая кнопку «Выплатить» вы подтверждаете, что ознакомлены с правилами и публичной офертой.</p>
+    </section>
+  </template>
+
+  <!-- Попап 4: профиль -->
+  <template id="tpl-profile">
+    <section class="popup profile-popup">
+      <div class="chip profile-header">
+        <div class="avatar" data-avatar></div>
+        <div class="profile-id" data-username>@tg profile</div>
+        <button class="btn-premium" type="button" data-btn-premium>Получить премиум</button>
+      </div>
+
+      <div class="chip profile-card">
+        <div class="row">
+          <div class="label-left">Количество фото:</div>
+          <div class="pill pill-orange" data-photo-count>0</div>
+        </div>
+        <div class="hint">Количество фото влияет на время их отображения. 100 фото = +1 секунда</div>
+      </div>
+
+      <div class="chip profile-card">
+        <div class="row">
+          <div class="label-left">Время показа фото:</div>
+          <div class="val-right" data-show-seconds>20 сек</div>
+        </div>
+      </div>
+    </section>
+  </template>
+
+    <!-- Попап: таймер премиума -->
+  <template id="tpl-premium-timer">
+    <section class="popup timer-popup">
+      <div class="chip timer-card">
+        <h3 class="timer-title">Премиум активен</h3>
+        <div class="timer-remaining" data-remaining>30д. 0ч. 0мин.</div>
+        <p class="timer-note">Обратный отсчёт до окончания подписки</p>
+        <div class="u-center"><button class="btn-close-timer" type="button" data-dismiss-stack>Ок</button>
+</div>
+      </div>
+    </section>
+  </template>
+
+  <!-- Попап: помощь по премиуму -->
+<template id="tpl-premium-help">
+  <section class="popup help-popup">
+    <div class="chip" style="width:100%; max-width:420px;">
+      <h3 class="subs-title" style="margin-top:0;">Что такое премиум?</h3>
+      <div class="help-body" style="color:#000; opacity:.9; font-size:14px; line-height:1.45;">
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur ut pretium urna.
+          Integer id sem nec neque dictum pulvinar. Pellentesque habitant morbi tristique senectus
+          et netus et malesuada fames ac turpis egestas. Suspendisse potenti. Sed id magna ac justo
+          ultricies bibendum. Fusce lobortis dignissim libero, eu vestibulum quam sollicitudin non.
+        </p>
+        <p>
+          Cras vitae nunc in odio sollicitudin malesuada. Vestibulum ante ipsum primis in faucibus
+          orci luctus et ultrices posuere cubilia curae; Aliquam erat volutpat. In lacinia, augue
+          sed sollicitudin egestas, nibh orci pretium mi, sit amet bibendum odio arcu in risus.
+          Proin interdum pharetra velit, a tempus eros accumsan id. Integer a turpis nec lacus
+          efficitur gravida. Sed laoreet odio ut mauris faucibus venenatis.
+        </p>
+        <p>
+          Donec vitae ipsum et lectus feugiat convallis. Aenean a ex non lorem pretium posuere.
+          Donec mi urna, viverra sit amet leo sit amet, elementum luctus neque. Integer luctus
+          lectus nec urna ultrices, ac consectetur nibh maximus. Quisque id sem sed velit tincidunt
+          congue. Morbi rutrum, neque quis euismod porta, mauris nisl semper purus, in hendrerit
+          lorem metus id turpis. Maecenas a ante malesuada, mattis libero eu, cursus sapien.
+        </p>
+        <p>
+          Nunc ullamcorper, tortor id blandit rhoncus, lectus augue consectetur quam, ut porttitor
+          ipsum tellus in urna. Etiam pretium, lacus id malesuada facilisis, lectus odio aliquet
+          nunc, id fermentum nulla justo vel augue. Mauris gravida, arcu at facilisis congue,
+          lectus erat efficitur orci, sit amet vehicula purus risus id lorem. Integer nec nibh
+          hendrerit, efficitur sapien at, luctus arcu. Integer ut consectetur risus.
+        </p>
+      </div>
+      <div class="u-center" style="margin-top:12px;">
+        <button class="btn-close-timer" type="button" data-dismiss-stack>Ок</button>
+      </div>
+    </div>
+  </section>
+</template>
+
+
+<!-- Попап: обязательная подписка перед первой отправкой -->
+<template id="tpl-subs-required">
+  <section class="popup subs-popup">
+    <div class="chip subs-card">
+      <h3 class="subs-title">Подписка обязательна</h3>
+      <p class="subs-sub">Подпишитесь на наши каналы, чтобы отправлять фото.</p>
+
+      <div class="subs-links">
+        <a class="btn-link" href="https://youtube.com/@p.l.a.m?si=eYNmdfzUSjF8qwPk" target="_blank" rel="noopener" data-sub-yt>
+          Youtube канал
+        </a>
+        <a class="btn-link" href="https://t.me/ninaiart" target="_blank" rel="noopener" data-sub-tg>
+          Telegram канал
+        </a>
+      </div>
+
+      <div class="u-center">
+        <button class="btn-check" type="button" data-check-subs>Проверить подписки</button>
+      </div>
+
+      <p class="subs-note">После успешной проверки можно закрыть окно и отправить фото.</p>
+    </div>
+  </section>
+</template>
+
+  
+  <!-- Подтверждение премиума -->
+<template id="tpl-confirm-premium">
+  <section class="popup confirm-popup">
+    <div class="chip confirm-card">
+      <p class="confirm-text">Вы хотите получить премиум на 7 дней за 350 PLAMc?</p>
+      <div class="confirm-actions">
+        <button class="btn-confirm yes" type="button" data-confirm-yes>Да</button>
+        <!-- было data-dismiss, нужно закрывать только стек -->
+        <button class="btn-confirm no" type="button" data-dismiss-stack>Нет</button>
+      </div>
+    </div>
+  </section>
+</template>
+
+  <!-- Попап с двумя кнопками -->
+<div class="modal" id="actionsModal" hidden>
+  <div class="modal__backdrop" data-close="actionsModal"></div>
+  <div class="modal__dialog">
+    <button class="modal__close" data-close="actionsModal" aria-label="Закрыть">×</button>
+
+    <div class="modal__content is-scrollable">
+      <div class="actions-popup">
+        <div class="actions-buttons">
+          <button class="btn-pay" type="button">Колесо фортуны</button>
+          <button class="btn-pay" type="button">Задания</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  <!-- Попап таблицы лидеров -->
+<div class="modal" id="leadersModal"  hidden>
+  <div class="modal__backdrop" data-close="leadersModal"></div>
+  <div class="modal__dialog">
+    <!-- крестик прячем через CSS для этого попапа -->
+    <button class="modal__close" data-close="leadersModal" aria-label="Закрыть">×</button>
+
+    <div class="modal__content is-scrollable">
+      <div class="leaderboard-popup">
+        <!-- ШАПКА -->
+        <div class="lb-header chip">
+          <!-- новый герой-блок: картинка + 3 слота наверху -->
+              <div class="lb-hero">
+                <!-- три пустых квадрата над картинкой -->
+                <div class="lb-slot lb-slot--2" aria-hidden="true"></div>
+                <div class="lb-slot lb-slot--1" aria-hidden="true"></div>
+                <div class="lb-slot lb-slot--3" aria-hidden="true"></div>
+              
+                <!-- картинка пьедестала -->
+                <div class="lb-podium-img" role="img" aria-label="Пьедестал"></div>
+              </div>
+              
+              <h3 class="lb-title">Еженедельные подарки</h3>
+              <div class="lb-sub">Таблица лидеров</div>
+
+        </div>
+
+        <!-- СПИСОК ТОП-10 -->
+        <ol class="lb-list card">
+          <!-- 1–3: места с медалями (иконки вставите позже) -->
+          <li class="lb-item">
+            <span class="lb-ava"></span>
+            <div class="lb-text">
+              <div class="lb-nick">@nickname</div>
+              <div class="lb-photos">0 фото</div>
+            </div>
+            <div class="lb-rank lb-rank--medal" aria-label="1 место"></div>
+          </li>
+
+          <li class="lb-item">
+            <span class="lb-ava"></span>
+            <div class="lb-text">
+              <div class="lb-nick">@nickname</div>
+              <div class="lb-photos">0 фото</div>
+            </div>
+            <div class="lb-rank lb-rank--medal" aria-label="2 место"></div>
+          </li>
+
+          <li class="lb-item">
+            <span class="lb-ava"></span>
+            <div class="lb-text">
+              <div class="lb-nick">@nickname</div>
+              <div class="lb-photos">0 фото</div>
+            </div>
+            <div class="lb-rank lb-rank--medal" aria-label="3 место"></div>
+          </li>
+
+          <!-- 4–10: просто цифры -->
+          <li class="lb-item">
+            <span class="lb-ava"></span>
+            <div class="lb-text">
+              <div class="lb-nick">@nickname</div>
+              <div class="lb-photos">0 фото</div>
+            </div>
+            <div class="lb-rank">4</div>
+          </li>
+          <li class="lb-item"><span class="lb-ava"></span><div class="lb-text"><div class="lb-nick">@nickname</div><div class="lb-photos">0 фото</div></div><div class="lb-rank">5</div></li>
+          <li class="lb-item"><span class="lb-ava"></span><div class="lb-text"><div class="lb-nick">@nickname</div><div class="lb-photos">0 фото</div></div><div class="lb-rank">6</div></li>
+          <li class="lb-item"><span class="lb-ava"></span><div class="lb-text"><div class="lb-nick">@nickname</div><div class="lb-photos">0 фото</div></div><div class="lb-rank">7</div></li>
+          <li class="lb-item"><span class="lb-ava"></span><div class="lb-text"><div class="lb-nick">@nickname</div><div class="lb-photos">0 фото</div></div><div class="lb-rank">8</div></li>
+          <li class="lb-item"><span class="lb-ava"></span><div class="lb-text"><div class="lb-nick">@nickname</div><div class="lb-photos">0 фото</div></div><div class="lb-rank">9</div></li>
+          <li class="lb-item"><span class="lb-ava"></span><div class="lb-text"><div class="lb-nick">@nickname</div><div class="lb-photos">0 фото</div></div><div class="lb-rank">10</div></li>
+        </ol>
+
+        <!-- КНОПКА НИЖЕ (фикс/липкая) -->
+        <div class="lb-footer">
+          <button class="btn-close-timer" data-close="leadersModal">Закрыть</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  <script src="./app.js?v=51"></script>
+</body>
+</html>
