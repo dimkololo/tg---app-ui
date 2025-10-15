@@ -583,6 +583,11 @@ bindCounter(root.querySelector('[data-counter="desc"]'));
     }
 
     // TODO: отправка на сервер/TG
+    
+    // зафиксировать, что была первая удачная отправка
+      window.PLAM.hasUploaded = true;
+      localStorage.setItem('plam.hasUploaded', '1');
+
 
     // очистка и закрытие
     showPreview(null);
