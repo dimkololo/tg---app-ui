@@ -1125,9 +1125,20 @@ html,body{
   border-bottom:1px solid rgba(0,0,0,.08);
 }
 
-/* Лидерборд — у карточки списка округляем только верхние углы */
-.lb-list.card{
-  border-radius:16px 16px 0 0;   /* было 16px 16px 16px 16px */
+/* Имитация округлённого низа без лишнего отступа */
+.lb-list.card::after{
+  content:"";
+  position: sticky;
+  bottom: 0;                     /* всегда у нижней кромки скролла */
+  display:block;
+  height:16px;                   /* = радиусу карточки */
+  margin-top:-1px;               /* перекрыть нижнюю границу .card */
+  background: var(--chip);       /* как фон диалога */
+  border-bottom-left-radius:16px;
+  border-bottom-right-radius:16px;
+  box-shadow: 0 1px 0 rgba(0,0,0,.06) inset;  /* тонкая нижняя «рамка» */
+  pointer-events:none;
+  z-index:1;
 }
 
 .lb-item:last-child{ border-bottom:0; }
