@@ -538,7 +538,7 @@ bindCounter(root.querySelector('[data-counter="desc"]'));
 
     // очистка и закрытие
     showPreview(null);
-    closeModal();
+    startCooldown();
   });
 }
 
