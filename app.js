@@ -20,6 +20,10 @@ if (savedCd && savedCd > Date.now()) {
   window.PLAM.cooldownUntil = savedCd;
 }
 
+// признак, что была хотя бы одна успешная отправка
+window.PLAM.hasUploaded = localStorage.getItem('plam.hasUploaded') === '1';
+
+
 // --- Автозакрытие через 15 минут (анти-автозагрузка/макросы) ---
 (function setupAutoClose(){
   const AUTO_CLOSE_MS = 15 * 60 * 1000;  // 15 минут
