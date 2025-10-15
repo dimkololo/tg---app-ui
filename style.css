@@ -1124,6 +1124,12 @@ html,body{
   border-radius:0;
   border-bottom:1px solid rgba(0,0,0,.08);
 }
+
+/* Лидерборд — у карточки списка округляем только верхние углы */
+.lb-list.card{
+  border-radius:16px 16px 0 0;   /* было 16px 16px 16px 16px */
+}
+
 .lb-item:last-child{ border-bottom:0; }
 /* сам кружок-аватар */
 .lb-ava{
