@@ -4,7 +4,11 @@ if (window.Telegram && window.Telegram.WebApp) {
 }
 
 // --- Глобальный state ---
-window.PLAM = window.PLAM || { balance: 0, premium: false, photoCount: 0, premiumUntil: null, subsOk: false };
+window.PLAM = window.PLAM || { 
+  balance: 0, premium: false, photoCount: 0, premiumUntil: null, subsOk: false,
+  cooldownUntil: null // ← когда закончится кулдаун (ms), null если нет кулдауна
+};
+
 
 // --- Автозакрытие через 15 минут (анти-автозагрузка/макросы) ---
 (function setupAutoClose(){
@@ -95,12 +99,13 @@ function closeStack(){
 function initPremiumTimer(){
   const root = stackRoot.querySelector('.timer-popup'); // ← в стеке
   if (!root) return;
-
-  const box = root.querySelector('[data-remaining]');
-  if (!window.PLAM.premiumUntil) {
-    window.PLAM.premiumUntil = Date.now() + 7*24*60*60*1000;
+  if (!window.PLAM.premium || !window.PLAM.premiumUntil){
+    closeStack(); // нет активного премиума — нечего показывать
+    return;
   }
 
+  const box = root.querySelector('[data-remaining]');
+  
   const tick = ()=>{
     const now = Date.now();
     let ms = Math.max(0, window.PLAM.premiumUntil - now);
@@ -196,6 +201,94 @@ function initUploadPopup(){
   const starsEl     = root.querySelector('[data-stars]');
   const secsEl      = root.querySelector('[data-secs]');
   const urlInput    = root.querySelector('input[name="social"]');
+
+  // === Таймер над кнопкой + режим «Сбросить таймер» ===
+const submitRow = submitBtn?.closest('.u-center');
+
+// Строка с большим таймером над кнопкой (скрыта по умолчанию)
+const timerRow = document.createElement('div');
+timerRow.className = 'u-center';
+timerRow.hidden = true;
+timerRow.innerHTML = '<div data-cd-text style="font-weight:800;font-size:22px;line-height:1.2;text-align:center"></div>';
+submitRow?.insertAdjacentElement('beforebegin', timerRow);
+const cdText = timerRow.querySelector('[data-cd-text]');
+
+// Хелперы
+function isCooldownActive(){
+  return typeof window.PLAM.cooldownUntil === 'number' && Date.now() < window.PLAM.cooldownUntil;
+}
+function cdLeftMs(){
+  return Math.max(0, (window.PLAM.cooldownUntil || 0) - Date.now());
+}
+function fmtMMSS(ms){
+  const total = Math.max(0, Math.floor(ms/1000));
+  const mm = String(Math.floor(total/60)).padStart(2,'0');
+  const ss = String(total%60).padStart(2,'0');
+  return `${mm}мин. ${ss}сек.`;
+}
+
+// Управление доступностью сабмита:
+// - в обычном режиме — активна только когда есть файл
+// - в режиме кулдауна — кнопка активна (это «Сбросить таймер»)
+function updateSubmitState(){
+  if (isCooldownActive()){
+    submitBtn.disabled = false;
+  } else {
+    submitBtn.disabled = !hasFile;
+  }
+}
+
+// Вход/выход из режима кулдауна (меняем вид кнопки и показываем/прячем таймер сверху)
+let cdTimerId = null;
+function enterCooldownUI(){
+  // если по каким-то причинам фото ещё 0 — таймер не показываем
+  if ((window.PLAM.photoCount || 0) < 1) return;
+
+  // кнопка становится зелёной «Сбросить таймер»
+  submitBtn.textContent = 'Сбросить таймер';
+  submitBtn.style.backgroundColor = '#14ae5c';
+  submitBtn.style.color = '#fff';
+
+  timerRow.hidden = false;
+  updateSubmitState();
+
+  // тикер 1/сек — рисуем крупный таймер над кнопкой
+  const tick = () => {
+    const left = cdLeftMs();
+    cdText.textContent = fmtMMSS(left);
+    if (left <= 0){
+      exitCooldownUI();
+    }
+  };
+  tick();
+  clearInterval(cdTimerId);
+  cdTimerId = setInterval(tick, 1000);
+}
+
+function exitCooldownUI(){
+  // вернуть кнопку к «В эфир на … секунд»
+  submitBtn.style.backgroundColor = '';
+  submitBtn.style.color = '';
+  updateBroadcastSeconds();
+  timerRow.hidden = true;
+
+  // выключить таймер
+  clearInterval(cdTimerId); 
+  cdTimerId = null;
+
+  // снять кулдаун
+  window.PLAM.cooldownUntil = null;
+
+  updateSubmitState();
+}
+
+// При повторном открытии попапа восстановим UI, если кулдаун ещё идёт
+if (isCooldownActive() && (window.PLAM.photoCount || 0) >= 1){
+  enterCooldownUI();
+} else {
+  exitCooldownUI(); // гарантированно обычный режим
+}
+
 
   // --- склонение "секунда/секунды/секунд"
 function plural(n, one, few, many){
