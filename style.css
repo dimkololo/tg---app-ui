@@ -1212,6 +1212,32 @@ html,body{
   -webkit-overflow-scrolling:touch;
 }
 
+.decal--plane{
+  position:absolute;
+  top:   calc(var(--plane-y-m)/var(--design-h)*100%);
+  left:  0;
+  width: calc(var(--plane-w-m)/var(--design-w)*100%);
+  height:calc(var(--plane-h-m)/var(--design-h)*100%);
+  z-index:19;
+  pointer-events:none;
+  background:center/contain no-repeat;
+  background-image:url("./bgicons/plane.gif");
+}
+@media (max-width:375px),(max-height:667px){
+  .decal--plane{
+    top:   calc(var(--plane-y-s)/var(--design-h)*100%);
+    width: calc(var(--plane-w-s)/var(--design-w)*100%);
+    height:calc(var(--plane-h-s)/var(--design-h)*100%);
+  }
+}
+@media (min-width:768px),(min-height:1024px){
+  .decal--plane{
+    top:   calc(var(--plane-y-l)/var(--design-h)*100%);
+    width: calc(var(--plane-w-l)/var(--design-w)*100%);
+    height:calc(var(--plane-h-l)/var(--design-h)*100%);
+  }
+}
+
 
 
 /* ====== DEBUG (включай <body class="__debug">) ====== */
