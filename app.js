@@ -291,20 +291,32 @@ submitRow?.insertAdjacentElement('afterend', resetRow);
 // показать/скрыть «Сбросить таймер»
 function showReset(show){ resetRow.hidden = !show; }
 
-// синхронизация UI кнопки отправки с кулдауном
+  // === состояние «есть ли файл» управляет кнопкой «Отправить»
+  let objectUrl = null;
+  let hasFile = false;
+
 function syncCooldownUI(leftMs){
   if (!submitBtn) return;
+
+  const left = (typeof leftMs === 'number')
+    ? leftMs
+    : Math.max(0, (window.PLAM.cooldownUntil||0) - Date.now());
+
   if (isCooldownActive()){
-    const left = (typeof leftMs === 'number') ? leftMs : Math.max(0, (window.PLAM.cooldownUntil||0)-Date.now());
+    // таймер активен: блокируем кнопку и показываем таймер
     submitBtn.disabled = true;
     submitBtn.textContent = fmtMMSS(left);
-    showReset(true);
+    // зелёную кнопку показываем ТОЛЬКО после первой успешной отправки
+    showReset(!!window.PLAM.hasUploaded);
   } else {
-    submitBtn.disabled = false;
-    updateBroadcastSeconds();      // ← твоя функция из предыдущего шага
+    // таймера нет: текст "В эфир на …", доступность зависит от файла
+    const filePresent = hasFile || !!(fileInput?.files && fileInput.files.length);
+    submitBtn.disabled = !filePresent;
+    updateBroadcastSeconds();
     showReset(false);
   }
 }
+
 
 // первичная отрисовка при открытии попапа
 syncCooldownUI();
@@ -467,9 +479,7 @@ bindCounter(root.querySelector('[data-counter="desc"]'));
   const pickedImg   = root.querySelector('[data-picked-img]');
   const removeBtn   = root.querySelector('[data-remove-photo]');
 
-  // === состояние «есть ли файл» управляет кнопкой «Отправить»
-  let objectUrl = null;
-  let hasFile = false;
+  
 
   const updateSubmitState = ()=>{
   submitBtn.disabled = !hasFile || isCooldownActive();
