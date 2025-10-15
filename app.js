@@ -575,7 +575,8 @@ bindCounter(root.querySelector('[data-counter="desc"]'));
 
     // очистка и закрытие
     showPreview(null);
-    startCooldown();
+    window.PLAM_startCooldown();        // ← глобальный запуск на 30/20 мин
+    syncCooldownUI();                   // моментально обновим кнопку
   });
 }
 
