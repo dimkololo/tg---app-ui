@@ -410,44 +410,69 @@ function initUploadPopup(){
   });
 
   // обработчик «Сбросить таймер»
-  resetRow.addEventListener('click', (e)=>{
-    if (!e.target.closest('[data-open-reset]')) return;
+ // делегируем на весь попап, чтобы клик ловился и для уже существующих/пересозданных кнопок
+root.addEventListener('click', (e)=>{
+  const btn = e.target.closest('[data-open-reset]');
+  // нет клика по нашей кнопке или кнопка скрыта
+  if (!btn || (root.querySelector('[data-reset-row]')?.hidden)) return;
 
-    const leftMs  = Math.max(0, (window.PLAM.cooldownUntil||0) - Date.now());
-    const leftMin = Math.floor(leftMs / 60000);
-    if (leftMin <= 0){ window.PLAM_clearCooldown(); return; }
+  const leftMs  = Math.max(0, (window.PLAM.cooldownUntil||0) - Date.now());
+  const leftMin = Math.floor(leftMs / 60000);
+  if (leftMin <= 0){ window.PLAM_clearCooldown(); syncCooldownUI(); return; }
 
-    openStack('reset-cooldown');
-
-    const backdrop = stackRoot.querySelector('.modal__backdrop');
-    const prevBg = backdrop ? backdrop.style.background : '';
-    if (backdrop) backdrop.style.background = 'rgba(0,0,0,.5)';
-
-    const box = stackRoot.querySelector('.reset-popup');
-    box?.querySelector('[data-mins]')?.replaceChildren(String(leftMin));
-    box?.querySelector('[data-coins]')?.replaceChildren(String(leftMin));
-
-    box?.querySelector('[data-reset-now]')?.addEventListener('click', ()=>{
-      const need = leftMin;
-      const bal = Number(window.PLAM.balance||0);
-      if (bal < need){ alert('Недостаточно PLAMc'); return; }
-      window.PLAM.balance = bal - need;
+  // если шаблон попапа сброса не подключён — fallback через confirm
+  if (!document.getElementById('tpl-reset-cooldown')) {
+    const ok = confirm(`Сбросить ${leftMin} минут за ${leftMin} PLAMc?`);
+    if (ok) {
+      if ((window.PLAM.balance||0) < leftMin) { alert('Недостаточно PLAMc'); return; }
+      window.PLAM.balance -= leftMin;
       updatePlusBalanceUI();
       window.PLAM_clearCooldown();
-      try { window.Telegram?.WebApp?.showAlert?.('Удачно! Скорее отправляй еще фото'); } catch(_) { alert('Удачно! Скорее отправляй еще фото'); }
-      if (backdrop) backdrop.style.background = prevBg;
-      closeStack();
-    });
+      syncCooldownUI(); // сразу обновим UI
+      try { window.Telegram?.WebApp?.showAlert?.('Удачно! Скорее отправляй еще фото'); } catch(_) {}
+    }
+    return;
+  }
 
-    stackRoot.addEventListener('click', function once2(ev2){
-      const isBackdrop = ev2.target.classList.contains('modal__backdrop');
-      const isClose = ev2.target.closest('[data-dismiss-stack]');
-      if (isBackdrop || isClose){
-        if (backdrop) backdrop.style.background = prevBg;
-        stackRoot.removeEventListener('click', once2);
-      }
-    }, { once:true });
+  // обычный сценарий со стек-попапом
+  openStack('reset-cooldown');
+
+  const backdrop = stackRoot.querySelector('.modal__backdrop');
+  const prevBg = backdrop ? backdrop.style.background : '';
+  if (backdrop) backdrop.style.background = 'rgba(0,0,0,.5)';
+
+  const box = stackRoot.querySelector('.reset-popup');
+  box?.querySelector('[data-mins]')?.replaceChildren(String(leftMin));
+  box?.querySelector('[data-coins]')?.replaceChildren(String(leftMin));
+
+  box?.querySelector('[data-reset-now]')?.addEventListener('click', ()=>{
+    const need = leftMin;
+    const bal = Number(window.PLAM.balance||0);
+    if (bal < need){ alert('Недостаточно PLAMc'); return; }
+    window.PLAM.balance = bal - need;
+    updatePlusBalanceUI();
+    window.PLAM_clearCooldown();
+    syncCooldownUI(); // сразу спрячем кнопку/вернём текст
+    try { window.Telegram?.WebApp?.showAlert?.('Удачно! Скорее отправляй еще фото'); } catch(_) { alert('Удачно! Скорее отправляй еще фото'); }
+    if (backdrop) backdrop.style.background = prevBg;
+    closeStack();
   });
+
+  stackRoot.addEventListener('click', function once2(ev2){
+    const isBackdrop = ev2.target.classList.contains('modal__backdrop');
+    const isClose = ev2.target.closest('[data-dismiss-stack]');
+    if (isBackdrop || isClose){
+      if (backdrop) backdrop.style.background = prevBg;
+      stackRoot.removeEventListener('click', once2);
+    }
+  }, { once:true });
+});
+
+  // после блока создания/нахождения resetRow
+root.querySelectorAll('.btn-reset').forEach(b=>{
+  if (!b.hasAttribute('data-open-reset')) b.setAttribute('data-open-reset','');
+});
+
 
   // начальный рендер
   showPreview(null);   // приведём UI к «файла нет»
