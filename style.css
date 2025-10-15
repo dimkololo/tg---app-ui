@@ -525,10 +525,10 @@ html,body{
   box-shadow:none;
   cursor:not-allowed;
 }
-/* Зелёная кнопка "Сбросить таймер" / "Сбросить" */
-.btn-reset{
+.btn-reset,
+.btn-reset-now{
   display:inline-flex; align-items:center; justify-content:center;
-  min-width:180px; height:44px; border-radius:35px; border:0; cursor:pointer;
+  min-width:200px; height:44px; border-radius:35px; border:0; cursor:pointer;
   background:#14ae5c; color:#fff; font-weight:800; font-size:16px;
 }
 .btn-reset:disabled{ opacity:.6; cursor:not-allowed; }
