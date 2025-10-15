@@ -163,11 +163,12 @@ function setCooldownUntil(ts){
 function initPremiumTimer(){
   const root = stackRoot.querySelector('.timer-popup'); // ← в стеке
   if (!root) return;
+  if (!window.PLAM.premium || !window.PLAM.premiumUntil){
+  closeStack();
+  return;
+}
 
   const box = root.querySelector('[data-remaining]');
-  if (!window.PLAM.premiumUntil) {
-    window.PLAM.premiumUntil = Date.now() + 7*24*60*60*1000;
-  }
 
   const tick = ()=>{
     const now = Date.now();
