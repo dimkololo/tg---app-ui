@@ -268,126 +268,14 @@ function initUploadPopup(){
   const secsEl      = root.querySelector('[data-secs]');
   const urlInput    = root.querySelector('input[name="social"]');
 
-  // --- контейнер и кнопка "Сбросить таймер" под основной кнопкой
-const submitRow = submitBtn?.closest('.u-center');
-const resetRow = document.createElement('div');
-resetRow.className = 'u-center';
-resetRow.hidden = true;
-resetRow.innerHTML = '<button class="btn-reset" type="button" data-open-reset>Сбросить таймер</button>';
-submitRow?.insertAdjacentElement('afterend', resetRow);
-
-let cooldownTimer = null;
-let cooldownUntil = null;
-
-// формат mm:ss → "00мин. 00сек."
-function fmtMMSS(ms){
-  const total = Math.max(0, Math.floor(ms / 1000));
-  const mm = String(Math.floor(total / 60)).padStart(2, '0');
-  const ss = String(total % 60).padStart(2, '0');
-  return `${mm}мин. ${ss}сек.`;
-}
 
 // минут (30 — обычные, 20 — премиум)
 function getCooldownMinutes(){
   return window.PLAM.premium ? 20 : 30;
 }
+  
 
-function showResetButton(show){
-  resetRow.hidden = !show;
-}
 
-function stopCooldown(){
-  if (cooldownTimer){ clearInterval(cooldownTimer); cooldownTimer = null; }
-  cooldownUntil = null;
-  if (submitBtn){
-    submitBtn.disabled = false;
-    updateBroadcastSeconds();          // ← твоя функция из прошлого шага
-  }
-  showResetButton(false);
-}
-
-function startCooldown(){
-  const mins = getCooldownMinutes();
-  cooldownUntil = Date.now() + mins * 60 * 1000;
-
-  if (submitBtn){
-    submitBtn.disabled = true;
-    submitBtn.textContent = fmtMMSS(cooldownUntil - Date.now()); // стартовое знач
-  }
-  showResetButton(true);
-
-  if (cooldownTimer){ clearInterval(cooldownTimer); }
-  cooldownTimer = setInterval(()=>{
-    const left = cooldownUntil - Date.now();
-    if (left <= 0){
-      stopCooldown();                 // сам снялся по завершению
-      return;
-    }
-    if (submitBtn) submitBtn.textContent = fmtMMSS(left);
-  }, 250);
-
-  // чисто гасим таймер, если попап закроют
-  const onClosed = (e)=>{
-    if (e.detail?.wasUpload) stopCooldown();
-  };
-  document.addEventListener('plam:modal-closed', onClosed, { once: true });
-}
-
-// открыть попап сброса (через верхний стек, с подложкой ровно 0.5)
-function openResetPopup(){
-  // считаем целые минуты без секунд
-  const leftMs = Math.max(0, (cooldownUntil || 0) - Date.now());
-  const leftMinutes = Math.floor(leftMs / 60000);
-
-  // если уже нечего сбрасывать — просто снять кулдаун
-  if (leftMinutes <= 0){ stopCooldown(); return; }
-
-  openStack('reset-cooldown');
-
-  // выставим 50% подложку только для этого попапа
-  const backdrop = stackRoot.querySelector('.modal__backdrop');
-  const prevBg = backdrop ? backdrop.style.background : '';
-  if (backdrop){ backdrop.style.background = 'rgba(0,0,0,.5)'; }
-
-  // заполним числа
-  const box = stackRoot.querySelector('.reset-popup');
-  if (box){
-    box.querySelector('[data-mins]').textContent  = String(leftMinutes);
-    box.querySelector('[data-coins]').textContent = String(leftMinutes);
-
-    // обработка клика "Сбросить"
-    box.querySelector('[data-reset-now]')?.addEventListener('click', ()=>{
-      const need = leftMinutes;                 // 1 минута = 1 PLAMc
-      const bal  = Number(window.PLAM.balance || 0);
-      if (bal < need){
-        alert('Недостаточно PLAMc');
-        return;
-      }
-      // списываем
-      window.PLAM.balance = bal - need;
-      updatePlusBalanceUI();
-
-      // снимаем кулдаун
-      stopCooldown();
-
-      try { window.Telegram?.WebApp?.showAlert?.('Удачно! Скорее отправляй еще фото'); } catch(_) { alert('Удачно! Скорее отправляй еще фото'); }
-
-      // закрываем стек и возвращаем подложку
-      if (backdrop) backdrop.style.background = prevBg;
-      closeStack();
-    });
-  }
-
-  // закрытие по кресту/бэкдропу — вернём подложку как было
-  stackRoot.addEventListener('click', function once(e){
-    const isBackdrop = e.target.classList.contains('modal__backdrop');
-    const isClose = e.target.closest('[data-dismiss-stack]');
-    if (isBackdrop || isClose){
-      if (backdrop) backdrop.style.background = prevBg;
-      stackRoot.removeEventListener('click', once);
-    }
-  }, { once:true });
-}
 
 // клик по зелёной кнопке "Сбросить таймер"
 resetRow.addEventListener('click', (e)=>{
