@@ -1030,7 +1030,7 @@ html,body{
 .lb-list.card{
   border-radius:16px;
   overflow:hidden;                  /* границы <li> не вылезают снизу */
-  margin-bottom:16px;                /* минимальный зазор над кнопкой */
+  margin-bottom:8px;                /* минимальный зазор над кнопкой */
 }
 
 /* Контейнер попапа */
@@ -1184,15 +1184,15 @@ html,body{
 
 /* Лидерборд: меньше отступ снизу у диалога и контейнера со скроллом */
 .modal__dialog:has(.leaderboard-popup){ 
-  padding-bottom: 16px;           /* было 22px */
+  padding-bottom: 8px;           /* было 22px */
 }
 .modal__dialog:has(.leaderboard-popup) .modal__content.is-scrollable{
-  padding-bottom: 16px;           /* было 12px */
+  padding-bottom: 4px;           /* было 12px */
 }
 
 /* Под кнопкой вообще без отступа, сверху небольшой, чтобы не липла к списку */
 .lb-footer{
-  padding: 6px 0 0;              /* было 10px 0 4px */
+  padding: 6px 0 4px;              /* было 10px 0 4px */
 }
 
 
