@@ -9,16 +9,6 @@ window.PLAM = window.PLAM || {
   cooldownUntil: null // ← когда закончится кулдаун (ms), null если нет кулдауна
 };
 
-//параллакс эффект
-window.addEventListener('deviceorientation', (e) => {
-  const x = e.gamma / 3; // наклон по горизонтали
-  const y = e.beta / 3;  // наклон по вертикали
-
-  layers.forEach(layer => {
-    const speed = layer.getAttribute("data-speed");
-    layer.style.transform = translateX(${x * speed}px) translateY(${y * speed}px);
-  });
-});
 
 // --- Автозакрытие через 15 минут (анти-автозагрузка/макросы) ---
 (function setupAutoClose(){
