@@ -1363,6 +1363,11 @@ html,body{
   color: #fff;
 }
 
+.upload-popup .btn-submit{ width:100%; }
+.upload-popup .btn-submit[disabled]{ opacity:.5; pointer-events:none; }
+.upload-popup [data-cd-text]{ display:block; font-weight:800; font-size:22px; margin-bottom:12px; text-align:center; }
+
+
 /* Если у стека нет глобального затемнения — оставь как есть (у тебя JS ставит 50%) */
 /* Но базово можно так, если вдруг понадобится общий стиль:
 [data-modal-stack]:not([aria-hidden="true"]) .modal__backdrop{
