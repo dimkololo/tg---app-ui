@@ -505,6 +505,8 @@ html,body{
     height:calc(var(--photohereru-h-l)/var(--design-h)*100%);
  
 }
+}  
+  
 
 /* ====== попапы: общие ====== */
 .popup{display:grid; gap:12px; justify-items:center; width:100%; max-width:420px; margin-inline:auto}
