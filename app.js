@@ -850,6 +850,61 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!modal.hidden && e.key === 'Escape') close();
   });
 });
+// --- Параллакс фона ---
+(function setupParallaxBg(){
+  const img = document.querySelector('.stage__img');
+  if (!img) return;
+  img.classList.add('has-parallax');
+
+  const amplitude = () => {
+    const s = Math.min(window.innerWidth, window.innerHeight);
+    return Math.max(6, Math.min(18, Math.round(s * 0.02)));
+  };
+  let MAX = amplitude();
+  let lastX = 0, lastY = 0, raf = 0;
+
+  const apply = (nx, ny) => {
+    const x = (nx || 0) * MAX;
+    const y = (ny || 0) * MAX;
+    img.style.setProperty('--plx', x.toFixed(2)+'px');
+    img.style.setProperty('--ply', (y*0.6).toFixed(2)+'px');
+  };
+  const frame = (nx, ny) => {
+    lastX = nx; lastY = ny;
+    if (raf) return;
+    raf = requestAnimationFrame(() => { raf = 0; apply(lastX, lastY); });
+  };
+
+  window.addEventListener('mousemove', (e)=>{
+    const w = innerWidth, h = innerHeight;
+    frame((e.clientX-w/2)/(w/2), (e.clientY-h/2)/(h/2));
+  }, {passive:true});
+
+  const onDO = (ev)=>{
+    const g = Math.max(-30, Math.min(30, ev.gamma ?? 0));
+    const b = Math.max(-30, Math.min(30, ev.beta  ?? 0));
+    frame(g/30, b/30);
+  };
+  function enableGyro(){
+    try{
+      if (window.DeviceOrientationEvent?.requestPermission){
+        DeviceOrientationEvent.requestPermission().then(s=>{
+          if (s==='granted') addEventListener('deviceorientation', onDO, {passive:true});
+        });
+      } else if ('DeviceOrientationEvent' in window){
+        addEventListener('deviceorientation', onDO, {passive:true});
+      }
+    }catch{}
+  }
+  addEventListener('click', enableGyro, {once:true, passive:true});
+  addEventListener('touchstart', enableGyro, {once:true, passive:true});
+
+  addEventListener('mouseleave', ()=>frame(0,0));
+  addEventListener('resize', ()=>{ MAX = amplitude(); });
+
+  apply(0,0);
+})();
+
 
 
 
@@ -874,3 +929,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }, 0);
 })();
+
