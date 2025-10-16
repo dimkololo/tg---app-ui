@@ -1167,6 +1167,32 @@ html,body{
   opacity:1;
 }
 
+/* Липкая полоска с личной статистикой внизу списка, над кнопкой */
+.lb-stats{
+  position: sticky;
+  bottom: 56px;                 /* держим над «Закрыть» (≈ 44px высоты + запас) */
+  width: 100%;
+  background: #BABABA;
+  border-radius: 12px;
+  padding: 8px 10px;
+  display: grid;
+  grid-template-columns: 1fr auto auto; /* ник | кол-во | место */
+  align-items: center;
+  gap: 10px;
+  color: #000;
+  font-weight: 700;
+  z-index: 1;                    /* выше списка, но ниже кнопки при необходимости */
+}
+.lb-stats__nick{
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lb-stats__count b,
+.lb-stats__rank  b{ font-weight: 800; }
+
+
 /* Нижняя приклеенная кнопка */
 .lb-footer{
   position: sticky;
