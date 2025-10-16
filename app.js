@@ -715,32 +715,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const content = modal.querySelector('.modal__content');
 
+  function fillUserStats(){
+    const w  = window;
+    const tg = w.Telegram?.WebApp;
+    const u  = tg?.initDataUnsafe?.user || null;
+    const handle = u?.username
+      ? '@' + u.username
+      : ([u?.first_name, u?.last_name].filter(Boolean).join(' ') || '@tg profile');
+
+    // ВРЕМЕННО: берём «за неделю» из профиля.
+    // Когда появится weekly-счётчик — подменишь на window.PLAM.photoCountWeek.
+    const weekPhotos = (w.PLAM?.photoCount ?? 0);
+
+    const rank = 1; // пока всегда 1 (единственный пользователь)
+
+    const root = modal.querySelector('.leaderboard-popup');
+    root?.querySelector('[data-lb-nick]') ?.textContent = handle;
+    root?.querySelector('[data-lb-week]') ?.textContent = String(weekPhotos);
+    root?.querySelector('[data-lb-rank]') ?.textContent = String(rank);
+  }
+
   function open() {
     modal.hidden = false;
-    document.documentElement.style.overflow = 'hidden';   // блокируем скрол страницы
-    content && content.classList.add('is-scrollable'); // у тебя этот класс уже есть в CSS
+    document.documentElement.style.overflow = 'hidden';
+    content && content.classList.add('is-scrollable');
+    fillUserStats(); // ← подставили значения в липкую полоску
   }
 
   function close() {
     modal.hidden = true;
-    document.documentElement.style.overflow = '';         // возвращаем скрол
+    document.documentElement.style.overflow = '';
   }
 
-  // открыть по клику на «листочек»
   openBtn.addEventListener('click', open);
-
-  // закрыть по клику на подложку или на любую кнопку/элемент с data-close="leadersModal"
   modal.addEventListener('click', (e) => {
     const isBackdrop = e.target.classList.contains('modal__backdrop');
     const isCloseBtn = e.target.closest('[data-close="leadersModal"]');
     if (isBackdrop || isCloseBtn) close();
   });
-
-  // закрыть по Esc
   window.addEventListener('keydown', (e) => {
     if (!modal.hidden && e.key === 'Escape') close();
   });
 });
+
 
 // Попап «Действия»
 document.addEventListener('DOMContentLoaded', () => {
