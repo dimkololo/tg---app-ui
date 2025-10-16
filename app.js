@@ -728,7 +728,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const weekPhotos = Number(window.PLAM?.photoCount ?? 0);
     const rank = 1; // сейчас единственный пользователь
 
-    const root = modal.querySelector('.leaderboard-popup');
+    const root = document.querySelector('#leadersModal .leaderboard-popup');
     if (!root) return;
 
     root.querySelector('[data-lb-me-nick]')   ?.replaceChildren(handle);
