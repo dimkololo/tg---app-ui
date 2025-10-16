@@ -208,6 +208,28 @@ html,body{
   z-index:30;
 }
 
+/* Иконка пня как фон у хотспота (APNG) */
+.hotspot--stump::before{
+  content:"";
+  position:absolute;
+  inset:0;                              /* ровно по размеру хотспота */
+  background:center/contain no-repeat;
+  /* если есть retina-файл stump@2x.png — оставь image-set,
+     если нет @2x — можешь заменить на обычный url("stump.png") */
+  background-image:image-set(
+    url("./bgicons/stump.png") 1x,
+    url("./bgicons/stump@2x.png") 2x
+  );
+  pointer-events:none;                  /* клики остаются на кнопке */
+  z-index:0;
+}
+
+/* легкий «отклик» по нажатию — по желанию */
+.hotspot--stump:active{
+  transform: translate3d(-50%, -50%, 0) scale(.98);
+}
+
+
 /* подарок */
 .hotspot--gift{
   left:calc(var(--gift-x-m)/var(--design-w)*100%); top:calc(var(--gift-y-m)/var(--design-h)*100%);
