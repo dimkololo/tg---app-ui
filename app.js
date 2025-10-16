@@ -543,9 +543,25 @@ if (isCooldownActive()){
 
     // TODO: отправка на сервер/TG
 
-    // очистка и закрытие
+    // ===== успешная отправка =====
+
+    // +1 фото
+    window.PLAM.photoCount = (window.PLAM.photoCount || 0) + 1;
+    if (!modalRoot.hidden && modalRoot.querySelector('.profile-popup')){
+      refreshProfileUI?.();
+    }
+    
+    // Запускаем кулдаун (10 мин обычный / 5 мин премиум)
+    const COOLDOWN_MIN = window.PLAM.premium ? 5 : 10;
+    window.PLAM.cooldownUntil = Date.now() + COOLDOWN_MIN*60*1000;
+    
+    // Очищаем превью и поля, но попап НЕ закрываем!
     showPreview(null);
-    closeModal();
+    urlInput && (urlInput.value = '');
+    
+    // Переводим UI в режим кулдауна
+    enterCooldownUI();
+
   });
 }
 
