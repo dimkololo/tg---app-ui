@@ -1295,6 +1295,81 @@ html,body{
   }
 }
 
+/* Палитра (если своих переменных нет) */
+:root{
+  --plam-orange: #FF7A00;
+  --plam-green:  #14AE5C;
+  --plam-gray:   #D9D9D9;
+}
+
+/* Большой таймер над кнопкой в попапе загрузки */
+.upload-popup [data-cd-text]{
+  display: block;
+  font-weight: 800;
+  font-size: 22px;
+  line-height: 1.2;
+  text-align: center;
+  margin-bottom: 12px;
+  user-select: none;
+}
+
+/* Кнопка отправки по умолчанию (если нет своих стилей — можно оставить) */
+.upload-popup [data-submit]{
+  background: var(--plam-orange);
+  color: #fff;
+  font-weight: 700;
+  transition: background .2s ease, opacity .2s ease;
+}
+
+/* Отключенная кнопка, когда нет файла */
+.upload-popup [data-submit][disabled]{
+  opacity: .5;
+  pointer-events: none;
+}
+
+/* Если решишь вместо inline-стилей использовать класс is-cooldown — 
+   JS может просто add/remove('is-cooldown') на submitBtn */
+.upload-popup [data-submit].is-cooldown{
+  background: var(--plam-green);
+  color: #fff;
+}
+
+/* Попап “Сбросить таймер” (серый, непрозрачный) */
+.reset-popup{
+  background: var(--plam-gray);
+  border-radius: 16px;
+  padding: 20px 16px;
+  width: min(420px, calc(100vw - 32px));
+  margin: 0 auto;
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  text-align: center;
+}
+
+/* Заголовок/текст внутри попапа сброса (если используешь отдельный элемент) */
+.reset-popup .reset-title{
+  font-weight: 700;
+  font-size: 18px;
+  margin-bottom: 12px;
+}
+
+/* Кнопка “Подтвердить” в попапе сброса */
+.reset-popup [data-reset-now]{
+  display: inline-block;
+  margin-top: 14px;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-weight: 700;
+  background: var(--plam-green);
+  color: #fff;
+}
+
+/* Если у стека нет глобального затемнения — оставь как есть (у тебя JS ставит 50%) */
+/* Но базово можно так, если вдруг понадобится общий стиль:
+[data-modal-stack]:not([aria-hidden="true"]) .modal__backdrop{
+  background: rgba(0,0,0,.5);
+}
+*/
+
 
 
 /* ====== DEBUG (включай <body class="__debug">) ====== */
