@@ -466,11 +466,6 @@ try {
   });
 }
 
-
-
-
-
-
 function initSubsRequired(){
   const root = stackRoot.querySelector('.subs-popup');
   if (!root) return;
@@ -504,8 +499,56 @@ function initSubsRequired(){
     if (submitBtn) submitBtn.disabled = !hasFiles;  // ТОЛЬКО от наличия файла
   }
 });
-
 }
+
+function initTasksPopup(){
+  const root = stackRoot.querySelector('.tasks-popup');
+  if (!root) return;
+
+  // Состояние заданий на время жизни страницы
+  const state = (window.PLAM.tasksV1 ||= {
+    ig:false, yt:false, done:false, rewarded:false
+  });
+
+  const btn = root.querySelector('[data-tasks-check]');
+  const aIG = root.querySelector('[data-task-ig]');
+  const aYT = root.querySelector('[data-task-yt]');
+
+  const sync = ()=>{
+    if (state.done){
+      btn.textContent = 'Спасибо';
+      btn.classList.add('is-ok'); // зелёная
+      btn.disabled = true;
+    } else {
+      btn.textContent = 'Проверить';
+      btn.classList.remove('is-ok');
+      btn.disabled = false;
+    }
+  };
+
+  // Считаем «подписан» по переходу по ссылке
+  aIG?.addEventListener('click', ()=>{ state.ig = true; });
+  aYT?.addEventListener('click', ()=>{ state.yt = true; });
+
+  btn?.addEventListener('click', ()=>{
+    if (state.ig && state.yt){
+      if (!state.rewarded){
+        window.PLAM.balance = (window.PLAM.balance || 0) + 10;
+        state.rewarded = true;
+        updatePlusBalanceUI();
+        try { window.Telegram?.WebApp?.showAlert?.('+10 PLAMc'); } catch(_) {}
+      }
+      state.done = true;
+      sync();
+    } else {
+      try { window.Telegram?.WebApp?.showAlert?.('Открой обе ссылки и вернись'); }
+      catch(_) { alert('Открой обе ссылки и вернись'); }
+    }
+  });
+
+  sync();
+}
+
 
 
 // --- Попап 2: магазин ---
