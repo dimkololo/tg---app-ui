@@ -1383,6 +1383,11 @@ html,body{
   box-shadow: 0 6px 14px rgba(20,174,92,.22);
 }
 
+.subs-title .coin{
+  width:22px; height:22px; vertical-align:middle; margin-right:6px;
+}
+
+
 /* Если у стека нет глобального затемнения — оставь как есть (у тебя JS ставит 50%) */
 /* Но базово можно так, если вдруг понадобится общий стиль:
 [data-modal-stack]:not([aria-hidden="true"]) .modal__backdrop{
