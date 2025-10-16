@@ -1007,6 +1007,7 @@ html,body{
 
 /* Включить реальный скролл у длинного попапа */
 .modal__content.is-scrollable{
+  position: relative;
   max-height: calc(100svh - 140px);
   overflow: auto;
   -webkit-overflow-scrolling: touch;
@@ -1170,18 +1171,17 @@ html,body{
 /* Липкая полоска с личной статистикой внизу списка, над кнопкой */
 .lb-stats{
   position: sticky;
-  bottom: 56px;                 /* держим над «Закрыть» (≈ 44px высоты + запас) */
-  width: 100%;
-  background: #BABABA;
-  border-radius: 12px;
-  padding: 8px 10px;
+  bottom: 56px;                       /* чуть выше «Закрыть» */
+  z-index: 2;
   display: grid;
-  grid-template-columns: 1fr auto auto; /* ник | кол-во | место */
-  align-items: center;
+  grid-template-columns: 1fr auto auto;
   gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #BABABA;
   color: #000;
-  font-weight: 700;
-  z-index: 1;                    /* выше списка, но ниже кнопки при необходимости */
+  pointer-events: none;               /* ← ключ: полоса не перехватывает клики */
 }
 .lb-stats__nick{
   min-width: 0;
@@ -1194,13 +1194,12 @@ html,body{
 
 
 /* Нижняя приклеенная кнопка */
+/* а кнопка «Закрыть» липнет к низу и точно выше */
 .lb-footer{
   position: sticky;
-  bottom: 2px;              /* небольшой отступ от низа попапа */
-  display: flex;
-  justify-content: center;
-  padding: 6px 0 4px;              /* было 10px 0 4px */
-  background: transparent;  /* ← убрали градиент */
+  bottom: 0;
+  z-index: 3;
+  background: transparent;
 }
 
 /* Лидерборд: меньше отступ снизу у диалога и контейнера со скроллом */
