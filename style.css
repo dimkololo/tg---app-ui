@@ -383,7 +383,7 @@ html,body{
 /* ====== модалка ====== */
 .modal{position:fixed; inset:0; z-index:1000; display:grid; place-items:center}
 .modal[hidden]{display:none}
-.modal__backdrop{position:absolute; inset:0; background:rgba(0,0,0,.5)}
+.modal .modal__backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.5) }
 .modal__dialog{
   position:relative; width:min(560px,calc(100vw - 24px)); max-width:560px;
   border-radius:42px; background:var(--popup-bg); box-shadow:var(--shadow); padding:18px 16px 22px;
