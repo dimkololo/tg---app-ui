@@ -184,12 +184,37 @@
   </div>
 
       <div class="u-center">
-        <!-- теперь кнопку НЕ блокируем визуально -->
-        <button class="btn-submit" type="submit" data-submit>В эфир на</button>
-      </div>
+    <button type="submit" data-submit class="btn btn-accent" disabled>
+      В эфир на 20 секунд
+    </button>
+    </div>
     </form>
   </section>
 </template>
+
+  <template id="tpl-reset-cooldown">
+  <div class="reset-popup" style="background:#D9D9D9;border-radius:16px;padding:16px;max-width:320px;margin:0 auto;">
+    <div style="display:flex;justify-content:flex-end;">
+      <button type="button" data-dismiss-stack aria-label="Закрыть">✕</button>
+    </div>
+
+    <p style="margin:0 0 12px 0;font-weight:600;font-size:16px;">
+      Сбросить <span data-mins>0</span> минут за <span data-coins>0</span> PLAMc
+    </p>
+
+    <button type="button" data-reset-now
+            style="width:100%;padding:.9em 1.1em;border-radius:12px;background:#14ae5c;color:#fff;">
+      Подтвердить
+    </button>
+  </div>
+</template>
+
+
+  <div data-modal-stack hidden aria-hidden="true">
+  <div class="modal__backdrop" data-dismiss-stack></div>
+  <div class="modal__content" data-stack-content></div>
+</div>
+
 
 
   <!-- Попап 2: покупка PLAMc -->
