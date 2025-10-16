@@ -243,7 +243,7 @@ html,body{
   background-image: url("./bgicons/gift.png"); /* без @2x — ок */
   
   /* ТЕНЬ ВОКРУГ СИЛУЭТА */
-  filter: drop-shadow(0 8px 12px rgba(0,0,0,.35));
+  filter: drop-shadow(0 8px 4px rgba(0,0,0,.35));
   will-change: filter;
   pointer-events:none;
   z-index:1; 
