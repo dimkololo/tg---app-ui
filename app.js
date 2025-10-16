@@ -827,6 +827,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!modal || !opener) return;
 
   const content = modal.querySelector('.modal__content');
+  const btnTasks = modal.querySelector('[data-open-tasks]');
+  btnTasks?.addEventListener('click', () => {
+    openStack('actions-tasks');   // откроется непрозрачный стек-попап поверх «Действий»
+  });
 
   const open = () => {
     modal.hidden = false;
