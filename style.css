@@ -234,6 +234,17 @@ html,body{
   width:calc(var(--gift-w-m)/var(--design-w)*100%); height:calc(var(--gift-h-m)/var(--design-h)*100%);
   z-index:30;
 }
+/* Иконка подарка внутри кликабельной зоны */
+.hotspot--gift::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:center/contain no-repeat;
+  background-image: url("./bgicons/gift.png"); /* без @2x — ок */
+  pointer-events:none;   /* не мешает клику по кнопке */
+  z-index:0;             /* самый нижний слой внутри кнопки */
+}
+
 
 /* дневник */
 .hotspot--notebook{
