@@ -451,6 +451,57 @@ bindCounter(root.querySelector('[data-counter="desc"]'));
   // отправка
   form?.addEventListener('submit', (e)=>{
     e.preventDefault();
+    // если идёт кулдаун — эта кнопка сейчас «Сбросить таймер»
+if (isCooldownActive()){
+  // считаем полные оставшиеся минуты
+  const leftMin = Math.floor(cdLeftMs() / 60000);
+  if (leftMin <= 0){ 
+    exitCooldownUI(); 
+    return; 
+  }
+
+  // откроем попап подтверждения
+  openStack('reset-cooldown');
+
+  // подложка 50% чёрная
+  const backdrop = stackRoot.querySelector('.modal__backdrop');
+  const prevBg = backdrop ? backdrop.style.background : '';
+  if (backdrop) backdrop.style.background = 'rgba(0,0,0,.5)';
+
+  const box = stackRoot.querySelector('.reset-popup');
+  box?.querySelector('[data-mins]')?.replaceChildren(String(leftMin));
+  box?.querySelector('[data-coins]')?.replaceChildren(String(leftMin));
+
+  // Подтвердить сброс
+  box?.querySelector('[data-reset-now]')?.addEventListener('click', ()=>{
+    if ((window.PLAM.balance||0) < leftMin){
+      alert('Недостаточно PLAMc');
+      return;
+    }
+    window.PLAM.balance -= leftMin;
+    updatePlusBalanceUI();
+
+    // сбрасываем кулдаун и UI
+    exitCooldownUI();
+    try { window.Telegram?.WebApp?.showAlert?.('Удачно! Скорее отправляй еще фото'); } catch(_) { alert('Удачно! Скорее отправляй еще фото'); }
+
+    if (backdrop) backdrop.style.background = prevBg;
+    closeStack();
+  }, { once:true });
+
+  // вернуть подложку при закрытии крестиком/бэкдропом
+  stackRoot.addEventListener('click', function once2(ev2){
+    const isBackdrop = ev2.target.classList.contains('modal__backdrop');
+    const isClose = ev2.target.closest('[data-dismiss-stack]');
+    if (isBackdrop || isClose){
+      if (backdrop) backdrop.style.background = prevBg;
+      stackRoot.removeEventListener('click', once2);
+    }
+  }, { once:true });
+
+  return; // важный выход: в кулдауне реальной отправки не происходит
+}
+
 
     // без файла сюда обычно не попадём (кнопка disabled), но на всякий случай:
     if (!hasFile){
