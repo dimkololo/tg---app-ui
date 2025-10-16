@@ -458,13 +458,18 @@ renderUploadUI();
       box?.querySelector('[data-coins]')?.replaceChildren(String(leftMin));
 
       box?.querySelector('[data-reset-now]')?.addEventListener('click', ()=>{
-        if ((window.PLAM.balance||0) < leftMin){ alert('Недостаточно PLAMc'); return; }
-        window.PLAM.balance -= leftMin;
-        updatePlusBalanceUI();
-        exitCooldownUI(); // снимаем кулдаун и возвращаем кнопку
-        try { window.Telegram?.WebApp?.showAlert?.('Удачно! Скорее отправляй еще фото'); } catch(_) { alert('Удачно! Скорее отправляй еще фото'); }
-        if (backdrop) backdrop.style.background = prevBg;
-        closeStack();
+          if ((window.PLAM.balance||0) < leftMin){ alert('Недостаточно PLAMc'); return; }
+          window.PLAM.balance -= leftMin;
+          updatePlusBalanceUI();
+          
+          // полностью выходим из кулдауна и ПЕРЕРИСОВЫВАЕМ UI
+          window.PLAM.cooldownUntil = null;
+          renderUploadUI();
+          
+          try { window.Telegram?.WebApp?.showAlert?.('Удачно! Скорее отправляй еще фото'); } catch(_) { alert('Удачно! Скорее отправляй еще фото'); }
+          if (backdrop) backdrop.style.background = prevBg;
+          closeStack();
+
       }, { once:true });
 
       stackRoot.addEventListener('click', function once2(ev2){
