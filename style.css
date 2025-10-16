@@ -216,10 +216,8 @@ html,body{
   background:center/contain no-repeat;
   /* если есть retina-файл stump@2x.png — оставь image-set,
      если нет @2x — можешь заменить на обычный url("stump.png") */
-  background-image:image-set(
-    url("./bgicons/stump.png") 1x,
-    url("./bgicons/stump@2x.png") 2x
-  );
+  background-image:
+    url("./bgicons/stump.png");
   pointer-events:none;                  /* клики остаются на кнопке */
   z-index:0;
 }
