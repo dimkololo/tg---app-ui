@@ -443,9 +443,7 @@ function initUploadPopup(){
     // успешная отправка
     window.PLAM.photoCount = (window.PLAM.photoCount || 0) + 1;
 
-    // ===== успешная отправка =====
-window.PLAM.photoCount = (window.PLAM.photoCount || 0) + 1;
-
+    
 // сообщаем пользователю
 try { 
   window.Telegram?.WebApp?.showAlert?.('Ваше фото в очереди'); 
