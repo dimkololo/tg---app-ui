@@ -202,198 +202,150 @@ function initUploadPopup(){
   const secsEl      = root.querySelector('[data-secs]');
   const urlInput    = root.querySelector('input[name="social"]');
 
+  // ---- локальный state для этого попапа (объявляем РАНЬШЕ, чем функции их используют)
+  let objectUrl = null;
+  let hasFile   = false;
+  let cdTimerId = null;   // setInterval для большого таймера
+
   // === Таймер над кнопкой + режим «Сбросить таймер» ===
-const submitRow = submitBtn?.closest('.u-center');
+  const submitRow = submitBtn?.closest('.u-center');
 
-// Строка с большим таймером над кнопкой (скрыта по умолчанию)
-const timerRow = document.createElement('div');
-timerRow.className = 'u-center';
-timerRow.hidden = true;
-timerRow.innerHTML = '<div data-cd-text style="font-weight:800;font-size:22px;line-height:1.2;text-align:center"></div>';
-submitRow?.insertAdjacentElement('beforebegin', timerRow);
-const cdText = timerRow.querySelector('[data-cd-text]');
-
-// Хелперы
-function isCooldownActive(){
-  return typeof window.PLAM.cooldownUntil === 'number' && Date.now() < window.PLAM.cooldownUntil;
-}
-function cdLeftMs(){
-  return Math.max(0, (window.PLAM.cooldownUntil || 0) - Date.now());
-}
-function fmtMMSS(ms){
-  const total = Math.max(0, Math.floor(ms/1000));
-  const mm = String(Math.floor(total/60)).padStart(2,'0');
-  const ss = String(total%60).padStart(2,'0');
-  return `${mm}мин. ${ss}сек.`;
-}
-
-// Управление доступностью сабмита:
-// - в обычном режиме — активна только когда есть файл
-// - в режиме кулдауна — кнопка активна (это «Сбросить таймер»)
-function updateSubmitState(){
-  if (isCooldownActive()){
-    submitBtn.disabled = false;
-  } else {
-    submitBtn.disabled = !hasFile;
-  }
-}
-
-// Вход/выход из режима кулдауна (меняем вид кнопки и показываем/прячем таймер сверху)
-let cdTimerId = null;
-function enterCooldownUI(){
-  // если по каким-то причинам фото ещё 0 — таймер не показываем
-  if ((window.PLAM.photoCount || 0) < 1) return;
-
-  // кнопка становится зелёной «Сбросить таймер»
-  submitBtn.textContent = 'Сбросить таймер';
-  submitBtn.style.backgroundColor = '#14ae5c';
-  submitBtn.style.color = '#fff';
-
-  timerRow.hidden = false;
-  updateSubmitState();
-
-  // тикер 1/сек — рисуем крупный таймер над кнопкой
-  const tick = () => {
-    const left = cdLeftMs();
-    cdText.textContent = fmtMMSS(left);
-    if (left <= 0){
-      exitCooldownUI();
-    }
-  };
-  tick();
-  clearInterval(cdTimerId);
-  cdTimerId = setInterval(tick, 1000);
-}
-
-function exitCooldownUI(){
-  // вернуть кнопку к «В эфир на … секунд»
-  submitBtn.style.backgroundColor = '';
-  submitBtn.style.color = '';
-  updateBroadcastSeconds();
+  // Строка с большим таймером над кнопкой (скрыта по умолчанию)
+  const timerRow = document.createElement('div');
+  timerRow.className = 'u-center';
   timerRow.hidden = true;
+  timerRow.innerHTML = '<div data-cd-text style="font-weight:800;font-size:22px;line-height:1.2;text-align:center"></div>';
+  submitRow?.insertAdjacentElement('beforebegin', timerRow);
+  const cdText = timerRow.querySelector('[data-cd-text]');
 
-  // выключить таймер
-  clearInterval(cdTimerId); 
-  cdTimerId = null;
+  // Хелперы кулдауна
+  function isCooldownActive(){
+    return typeof window.PLAM.cooldownUntil === 'number' && Date.now() < window.PLAM.cooldownUntil;
+  }
+  function cdLeftMs(){
+    return Math.max(0, (window.PLAM.cooldownUntil || 0) - Date.now());
+  }
+  function fmtMMSS(ms){
+    const total = Math.max(0, Math.floor(ms/1000));
+    const mm = String(Math.floor(total/60)).padStart(2,'0');
+    const ss = String(total%60).padStart(2,'0');
+    return `${mm}мин. ${ss}сек.`;
+  }
 
-  // снять кулдаун
-  window.PLAM.cooldownUntil = null;
+  // Управление доступностью сабмита:
+  // - в обычном режиме — активна только когда есть файл
+  // - в режиме кулдауна — кнопка активна (это «Сбросить таймер»)
+  function updateSubmitState(){
+    if (isCooldownActive()){
+      submitBtn.disabled = false;
+    } else {
+      submitBtn.disabled = !hasFile;
+    }
+  }
 
-  updateSubmitState();
-}
+  // Вход/выход из режима кулдауна (меняем вид кнопки и показываем/прячем таймер сверху)
+  function enterCooldownUI(){
+    // если фото ещё ни разу не отправляли — таймер не показываем вообще
+    if ((window.PLAM.photoCount || 0) < 1) return;
 
-// При повторном открытии попапа восстановим UI, если кулдаун ещё идёт
-if (isCooldownActive() && (window.PLAM.photoCount || 0) >= 1){
-  enterCooldownUI();
-} else {
-  exitCooldownUI(); // гарантированно обычный режим
-}
+    // кнопка становится зелёной «Сбросить таймер»
+    submitBtn.textContent = 'Сбросить таймер';
+    submitBtn.style.backgroundColor = '#14ae5c';
+    submitBtn.style.color = '#fff';
 
+    timerRow.hidden = false;
+    updateSubmitState();
+
+    const tick = () => {
+      const left = cdLeftMs();
+      cdText.textContent = fmtMMSS(left);
+      if (left <= 0){
+        exitCooldownUI();
+      }
+    };
+    tick();
+    clearInterval(cdTimerId);
+    cdTimerId = setInterval(tick, 1000);
+  }
+
+  function exitCooldownUI(){
+    // вернуть кнопку к «В эфир на … секунд»
+    submitBtn.style.backgroundColor = '';
+    submitBtn.style.color = '';
+    updateBroadcastSeconds();
+    timerRow.hidden = true;
+
+    // выключить локальный таймер строки
+    clearInterval(cdTimerId);
+    cdTimerId = null;
+
+    // снять кулдаун (если его сбросили монетами или он истёк)
+    window.PLAM.cooldownUntil = null;
+
+    updateSubmitState();
+  }
 
   // --- склонение "секунда/секунды/секунд"
-function plural(n, one, few, many){
-  const n10 = n % 10, n100 = n % 100;
-  if (n10 === 1 && n100 !== 11) return one;               // 1, 21, 31...
-  if (n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14)) return few;  // 2-4, 22-24...
-  return many;                                             // всё остальное
-}
+  function plural(n, one, few, many){
+    const n10 = n % 10, n100 = n % 100;
+    if (n10 === 1 && n100 !== 11) return one;               // 1, 21, 31...
+    if (n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14)) return few;  // 2-4, 22-24...
+    return many;                                             // всё остальное
+  }
 
-// --- обновление текста на кнопке "В эфир на … секунд"
-function updateBroadcastSeconds(){
-  const base = window.PLAM.premium ? 40 : 20;             // из профиля
-  const extra = Number(range?.value || 0);                 // слайдер (0..20)
-  const total = base + extra;
-  const word = plural(total, 'секунду', 'секунды', 'секунд');
-  if (submitBtn) submitBtn.textContent = `В эфир на ${total} ${word}`;
-}
+  // --- обновление текста на кнопке "В эфир на … секунд"
+  function updateBroadcastSeconds(){
+    // во время кулдауна НЕ трогаем надпись — должна оставаться «Сбросить таймер»
+    if (isCooldownActive()) return;
+    const base  = window.PLAM.premium ? 40 : 20;    // из профиля
+    const extra = Number(range?.value || 0);        // слайдер (0..20)
+    const total = base + extra;
+    const word  = plural(total, 'секунду', 'секунды', 'секунд');
+    submitBtn.textContent = `В эфир на ${total} ${word}`;
+  }
 
+  // --- клавиатура/UX (без изменений)
+  const descEl = root.querySelector('textarea[name="desc"]');
+  function normalizeAfterKeyboard() {
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+      const dlg = modalRoot.querySelector('.modal__dialog');
+      if (dlg) { dlg.style.transform = 'translateZ(0)'; void dlg.offsetHeight; dlg.style.transform = ''; }
+    }, 80);
+  }
+  if (urlInput) {
+    urlInput.setAttribute('enterkeyhint', 'next');
+    urlInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); descEl?.focus(); } });
+  }
+  if (descEl) {
+    descEl.setAttribute('enterkeyhint', 'done');
+    const hideKb = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); descEl.blur(); normalizeAfterKeyboard(); } };
+    descEl.addEventListener('keydown', hideKb);
+    descEl.addEventListener('keypress', hideKb);
+    descEl.addEventListener('blur', normalizeAfterKeyboard);
+  }
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => normalizeAfterKeyboard());
+  }
 
-  // --- управление клавиатурой ---
-const descEl = root.querySelector('textarea[name="desc"]');
-
-
-// --- фикс "смещения кликов" после закрытия клавиатуры ---
-function normalizeAfterKeyboard() {
-  // даём WebView отпустить клаву
-  setTimeout(() => {
-    // 1) возвращаем скролл к нулю (у некоторых webview остаётся смещение)
-    window.scrollTo(0, 0);
-
-    // 2) форсируем reflow/перерисовку диалога
-    const dlg = modalRoot.querySelector('.modal__dialog');
-    if (dlg) {
-      dlg.style.transform = 'translateZ(0)'; // включили слой
-      void dlg.offsetHeight;                 // форс-рефлоу
-      dlg.style.transform = '';              // выключили
-    }
-  }, 80);
-}
-
-// Enter на ссылке -> фокус в описание (как раньше)
-if (urlInput) {
-  urlInput.setAttribute('enterkeyhint', 'next');
-  urlInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') { e.preventDefault(); descEl?.focus(); }
-  });
-}
-
-// На описании: Enter/Готово -> скрыть клавиатуру и поправить хит-тест
-if (descEl) {
-  descEl.setAttribute('enterkeyhint', 'done');
-  const hideKb = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      descEl.blur();              // закрыли клавиатуру
-      normalizeAfterKeyboard();   // починили смещение кликов
-    }
-  };
-  descEl.addEventListener('keydown', hideKb);
-  descEl.addEventListener('keypress', hideKb); // iOS подстраховка
-  descEl.addEventListener('blur', normalizeAfterKeyboard);
-}
-
-// Доп. страховка: когда визуальный вьюпорт меняется (клава прячется) — тоже нормализуем
-if (window.visualViewport) {
-  const onVV = () => normalizeAfterKeyboard();
-  window.visualViewport.addEventListener('resize', onVV);
-  // слушатель можно не снимать — попапов немного, нагрузка нулевая
-}
-
-
-
-  
   // === счётчики символов ===
-function bindCounter(el){
-  if (!el) return;
-  const id  = el.getAttribute('data-counter');
-  const box = root.querySelector(`[data-counter-for="${id}"]`);
-  const max = Number(el.getAttribute('maxlength')) || 0;
-
-  const update = () => {
-    const len = el.value.length;
-    if (box) box.textContent = `${len} / ${max}`;
-  };
-
-  el.addEventListener('input', update);
-  update(); // первичная отрисовка
-}
-
-// привязываем к полям
-bindCounter(root.querySelector('[data-counter="link"]'));
-bindCounter(root.querySelector('[data-counter="desc"]'));
-
+  function bindCounter(el){
+    if (!el) return;
+    const id  = el.getAttribute('data-counter');
+    const box = root.querySelector(`[data-counter-for="${id}"]`);
+    const max = Number(el.getAttribute('maxlength')) || 0;
+    const update = () => { const len = el.value.length; if (box) box.textContent = `${len} / ${max}`; };
+    el.addEventListener('input', update);
+    update();
+  }
+  bindCounter(root.querySelector('[data-counter="link"]'));
+  bindCounter(root.querySelector('[data-counter="desc"]'));
 
   // предпросмотр
   const pickedEmpty = root.querySelector('.picked-empty');
   const pickedItem  = root.querySelector('.picked-item');
   const pickedImg   = root.querySelector('[data-picked-img]');
   const removeBtn   = root.querySelector('[data-remove-photo]');
-
-  // === состояние «есть ли файл» управляет кнопкой «Отправить»
-  let objectUrl = null;
-  let hasFile = false;
-
-  const updateSubmitState = ()=>{ submitBtn.disabled = !hasFile; };
 
   function showPreview(file){
     if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = null; }
@@ -403,6 +355,7 @@ bindCounter(root.querySelector('[data-counter="desc"]'));
       pickedEmpty.style.display = 'block';
       pickedImg.src = '';
       updateSubmitState();
+      updateBroadcastSeconds();
       return;
     }
     hasFile = true;
@@ -411,9 +364,9 @@ bindCounter(root.querySelector('[data-counter="desc"]'));
     pickedEmpty.style.display = 'none';
     pickedItem.hidden = false;
     updateSubmitState();
+    updateBroadcastSeconds();
   }
 
-  
   fileInput?.addEventListener('change', ()=>{
     const f = fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
     showPreview(f);
@@ -422,148 +375,123 @@ bindCounter(root.querySelector('[data-counter="desc"]'));
     fileInput.value = '';
     showPreview(null);
   });
-  showPreview(null); // старт
+  // стартовый рендер
+  showPreview(null);
 
   // слайдер
   if (range && starsEl && secsEl) {
-  const update = () => {
-    const v = Number(range.value);
-    starsEl.textContent = `${v} PLAMc`;
-    secsEl.textContent  = (v === 0) ? '0 сек' : `+${v} сек`;
-    updateBroadcastSeconds();                             // ← обновляем кнопку
-  };
-  range.addEventListener('input', update);
-  update();                                               // первичный рендер
-} else {
-  // если по какой-то причине нет слайдера — всё равно покажем базовое значение
-  updateBroadcastSeconds();
-}
-
+    const update = () => {
+      const v = Number(range.value);
+      starsEl.textContent = `${v} PLAMc`;
+      secsEl.textContent  = (v === 0) ? '0 сек' : `+${v} сек`;
+      if (!isCooldownActive()) updateBroadcastSeconds(); // НЕ трогаем подпись в кулдауне
+    };
+    range.addEventListener('input', update);
+    update();
+  } else {
+    updateBroadcastSeconds();
+  }
 
   // мягкая валидация URL
   function isValidUrlLike(v){
     if (!v) return true;
-    const tme = /^https?:\/\/t\.me\/.+/i;
+    const tme  = /^https?:\/\/t\.me\/.+/i;
     const http = /^https?:\/\/.+/i;
     return tme.test(v) || http.test(v);
+  }
+
+  // если при открытии попапа кулдаун ещё идёт, восстановим UI
+  if (isCooldownActive() && (window.PLAM.photoCount || 0) >= 1){
+    enterCooldownUI();
+  } else {
+    // обычный режим при старте
+    timerRow.hidden = true;
+    updateSubmitState();
+    updateBroadcastSeconds();
   }
 
   // отправка
   form?.addEventListener('submit', (e)=>{
     e.preventDefault();
+
     // если идёт кулдаун — эта кнопка сейчас «Сбросить таймер»
-if (isCooldownActive()){
-  // считаем полные оставшиеся минуты
-  const leftMin = Math.floor(cdLeftMs() / 60000);
-  if (leftMin <= 0){ 
-    exitCooldownUI(); 
-    return; 
-  }
+    if (isCooldownActive()){
+      const leftMin = Math.floor(cdLeftMs() / 60000);
+      if (leftMin <= 0){ exitCooldownUI(); return; }
 
-  // откроем попап подтверждения
-  openStack('reset-cooldown');
+      openStack('reset-cooldown');
 
-  // подложка 50% чёрная
-  const backdrop = stackRoot.querySelector('.modal__backdrop');
-  const prevBg = backdrop ? backdrop.style.background : '';
-  if (backdrop) backdrop.style.background = 'rgba(0,0,0,.5)';
+      // затемнить подложку стека
+      const backdrop = stackRoot.querySelector('.modal__backdrop');
+      const prevBg = backdrop ? backdrop.style.background : '';
+      if (backdrop) backdrop.style.background = 'rgba(0,0,0,.5)';
 
-  const box = stackRoot.querySelector('.reset-popup');
-  box?.querySelector('[data-mins]')?.replaceChildren(String(leftMin));
-  box?.querySelector('[data-coins]')?.replaceChildren(String(leftMin));
+      const box = stackRoot.querySelector('.reset-popup');
+      box?.querySelector('[data-mins]')?.replaceChildren(String(leftMin));
+      box?.querySelector('[data-coins]')?.replaceChildren(String(leftMin));
 
-  // Подтвердить сброс
-  box?.querySelector('[data-reset-now]')?.addEventListener('click', ()=>{
-    if ((window.PLAM.balance||0) < leftMin){
-      alert('Недостаточно PLAMc');
-      return;
+      box?.querySelector('[data-reset-now]')?.addEventListener('click', ()=>{
+        if ((window.PLAM.balance||0) < leftMin){ alert('Недостаточно PLAMc'); return; }
+        window.PLAM.balance -= leftMin;
+        updatePlusBalanceUI();
+        exitCooldownUI(); // снимаем кулдаун и возвращаем кнопку
+        try { window.Telegram?.WebApp?.showAlert?.('Удачно! Скорее отправляй еще фото'); } catch(_) { alert('Удачно! Скорее отправляй еще фото'); }
+        if (backdrop) backdrop.style.background = prevBg;
+        closeStack();
+      }, { once:true });
+
+      stackRoot.addEventListener('click', function once2(ev2){
+        const isBackdrop = ev2.target.classList.contains('modal__backdrop');
+        const isClose    = ev2.target.closest('[data-dismiss-stack]');
+        if (isBackdrop || isClose){
+          if (backdrop) backdrop.style.background = prevBg;
+          stackRoot.removeEventListener('click', once2);
+        }
+      }, { once:true });
+
+      return; // важно: реальной отправки не делаем
     }
-    window.PLAM.balance -= leftMin;
-    updatePlusBalanceUI();
 
-    // сбрасываем кулдаун и UI
-    exitCooldownUI();
-    try { window.Telegram?.WebApp?.showAlert?.('Удачно! Скорее отправляй еще фото'); } catch(_) { alert('Удачно! Скорее отправляй еще фото'); }
-
-    if (backdrop) backdrop.style.background = prevBg;
-    closeStack();
-  }, { once:true });
-
-  // вернуть подложку при закрытии крестиком/бэкдропом
-  stackRoot.addEventListener('click', function once2(ev2){
-    const isBackdrop = ev2.target.classList.contains('modal__backdrop');
-    const isClose = ev2.target.closest('[data-dismiss-stack]');
-    if (isBackdrop || isClose){
-      if (backdrop) backdrop.style.background = prevBg;
-      stackRoot.removeEventListener('click', once2);
-    }
-  }, { once:true });
-
-  return; // важный выход: в кулдауне реальной отправки не происходит
-}
-
-
-    // без файла сюда обычно не попадём (кнопка disabled), но на всякий случай:
+    // обычная отправка
     if (!hasFile){
       try { window.Telegram?.WebApp?.showAlert?.('Прикрепите фото'); } catch(_) {}
       return;
     }
-
-    // если подписка ещё не подтверждена — показываем попап и выходим.
-    // НИЧЕГО не сбрасываем: фото остаётся, кнопка активна.
     if (!window.PLAM.subsOk){
       openStack('subs-required');
       return;
     }
-
-    // проверка URL
     const link = urlInput?.value.trim();
     if (link && !isValidUrlLike(link)){
       alert('Ссылка должна начинаться с http:// или https:// (поддерживается и https://t.me/...)');
       urlInput.focus();
       return;
     }
-
-    // проверка баланса
     const need = parseInt(range?.value || '0', 10) || 0;
-    if (need > 0 && (window.PLAM.balance||0) <= 0) { alert('Недостаточно PLAMc'); return; }
-    if (need > (window.PLAM.balance||0))          { alert('Недостаточно PLAMc'); return; }
+    if (need > (window.PLAM.balance||0)) { alert('Недостаточно PLAMc'); return; }
 
     // списание
     window.PLAM.balance -= need;
     updatePlusBalanceUI();
 
-    // учтём одно фото
-    window.PLAM.photoCount = (window.PLAM.photoCount || 0) + 1;
-
-    // обновим профиль, если он открыт
-    if (!modalRoot.hidden && modalRoot.querySelector('.profile-popup')){
-      refreshProfileUI?.();
-    }
-
     // TODO: отправка на сервер/TG
 
     // ===== успешная отправка =====
+    window.PLAM.photoCount = (window.PLAM.photoCount || 0) + 1; // ← оставляем только ОДИН инкремент
 
-    // +1 фото
-    window.PLAM.photoCount = (window.PLAM.photoCount || 0) + 1;
-    if (!modalRoot.hidden && modalRoot.querySelector('.profile-popup')){
-      refreshProfileUI?.();
-    }
-    
     // Запускаем кулдаун (10 мин обычный / 5 мин премиум)
     const COOLDOWN_MIN = window.PLAM.premium ? 5 : 10;
-    window.PLAM.cooldownUntil = Date.now() + COOLDOWN_MIN*60*1000;
-    
+    window.PLAM.cooldownUntil = Date.now() + COOLDOWN_MIN * 60 * 1000;
+
     // Очищаем превью и поля, но попап НЕ закрываем!
     showPreview(null);
-    urlInput && (urlInput.value = '');
-    
+    if (urlInput) urlInput.value = '';
+
     // Переводим UI в режим кулдауна
     enterCooldownUI();
-
   });
 }
+
 
 
 
