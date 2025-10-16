@@ -505,17 +505,16 @@ renderUploadUI();
 
     // ===== успешная отправка =====
     window.PLAM.photoCount = (window.PLAM.photoCount || 0) + 1; // ← оставляем только ОДИН инкремент
-
-    // Запускаем кулдаун (10 мин обычный / 5 мин премиум)
-    const COOLDOWN_MIN = window.PLAM.premium ? 5 : 10;
-    window.PLAM.cooldownUntil = Date.now() + COOLDOWN_MIN * 60 * 1000;
-
-    // Очищаем превью и поля, но попап НЕ закрываем!
-    showPreview(null);
-    if (urlInput) urlInput.value = '';
-
-    // Переводим UI в режим кулдауна
-    enterCooldownUI();
+      / 1) запускаем кулдаун (10 мин обычный / 5 мин премиум)
+      const COOLDOWN_MIN = window.PLAM.premium ? 5 : 10;
+      window.PLAM.cooldownUntil = Date.now() + COOLDOWN_MIN*60*1000;
+      
+      // 2) очистили форму (файл/линк) — попап НЕ закрываем
+      showPreview(null);
+      if (urlInput) urlInput.value = '';
+      
+      // 3) переключили UI в режим кулдауна
+      renderUploadUI();
   });
 }
 
