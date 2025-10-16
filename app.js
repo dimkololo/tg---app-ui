@@ -84,6 +84,7 @@ function openStack(id){
   if (id === 'confirm-premium') initConfirmPremium();   // ← добавь это
   if (id === 'subs-required')  initSubsRequired();
   if (id === 'premium-help')  initPremiumHelp();
+  if (id === 'actions-tasks') initTasksPopup();
 
 }
 
