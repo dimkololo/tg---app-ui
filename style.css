@@ -392,6 +392,23 @@ html,body{
   z-index:25;
 }
 
+/* Иконка FAQ поверх фона сцены */
+.hotspot--faq::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:center / contain no-repeat;
+  /* fallback для браузеров без image-set */
+  background-image:url("./bgicons/faq.png");
+  /* ретина-ресурсы */
+  background-image:image-set(
+    url("./bgicons/faq.png") 1x,
+    url("./bgicons/faq@2x.png") 2x
+  );
+  pointer-events:none;                 /* чтобы клики шли в кнопку */
+}
+
+
 /* small */
 @media (max-width:375px),(max-height:667px){
   .hotspot--faq{
