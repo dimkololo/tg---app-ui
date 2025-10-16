@@ -144,6 +144,19 @@ html,body{
   object-position: 50% 100%; 
   pointer-events:none;
 }
+/* === Parallax для фона === */
+.stage__img.has-parallax{
+  will-change: transform;
+  transform: translate3d(var(--plx,0), var(--ply,0), 0) scale(var(--pls,1.04));
+  transition: transform 80ms linear;
+  pointer-events: none;
+}
+@media (min-width:768px),(min-height:1024px){
+  .stage__img.has-parallax{
+    transform: translate3d(var(--plx,0), var(--ply,0), 0) scale(1.06);
+  }
+}
+
 
 /* SMALL: маленький холст */
 @media (max-width:375px),(max-height:667px){
