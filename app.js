@@ -707,7 +707,7 @@ function initFAQ(){
   // Оставлено для расширений (подгрузка картинок/контента).
 }
 
-// Таблица лидеров — открытие/закрытие попапа
+// Таблица лидеров — открытие/закрытие попапа + заполнение «моей» строки
 document.addEventListener('DOMContentLoaded', () => {
   const modal   = document.getElementById('leadersModal');
   const openBtn = document.querySelector('.hotspot--wintable');
@@ -715,10 +715,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const content = modal.querySelector('.modal__content');
 
+  // подставляем ник/аватар/кол-во фото и (временно) место
+  function fillMyRow(){
+    const tg = window.Telegram?.WebApp;
+    const u  = tg?.initDataUnsafe?.user || null;
+
+    const handle = u?.username
+      ? '@' + u.username
+      : ([u?.first_name, u?.last_name].filter(Boolean).join(' ') || '@tg profile');
+
+    // пока берём общий счетчик как «за неделю», позже заменишь на weekly
+    const weekPhotos = Number(window.PLAM?.photoCount ?? 0);
+    const rank = 1; // сейчас единственный пользователь
+
+    const root = modal.querySelector('.leaderboard-popup');
+    if (!root) return;
+
+    root.querySelector('[data-lb-me-nick]')   ?.replaceChildren(handle);
+    root.querySelector('[data-lb-me-photos]') ?.replaceChildren(String(weekPhotos));
+    root.querySelector('[data-lb-me-rank]')   ?.replaceChildren(String(rank));
+
+    const ava = root.querySelector('[data-lb-me-ava]');
+    if (ava) {
+      if (u?.photo_url) {
+        ava.style.backgroundImage = `url("${u.photo_url}")`;
+        ava.style.backgroundSize  = 'cover';
+        ava.style.backgroundPosition = 'center';
+      } else {
+        ava.style.backgroundImage = '';
+      }
+    }
+  }
+
   function open() {
     modal.hidden = false;
     document.documentElement.style.overflow = 'hidden';   // блокируем скрол страницы
-    content && content.classList.add('is-scrollable'); // у тебя этот класс уже есть в CSS
+    content && content.classList.add('is-scrollable');    // включаем скролл внутри попапа
+    fillMyRow();                                          // ← заполняем зелёную строку
   }
 
   function close() {
@@ -729,7 +762,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // открыть по клику на «листочек»
   openBtn.addEventListener('click', open);
 
-  // закрыть по клику на подложку или на любую кнопку/элемент с data-close="leadersModal"
+  // закрыть по клику на подложку или на элемент с data-close="leadersModal"
   modal.addEventListener('click', (e) => {
     const isBackdrop = e.target.classList.contains('modal__backdrop');
     const isCloseBtn = e.target.closest('[data-close="leadersModal"]');
@@ -741,6 +774,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!modal.hidden && e.key === 'Escape') close();
   });
 });
+
 
 // Попап «Действия»
 document.addEventListener('DOMContentLoaded', () => {
