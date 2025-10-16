@@ -196,21 +196,18 @@
   </section>
 </template>
 
-  <template id="tpl-reset-cooldown">
-  <div class="reset-popup" style="background:#D9D9D9;border-radius:16px;padding:16px;max-width:320px;margin:0 auto;">
-    <div style="display:flex;justify-content:flex-end;">
-      <button type="button" data-dismiss-stack aria-label="Закрыть">✕</button>
-    </div>
-
-    <p style="margin:0 0 12px 0;font-weight:600;font-size:16px;">
+  <!-- СТАЛО: чистый контент, без внутреннего крестика и без inline -->
+<template id="tpl-reset-cooldown">
+  <section class="popup reset-popup">
+    <p class="reset-title">
       Сбросить <span data-mins>0</span> минут за <span data-coins>0</span> PLAMc
     </p>
-
-    <button type="button" data-reset-now
-            style="width:100%;padding:.9em 1.1em;border-radius:12px;background:#14ae5c;color:#fff;">
-      Подтвердить
-    </button>
-  </div>
+    <div class="u-center">
+      <button class="btn-pay btn-pay--green" type="button" data-reset-now>
+        Подтвердить
+      </button>
+    </div>
+  </section>
 </template>
 
 
