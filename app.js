@@ -243,47 +243,74 @@ function initUploadPopup(){
     }
   }
 
-  // Вход/выход из режима кулдауна (меняем вид кнопки и показываем/прячем таймер сверху)
-  function enterCooldownUI(){
-    // если фото ещё ни разу не отправляли — таймер не показываем вообще
-    if ((window.PLAM.photoCount || 0) < 1) return;
+  // --- внутри initUploadPopup(), рядом с другими переменными ---
+const submitRow = submitBtn?.closest('.u-center');
 
-    // кнопка становится зелёной «Сбросить таймер»
+// Большой таймер над кнопкой (один раз)
+const timerRow = document.createElement('div');
+timerRow.className = 'u-center';
+timerRow.hidden = true;
+timerRow.innerHTML =
+  '<div data-cd-text style="font-weight:800;font-size:22px;line-height:1.2;text-align:center"></div>';
+submitRow?.insertAdjacentElement('beforebegin', timerRow);
+const cdText = timerRow.querySelector('[data-cd-text]');
+
+function isCooldownActive(){
+  return typeof window.PLAM.cooldownUntil === 'number' && Date.now() < window.PLAM.cooldownUntil;
+}
+function cdLeftMs(){ return Math.max(0, (window.PLAM.cooldownUntil || 0) - Date.now()); }
+function fmtMMSS(ms){
+  const total = Math.max(0, Math.floor(ms/1000));
+  const mm = String(Math.floor(total/60)).padStart(2,'0');
+  const ss = String(total%60).padStart(2,'0');
+  return `${mm}мин. ${ss}сек.`;
+}
+
+// доступность кнопки: в кулдауне — активна (это «Сбросить таймер»), иначе — только при наличии файла
+function updateSubmitState(){
+  submitBtn.disabled = isCooldownActive() ? false : !hasFile;
+}
+
+let cdTimerId = null;
+function stopCdTicker(){ if (cdTimerId){ clearInterval(cdTimerId); cdTimerId = null; } }
+function startCdTicker(){
+  stopCdTicker();
+  const tick = ()=>{
+    const left = cdLeftMs();
+    cdText.textContent = fmtMMSS(left);
+    if (left <= 0) renderUploadUI(); // сам спрячется
+  };
+  tick();
+  cdTimerId = setInterval(tick, 1000);
+}
+
+// ЕДИНСТВЕННОЕ место, где мы меняем кнопку и строку таймера
+function renderUploadUI(){
+  const showCd = isCooldownActive() && (window.PLAM.photoCount||0) >= 1;
+  if (showCd){
+    // режим «Сбросить таймер»
     submitBtn.textContent = 'Сбросить таймер';
     submitBtn.style.backgroundColor = '#14ae5c';
     submitBtn.style.color = '#fff';
-
     timerRow.hidden = false;
-    updateSubmitState();
+    startCdTicker();
+  } else {
+    // обычный режим «В эфир на … секунд»
+    stopCdTicker();
+    window.PLAM.cooldownUntil = null;   // на всякий
+    timerRow.hidden = true;
+    cdText.textContent = '';
 
-    const tick = () => {
-      const left = cdLeftMs();
-      cdText.textContent = fmtMMSS(left);
-      if (left <= 0){
-        exitCooldownUI();
-      }
-    };
-    tick();
-    clearInterval(cdTimerId);
-    cdTimerId = setInterval(tick, 1000);
-  }
-
-  function exitCooldownUI(){
-    // вернуть кнопку к «В эфир на … секунд»
     submitBtn.style.backgroundColor = '';
     submitBtn.style.color = '';
-    updateBroadcastSeconds();
-    timerRow.hidden = true;
-
-    // выключить локальный таймер строки
-    clearInterval(cdTimerId);
-    cdTimerId = null;
-
-    // снять кулдаун (если его сбросили монетами или он истёк)
-    window.PLAM.cooldownUntil = null;
-
-    updateSubmitState();
+    updateBroadcastSeconds();           // вернёт текст «В эфир на …»
   }
+  updateSubmitState();
+}
+
+// восстановление UI при открытии попапа
+renderUploadUI();
+
 
   // --- склонение "секунда/секунды/секунд"
   function plural(n, one, few, many){
