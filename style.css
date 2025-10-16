@@ -199,6 +199,27 @@ html,body{
   cursor: pointer;
 }
 
+/* тени */
+.hotspot--stump::after,
+.hotspot--gift::after{
+  content:"";
+  position:absolute;
+  left: 12%;
+  right: 12%;
+  bottom: -2%;
+  height: 22%;
+
+  /* мягкая растушёвка */
+  background: radial-gradient(50% 50% at 50% 50%,
+              rgba(0,0,0,.30) 0%,
+              rgba(0,0,0,.22) 35%,
+              rgba(0,0,0,0) 70%);
+  transform: translateZ(0);
+  pointer-events:none;
+  z-index:0;  /* под иконкой (::before с z-index:1) */
+}
+
+
 /* пенёк */
 .hotspot--stump{
   left:  calc(var(--stump-x-m)/var(--design-w)*100%);
