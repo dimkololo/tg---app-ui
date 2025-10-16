@@ -442,9 +442,6 @@ function initUploadPopup(){
     // успешная отправка
     window.PLAM.photoCount = (window.PLAM.photoCount || 0) + 1;
 
-    // ===== успешная отправка =====
-window.PLAM.photoCount = (window.PLAM.photoCount || 0) + 1;
-
 // сообщаем пользователю
 try { 
   window.Telegram?.WebApp?.showAlert?.('Ваше фото в очереди'); 
@@ -707,86 +704,98 @@ function initFAQ(){
   // Оставлено для расширений (подгрузка картинок/контента).
 }
 
-// Таблица лидеров — открытие/закрытие попапа
-document.addEventListener('DOMContentLoaded', () => {
-  const modal   = document.getElementById('leadersModal');
-  const openBtn = document.querySelector('.hotspot--wintable');
-  if (!modal || !openBtn) return;
+// Таблица лидеров — открытие/закрытие попапа (устойчивый старт)
+(function setupLeadersModal(){
+  const run = () => {
+    const modal   = document.getElementById('leadersModal');
+    const openBtn = document.querySelector('.hotspot--wintable');
+    if (!modal || !openBtn) return;
 
-  const content = modal.querySelector('.modal__content');
+    const content = modal.querySelector('.modal__content');
 
-  function fillUserStats(){
-    const w  = window;
-    const tg = w.Telegram?.WebApp;
-    const u  = tg?.initDataUnsafe?.user || null;
-    const handle = u?.username
-      ? '@' + u.username
-      : ([u?.first_name, u?.last_name].filter(Boolean).join(' ') || '@tg profile');
+    function fillUserStats(){
+      const w  = window;
+      const tg = w.Telegram?.WebApp;
+      const u  = tg?.initDataUnsafe?.user || null;
+      const handle = u?.username
+        ? '@' + u.username
+        : ([u?.first_name, u?.last_name].filter(Boolean).join(' ') || '@tg profile');
+      const weekPhotos = (w.PLAM?.photoCount ?? 0);
+      const rank = 1;
 
-    // ВРЕМЕННО: берём «за неделю» из профиля.
-    // Когда появится weekly-счётчик — подменишь на window.PLAM.photoCountWeek.
-    const weekPhotos = (w.PLAM?.photoCount ?? 0);
+      const root = modal.querySelector('.leaderboard-popup');
+      root?.querySelector('[data-lb-nick]') ?.textContent = handle;
+      root?.querySelector('[data-lb-week]') ?.textContent = String(weekPhotos);
+      root?.querySelector('[data-lb-rank]') ?.textContent = String(rank);
+    }
 
-    const rank = 1; // пока всегда 1 (единственный пользователь)
+    function open() {
+      modal.hidden = false;
+      document.documentElement.style.overflow = 'hidden';
+      content && content.classList.add('is-scrollable');
+      fillUserStats();
+    }
+    function close() {
+      modal.hidden = true;
+      document.documentElement.style.overflow = '';
+    }
 
-    const root = modal.querySelector('.leaderboard-popup');
-    root?.querySelector('[data-lb-nick]') ?.textContent = handle;
-    root?.querySelector('[data-lb-week]') ?.textContent = String(weekPhotos);
-    root?.querySelector('[data-lb-rank]') ?.textContent = String(rank);
-  }
-
-  function open() {
-    modal.hidden = false;
-    document.documentElement.style.overflow = 'hidden';
-    content && content.classList.add('is-scrollable');
-    fillUserStats(); // ← подставили значения в липкую полоску
-  }
-
-  function close() {
-    modal.hidden = true;
-    document.documentElement.style.overflow = '';
-  }
-
-  openBtn.addEventListener('click', open);
-  modal.addEventListener('click', (e) => {
-    const isBackdrop = e.target.classList.contains('modal__backdrop');
-    const isCloseBtn = e.target.closest('[data-close="leadersModal"]');
-    if (isBackdrop || isCloseBtn) close();
-  });
-  window.addEventListener('keydown', (e) => {
-    if (!modal.hidden && e.key === 'Escape') close();
-  });
-});
-
-
-// Попап «Действия»
-document.addEventListener('DOMContentLoaded', () => {
-  const modal   = document.getElementById('actionsModal');
-  const opener  = document.querySelector('.hotspot--actions');
-  if (!modal || !opener) return;
-
-  const content = modal.querySelector('.modal__content');
-
-  const open = () => {
-    modal.hidden = false;
-    document.documentElement.style.overflow = 'hidden';
-    content && content.classList.add('is-scrollable');
-  };
-  const close = () => {
-    modal.hidden = true;
-    document.documentElement.style.overflow = '';
+    openBtn.addEventListener('click', open);
+    modal.addEventListener('click', (e) => {
+      const isBackdrop = e.target.classList.contains('modal__backdrop');
+      const isCloseBtn = e.target.closest('[data-close="leadersModal"]');
+      if (isBackdrop || isCloseBtn) close();
+    });
+    window.addEventListener('keydown', (e) => {
+      if (!modal.hidden && e.key === 'Escape') close();
+    });
   };
 
-  opener.addEventListener('click', open);
-  modal.addEventListener('click', (e) => {
-    const isBackdrop = e.target.classList.contains('modal__backdrop');
-    const isCloseBtn = e.target.closest('[data-close="actionsModal"]');
-    if (isBackdrop || isCloseBtn) close();
-  });
-  window.addEventListener('keydown', (e) => {
-    if (!modal.hidden && e.key === 'Escape') close();
-  });
-});
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', run, { once:true });
+  } else {
+    run();
+  }
+})();
+
+
+// Попап «Действия» (устойчивый старт)
+(function setupActionsModal(){
+  const run = () => {
+    const modal   = document.getElementById('actionsModal');
+    const opener  = document.querySelector('.hotspot--actions');
+    if (!modal || !opener) return;
+
+    const content = modal.querySelector('.modal__content');
+
+    const open = () => {
+      modal.hidden = false;
+      document.documentElement.style.overflow = 'hidden';
+      content && content.classList.add('is-scrollable');
+    };
+    const close = () => {
+      modal.hidden = true;
+      document.documentElement.style.overflow = '';
+    };
+
+    opener.addEventListener('click', open);
+    modal.addEventListener('click', (e) => {
+      const isBackdrop = e.target.classList.contains('modal__backdrop');
+      const isCloseBtn = e.target.closest('[data-close="actionsModal"]');
+      if (isBackdrop || isCloseBtn) close();
+    });
+    window.addEventListener('keydown', (e) => {
+      if (!modal.hidden && e.key === 'Escape') close();
+    });
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', run, { once:true });
+  } else {
+    run();
+  }
+})();
+
 
 
 
