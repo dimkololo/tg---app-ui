@@ -1264,6 +1264,17 @@ html,body{
   height:calc(var(--actions-h-m)/var(--design-h)*100%);
   z-index: 30;
 }
+/* Иконка «Действия» поверх фона сцены */
+.hotspot--actions::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:center / contain no-repeat;
+  background-image:url("./bgicons/plam.png"); /* один ресурс (без @2x) */
+  pointer-events:none; /* чтобы клики шли в кнопку */
+  filter: drop-shadow(0 8px 12px rgba(0,0,0,.35)); /* мягкая тень (опционально) */
+}
+
 @media (max-width:375px),(max-height:667px){
   .hotspot--actions{
     left:  calc(var(--actions-x-s)/var(--design-w)*100%);
