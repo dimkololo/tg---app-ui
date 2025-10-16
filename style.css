@@ -174,10 +174,11 @@ html,body{
   z-index: 20;
 
   /* центрирование + собственный слой (одним свойством!) */
-  transform: translate3d(-50%, -50%, 0);
+   transform: translate(-50%, -50%);   /* <- вместо translate3d(...) */
 
-  backface-visibility: hidden;
-  will-change: transform;
+  backface-visibility: visible;
+  will-change: auto; 
+  display: block;    
 
   /* UX */
   touch-action: manipulation;
