@@ -487,10 +487,8 @@ html,body{
   top:   calc(var(--wintable-y-m)/var(--design-h)*100%);
   width: calc(var(--wintable-w-m)/var(--design-w)*100%);
   height:calc(var(--wintable-h-m)/var(--design-h)*100%);
-  background-image:image-set(
-    url("./bgicons/wintable.png") 1x,
-    url("./bgicons/wintable@2x.png") 2x
-  );
+  background-image:
+    url("./bgicons/wintable.png");
 }
 @media (max-width:375px),(max-height:667px){
   .decal--mrplam{
