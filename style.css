@@ -134,6 +134,7 @@ html,body{
 }
 
 .stage picture{ display:block; }
+.stage picture{ pointer-events: none; }
 .stage__img{
   display:block;
   width: auto;
