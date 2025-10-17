@@ -588,7 +588,7 @@ html,body{
   top:   calc(var(--photohereru-y-m)/var(--design-h)*100%);
   width: calc(var(--photohereru-w-m)/var(--design-w)*100%);
   height:calc(var(--photohereru-h-m)/var(--design-h)*100%);
-  z-index:24;
+  z-index:31;
   background-image:image-set(
     url("./bgicons/photohereru.png") 1x,
     url("./bgicons/photohereru@2x.png") 2x
