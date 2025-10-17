@@ -65,9 +65,9 @@
   --actions-x-l: 245;   --actions-y-l: 755;    --actions-w-l: 302; --actions-h-l: 416;
 
   /* меньшая зона клика для Actions */
---actions-hit-w-m: 140; --actions-hit-h-m: 190;  /* ~70% от 198×272 */
---actions-hit-w-s: 125; --actions-hit-h-s: 172;  /* ~70% от 178×245 */
---actions-hit-w-l: 212; --actions-hit-h-l: 292;  /* ~70% от 302×416 */
+--actions-hit-w-m: 198; --actions-hit-h-m: 220;  /* ~70% от 198×272 */
+--actions-hit-w-s: 158; --actions-hit-h-s: 200;  /* ~70% от 178×245 */
+--actions-hit-w-l: 302; --actions-hit-h-l: 390;  /* ~70% от 302×416 */
 
 
   /* самолет */
