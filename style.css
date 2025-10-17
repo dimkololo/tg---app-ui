@@ -226,14 +226,15 @@ html,body{
   transform: translate(-50%, -50%);
 }
 
-/* === TV (якорь) — по твоим новым TV-переменным === */
+/* base (medium) */
 .anchor--tv{
   left:  calc(var(--tv-x-m)/var(--design-w)*100%);
   top:   calc(var(--tv-y-m)/var(--design-h)*100%);
   width: calc(var(--tv-w-m)/var(--design-w)*100%);
-  height:calc(var(--tv-h-m)/var(--design-h)*100%);
-  z-index:24; /* ниже иконок, выше фона */
-  container-type: size; /* ← это главное */
+  /* было: height: calc(...); — УДАЛИТЬ */
+  aspect-ratio: var(--tv-ar-m);
+  z-index:24;
+  container-type: size;
 }
 
 /* сам телевизор как фон у якоря */
@@ -252,7 +253,8 @@ html,body{
     left:  calc(var(--tv-x-s)/var(--design-w)*100%);
     top:   calc(var(--tv-y-s)/var(--design-h)*100%);
     width: calc(var(--tv-w-s)/var(--design-w)*100%);
-    height:calc(var(--tv-h-s)/var(--design-h)*100%);
+    /* было: height: calc(...); — УДАЛИТЬ */
+    aspect-ratio: var(--tv-ar-s);
   }
 }
 
@@ -262,7 +264,8 @@ html,body{
     left:  calc(var(--tv-x-l)/var(--design-w)*100%);
     top:   calc(var(--tv-y-l)/var(--design-h)*100%);
     width: calc(var(--tv-w-l)/var(--design-w)*100%);
-    height:calc(var(--tv-h-l)/var(--design-h)*100%);
+    /* было: height: calc(...); — УДАЛИТЬ */
+    aspect-ratio: var(--tv-ar-l);
   }
 }
 
