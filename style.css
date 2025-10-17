@@ -30,7 +30,7 @@
 
   /* ПЕНЁК — координаты центра и размеры (в пикселях макета) */
   --stump-x-m:300; --stump-y-m:540; --stump-w-m:170; --stump-h-m:142;
-  --stump-x-s:300; --stump-y-s:442; --stump-w-s:145; --stump-h-s:121;   /* обновлено */
+  --stump-x-s:285; --stump-y-s:442; --stump-w-s:145; --stump-h-s:121;   /* обновлено */
   --stump-x-l:580; --stump-y-l:840; --stump-w-l:238; --stump-h-l:198;
 
   /* Плюс-облако (иконка выведена слоем ::before) */
@@ -61,7 +61,7 @@
 
   /* Хотспот «Действия» (центр-координаты) */
   --actions-x-m: 110;  --actions-y-m: 510;  --actions-w-m: 198; --actions-h-m: 272;
-  --actions-x-s: 85;   --actions-y-s: 430;    --actions-w-s: 158; --actions-h-s: 217;
+  --actions-x-s: 95;   --actions-y-s: 400;    --actions-w-s: 158; --actions-h-s: 217;
   --actions-x-l: 245;   --actions-y-l: 755;    --actions-w-l: 302; --actions-h-l: 416;
 
   /* самолет */
