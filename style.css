@@ -258,6 +258,23 @@ html,body{
   z-index:30;
 }
 
+/* Иконка «дневник/профиль» в зоне клика */
+.hotspot--notebook::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background: center / contain no-repeat;
+  background-image: url("./bgicons/notebook.png"); /* один ресурс (без @2x) */
+  pointer-events: none;                              /* клики идут в кнопку */
+  filter: drop-shadow(0 8px 12px rgba(0,0,0,.35));   /* тень как у других */
+}
+
+/* лёгкий отклик по нажатию — по желанию */
+.hotspot--notebook:active{
+  transform: translate3d(-50%, -50%, 0) scale(.98);
+}
+
+
 /* плюс-облако как отдельный слой (фон картинкой) */
 .hotspot--plus{
   left:  calc(var(--plus-x-m) / var(--design-w, 393) * 100%);
