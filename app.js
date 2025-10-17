@@ -925,6 +925,7 @@ document.addEventListener('DOMContentLoaded', () => {
   enableAlphaHit(document.querySelector('.hotspot--gift'),     './bgicons/gift.png');
   enableAlphaHit(document.querySelector('.hotspot--faq'),      './bgicons/faq.png');      // если есть
   enableAlphaHit(document.querySelector('.hotspot--notebook'), './bgicons/notebook.png'); // если есть
+  enableAlphaHit(document.querySelector('.hotspot--plus'), './bgicons/cloud-plus.png'); // если есть
 });
 
 
