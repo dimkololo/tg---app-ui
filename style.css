@@ -64,15 +64,6 @@
   --actions-x-s: 95;   --actions-y-s: 400;    --actions-w-s: 158; --actions-h-s: 217;
   --actions-x-l: 245;   --actions-y-l: 755;    --actions-w-l: 302; --actions-h-l: 416;
 
-  /* меньшая зона клика для Actions */
---actions-hit-w-m: 198; --actions-hit-h-m: 220;  /* ~70% от 198×272 */
---actions-hit-w-s: 158; --actions-hit-h-s: 200;  /* ~70% от 178×245 */
---actions-hit-w-l: 302; --actions-hit-h-l: 390;  /* ~70% от 302×416 */
-  
-  /* коэффициенты масштаба, чтобы картинка осталась прежнего размера */
---actions-scale-x: calc(var(--actions-w-m) / var(--actions-hit-w-m));
---actions-scale-y: calc(var(--actions-h-m) / var(--actions-hit-h-m));
-
 
   /* самолет */
 
@@ -182,58 +173,43 @@ html,body{
   cursor: pointer;
 }
 
-//* ХИТ-ЗОНА: меньше */
+/* Хотспот «Действия» */
 .hotspot--actions{
   left:  calc(var(--actions-x-m)/var(--design-w)*100%);
   top:   calc(var(--actions-y-m)/var(--design-h)*100%);
-  width: calc(var(--actions-hit-w-m)/var(--design-w)*100%);
-  height:calc(var(--actions-hit-h-m)/var(--design-h)*100%);
+  width: calc(var(--actions-w-m)/var(--design-w)*100%);
+  height:calc(var(--actions-h-m)/var(--design-h)*100%);
   z-index: 30;
 }
 
-/* КАРТИНКА: растянем поверх маленькой хит-зоны до прежнего визуального размера */
+/* Иконка «Действия» поверх фона сцены */
 .hotspot--actions::before{
   content:"";
   position:absolute;
-  left:50%; top:50%;
-  width:100%; height:100%;                       /* базируемся на хит-зоне */
-  transform: translate(-50%, -50%)
-             scale(var(--actions-scale-x), var(--actions-scale-y));
-  transform-origin:center center;
-  background: center / contain no-repeat;
-  background-image: url("./bgicons/plam.png");
-  pointer-events: none;                           /* клики только по кнопке */
-  filter: drop-shadow(0 8px 12px rgba(0,0,0,.35));
+  inset:0;
+  background:center / contain no-repeat;
+  background-image:url("./bgicons/plam.png"); /* один ресурс (без @2x) */
+  pointer-events:none; /* чтобы клики шли в кнопку */
+  filter: drop-shadow(0 5px 1px rgba(0,0,0,.35)); /* мягкая тень (опционально) */
 }
 
-
-/* small */
 @media (max-width:375px),(max-height:667px){
   .hotspot--actions{
     left:  calc(var(--actions-x-s)/var(--design-w)*100%);
     top:   calc(var(--actions-y-s)/var(--design-h)*100%);
-    width: calc(var(--actions-hit-w-s)/var(--design-w)*100%);
-    height:calc(var(--actions-hit-h-s)/var(--design-h)*100%);
-  }
-  :root{
-    --actions-scale-x: calc(var(--actions-w-s) / var(--actions-hit-w-s));
-    --actions-scale-y: calc(var(--actions-h-s) / var(--actions-hit-h-s));
+    width: calc(var(--actions-w-s)/var(--design-w)*100%);
+    height:calc(var(--actions-h-s)/var(--design-h)*100%);
   }
 }
-
-/* large */
 @media (min-width:768px),(min-height:1024px){
   .hotspot--actions{
     left:  calc(var(--actions-x-l)/var(--design-w)*100%);
     top:   calc(var(--actions-y-l)/var(--design-h)*100%);
-    width: calc(var(--actions-hit-w-l)/var(--design-w)*100%);
-    height:calc(var(--actions-hit-h-l)/var(--design-h)*100%);
-  }
-  :root{
-    --actions-scale-x: calc(var(--actions-w-l) / var(--actions-hit-w-l));
-    --actions-scale-y: calc(var(--actions-h-l) / var(--actions-hit-h-l));
+    width: calc(var(--actions-w-l)/var(--design-w)*100%);
+    height:calc(var(--actions-h-l)/var(--design-h)*100%);
   }
 }
+
 
 
 /* Кликабельная зона по «листочку» */
