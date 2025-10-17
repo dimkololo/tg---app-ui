@@ -291,6 +291,27 @@ html,body{
   }
 }
 
+
+/* ФОЛБЭК, если @container не поддерживается */
+@supports not (container-type: size){
+  @media (max-width:375px),(max-height:667px){
+    .anchor--tv .hotspot--wintable{
+      left: 96.239%;
+      top:  47.126%;
+      width:23.009%;
+      height:42.529%;
+    }
+  }
+  @media (min-width:768px),(min-height:1024px){
+    .anchor--tv .hotspot--wintable{
+      left: 92.857%;
+      top:  45.356%;
+      width:22.381%;
+      height:41.176%;
+    }
+  }
+}
+
 /* === ПЕНЬ (якорь) — по твоим stump-переменным === */
 .anchor--stump{
   left:  calc(var(--stump-x-m)/var(--design-w)*100%);
