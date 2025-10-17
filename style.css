@@ -558,7 +558,7 @@ html,body{
     url("./bgicons/tv.png");
 
   z-index:24;                          /* ниже хотспотов (30+), выше фона */
-  filter: drop-shadow(0 8px 2px rgba(0,0,0,.35)); /* мягкая тень как у других */
+  filter: drop-shadow(0 8px 0px rgba(0,0,0,.35)); /* мягкая тень как у других */
 }
 
 /* small */
