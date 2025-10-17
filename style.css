@@ -488,10 +488,8 @@ html,body{
   height:calc(var(--tv-h-m)/var(--design-h)*100%);
 
   /* файл(ы) телевизора: поправь имя, если у тебя другое */
-  background-image: image-set(
-    url("./bgicons/tv.png") 1x,
-    url("./bgicons/tv@2x.png") 2x
-  );
+  background-image:
+    url("./bgicons/tv.png");
 
   z-index:24;                          /* ниже хотспотов (30+), выше фона */
   filter: drop-shadow(0 8px 12px rgba(0,0,0,.35)); /* мягкая тень как у других */
