@@ -8,6 +8,13 @@
   --shadow:0 8px 16px rgba(0,0,0,.25);
   --sky: #001B47; /* цвет неба сверху для пиксельной полосы */
 
+  /* ===== TV (телевизор как отдельный слой) ===== */
+/* medium 393×853: w=257 h=198, x=75 y=290 → центр (203.5, 389) */
+--tv-x-m:203.5;  --tv-y-m:389;   --tv-w-m:257; --tv-h-m:198;
+/* small 375×667: w=257 h=198, x=67 y=196 → центр (195.5, 295) */
+--tv-x-s:195.5;  --tv-y-s:295;   --tv-w-s:257; --tv-h-s:198;
+/* large 834×1194: w=420 h=323, x=232 y=445 → центр (442, 606.5) */
+--tv-x-l:442;    --tv-y-l:606.5; --tv-w-l:420; --tv-h-l:323;
 
   /* ===== photohereru (текст у пенька) ===== */
   /* medium: w=71 h=70, x=248 y=536 (→ center: 283.5, 571) */
@@ -472,6 +479,44 @@ html,body{
   background-repeat:no-repeat;
   background-size:contain;               /* сохраняем пропорции */
 }
+
+/* ТВ — по центро-координатам, под хотспотами */
+.decal--tv{
+  left:  calc(var(--tv-x-m)/var(--design-w)*100%);
+  top:   calc(var(--tv-y-m)/var(--design-h)*100%);
+  width: calc(var(--tv-w-m)/var(--design-w)*100%);
+  height:calc(var(--tv-h-m)/var(--design-h)*100%);
+
+  /* файл(ы) телевизора: поправь имя, если у тебя другое */
+  background-image: image-set(
+    url("./bgicons/tv.png") 1x,
+    url("./bgicons/tv@2x.png") 2x
+  );
+
+  z-index:24;                          /* ниже хотспотов (30+), выше фона */
+  filter: drop-shadow(0 8px 12px rgba(0,0,0,.35)); /* мягкая тень как у других */
+}
+
+/* small */
+@media (max-width:375px),(max-height:667px){
+  .decal--tv{
+    left:  calc(var(--tv-x-s)/var(--design-w)*100%);
+    top:   calc(var(--tv-y-s)/var(--design-h)*100%);
+    width: calc(var(--tv-w-s)/var(--design-w)*100%);
+    height:calc(var(--tv-h-s)/var(--design-h)*100%);
+  }
+}
+
+/* large */
+@media (min-width:768px),(min-height:1024px){
+  .decal--tv{
+    left:  calc(var(--tv-x-l)/var(--design-w)*100%);
+    top:   calc(var(--tv-y-l)/var(--design-h)*100%);
+    width: calc(var(--tv-w-l)/var(--design-w)*100%);
+    height:calc(var(--tv-h-l)/var(--design-h)*100%);
+  }
+}
+
 
 /* PHOTOHERERU (текст у пенька) — medium */
 .decal--photohereru{
