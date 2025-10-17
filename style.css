@@ -241,6 +241,26 @@ html,body{
   filter: drop-shadow(0 5px 1px rgba(0,0,0,.35));
 }
 
+/* small */
+@media (max-width:375px),(max-height:667px){
+  .anchor--tv{
+    left:  calc(var(--tv-x-s)/var(--design-w)*100%);
+    top:   calc(var(--tv-y-s)/var(--design-h)*100%);
+    width: calc(var(--tv-w-s)/var(--design-w)*100%);
+    height:calc(var(--tv-h-s)/var(--design-h)*100%);
+  }
+}
+
+/* large */
+@media (min-width:768px),(min-height:1024px){
+  .anchor--tv{
+    left:  calc(var(--tv-x-l)/var(--design-w)*100%);
+    top:   calc(var(--tv-y-l)/var(--design-h)*100%);
+    width: calc(var(--tv-w-l)/var(--design-w)*100%);
+    height:calc(var(--tv-h-l)/var(--design-h)*100%);
+  }
+}
+
 /* Листочек на ТВ — внутри якоря (проценты пересчитаны из твоих координат) */
 .anchor--tv .hotspot--wintable{
   position:absolute;
