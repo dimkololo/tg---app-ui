@@ -851,6 +851,83 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+// ===== Pixel-perfect hit по альфе PNG =====
+// Используем вектор события pointer (работает и на мыши, и на тач)
+
+function enableAlphaHit(el, imgURL, { threshold = 10 } = {}) {
+  if (!el) return;
+
+  // Готовим offscreen canvas один раз
+  const img = new Image();
+  img.src = imgURL; // ВАЖНО: тот же origin (локальные файлы ок)
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  let ready = false, iw = 0, ih = 0;
+
+  img.onload = () => {
+    iw = img.naturalWidth;
+    ih = img.naturalHeight;
+    canvas.width = iw;
+    canvas.height = ih;
+    ctx.clearRect(0, 0, iw, ih);
+    ctx.drawImage(img, 0, 0);      // рисуем 1 раз
+    ready = true;
+  };
+
+  // проверяем альфу пикселя под курсором/пальцем
+  function isOpaque(ev) {
+    if (!ready) return true; // пока грузится — не блокируем клики
+
+    const r = el.getBoundingClientRect();
+    const ex = ev.clientX - r.left;
+    const ey = ev.clientY - r.top;
+
+    // У нас фон на ::before со стилем background: center / contain no-repeat.
+    // Посчитаем, где реально нарисовалась картинка внутри прямоугольника кнопки:
+    const scale = Math.min(r.width / iw, r.height / ih);
+    const drawnW = iw * scale;
+    const drawnH = ih * scale;
+    const offX = (r.width  - drawnW) / 2;
+    const offY = (r.height - drawnH) / 2;
+
+    // Если попали мимо области, где лежит картинка — считаем прозрачным
+    if (ex < offX || ey < offY || ex > offX + drawnW || ey > offY + drawnH) return false;
+
+    // Переводим координату в пиксели исходной картинки и читаем альфу
+    const ix = Math.floor((ex - offX) / scale);
+    const iy = Math.floor((ey - offY) / scale);
+    if (ix < 0 || iy < 0 || ix >= iw || iy >= ih) return false;
+
+    const a = ctx.getImageData(ix, iy, 1, 1).data[3]; // 0..255
+    return a > threshold; // чуть выше нуля, чтобы не цеплять полу-пустые края
+  }
+
+  // Рубим «сквозняк» на фазе захвата, до твоих обработчиков
+  const guard = (ev) => {
+    if (!isOpaque(ev)) {
+      ev.stopImmediatePropagation();
+      ev.preventDefault();
+      // по желанию можно на прозрачных местах «пробрасывать» клик под иконку,
+      // но это сложнее; сейчас просто игнорим.
+    }
+  };
+
+  // pointerdown — основной, click — страховка
+  el.addEventListener('pointerdown', guard, { capture: true, passive: false });
+  el.addEventListener('click',       guard, { capture: true, passive: false });
+}
+
+// ===== Примеры подключения (вызывай после DOMContentLoaded) =====
+document.addEventListener('DOMContentLoaded', () => {
+  enableAlphaHit(document.querySelector('.hotspot--actions'),  './bgicons/plam.png');
+  enableAlphaHit(document.querySelector('.hotspot--wintable'), './bgicons/wintable.png');
+  enableAlphaHit(document.querySelector('.hotspot--stump'),    './bgicons/stump.png');
+  enableAlphaHit(document.querySelector('.hotspot--gift'),     './bgicons/gift.png');
+  enableAlphaHit(document.querySelector('.hotspot--faq'),      './bgicons/faq.png');      // если есть
+  enableAlphaHit(document.querySelector('.hotspot--notebook'), './bgicons/notebook.png'); // если есть
+});
+
+
 
 
 
