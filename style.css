@@ -196,6 +196,79 @@ html,body{
   cursor: pointer;
 }
 
+/* Хотспот «Действия» */
+.hotspot--actions{
+  left:  calc(var(--actions-x-m)/var(--design-w)*100%);
+  top:   calc(var(--actions-y-m)/var(--design-h)*100%);
+  width: calc(var(--actions-w-m)/var(--design-w)*100%);
+  height:calc(var(--actions-h-m)/var(--design-h)*100%);
+  z-index: 30;
+}
+/* Иконка «Действия» поверх фона сцены */
+.hotspot--actions::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:center / contain no-repeat;
+  background-image:url("./bgicons/plam.png"); /* один ресурс (без @2x) */
+  pointer-events:none; /* чтобы клики шли в кнопку */
+  filter: drop-shadow(0 8px 4px rgba(0,0,0,.35)); /* мягкая тень (опционально) */
+}
+
+@media (max-width:375px),(max-height:667px){
+  .hotspot--actions{
+    left:  calc(var(--actions-x-s)/var(--design-w)*100%);
+    top:   calc(var(--actions-y-s)/var(--design-h)*100%);
+    width: calc(var(--actions-w-s)/var(--design-w)*100%);
+    height:calc(var(--actions-h-s)/var(--design-h)*100%);
+  }
+}
+@media (min-width:768px),(min-height:1024px){
+  .hotspot--actions{
+    left:  calc(var(--actions-x-l)/var(--design-w)*100%);
+    top:   calc(var(--actions-y-l)/var(--design-h)*100%);
+    width: calc(var(--actions-w-l)/var(--design-w)*100%);
+    height:calc(var(--actions-h-l)/var(--design-h)*100%);
+  }
+}
+
+/* Кликабельная зона по «листочку» */
+.hotspot--wintable{
+  left:  calc(var(--wintable-x-m)/var(--design-w)*100%);
+  top:   calc(var(--wintable-y-m)/var(--design-h)*100%);
+  width: calc(var(--wintable-w-m)/var(--design-w)*100%);
+  height:calc(var(--wintable-h-m)/var(--design-h)*100%);
+  z-index:32; /* чуть выше прочих хот-спотов, если нужно */
+}
+  /* Иконка «листочек на телевизоре» поверх зоны клика */
+.hotspot--wintable::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background: center / contain no-repeat;
+  /* если есть ретина-ресурс */
+  background-image: 
+    url("./bgicons/wintable.png");
+  pointer-events: none;                     /* клики идут в кнопку */
+  filter: drop-shadow(0 8px 4px rgba(0,0,0,.35)); /* мягкая тень */
+}
+
+@media (max-width:375px),(max-height:667px){
+  .hotspot--wintable{
+    left:  calc(var(--wintable-x-s)/var(--design-w)*100%);
+    top:   calc(var(--wintable-y-s)/var(--design-h)*100%);
+    width: calc(var(--wintable-w-s)/var(--design-w)*100%);
+    height:calc(var(--wintable-h-s)/var(--design-h)*100%);
+  }
+}
+@media (min-width:768px),(min-height:1024px){
+  .hotspot--wintable{
+    left:  calc(var(--wintable-x-l)/var(--design-w)*100%);
+    top:   calc(var(--wintable-y-l)/var(--design-h)*100%);
+    width: calc(var(--wintable-w-l)/var(--design-w)*100%);
+    height:calc(var(--wintable-h-l)/var(--design-h)*100%);
+  }
+}
 /* пенёк */
 .hotspot--stump{
   left:  calc(var(--stump-x-m)/var(--design-w)*100%);
@@ -266,7 +339,7 @@ html,body{
   background: center / contain no-repeat;
   background-image: url("./bgicons/notebook.png"); /* один ресурс (без @2x) */
   pointer-events: none;                              /* клики идут в кнопку */
-  filter: drop-shadow(0 8px 12px rgba(0,0,0,.35));   /* тень как у других */
+  filter: drop-shadow(0 8px 4px rgba(0,0,0,.35));   /* тень как у других */
 }
 
 /* лёгкий отклик по нажатию — по желанию */
@@ -509,7 +582,7 @@ html,body{
     url("./bgicons/tv.png");
 
   z-index:24;                          /* ниже хотспотов (30+), выше фона */
-  filter: drop-shadow(0 8px 12px rgba(0,0,0,.35)); /* мягкая тень как у других */
+  filter: drop-shadow(0 8px 4px rgba(0,0,0,.35)); /* мягкая тень как у других */
 }
 
 /* small */
@@ -1042,45 +1115,6 @@ html,body{
   display: none;
 }
 
-/* Кликабельная зона по «листочку» */
-.hotspot--wintable{
-  left:  calc(var(--wintable-x-m)/var(--design-w)*100%);
-  top:   calc(var(--wintable-y-m)/var(--design-h)*100%);
-  width: calc(var(--wintable-w-m)/var(--design-w)*100%);
-  height:calc(var(--wintable-h-m)/var(--design-h)*100%);
-  z-index:32; /* чуть выше прочих хот-спотов, если нужно */
-}
-  /* Иконка «листочек на телевизоре» поверх зоны клика */
-.hotspot--wintable::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background: center / contain no-repeat;
-  /* если есть ретина-ресурс */
-  background-image: 
-    url("./bgicons/wintable.png");
-  pointer-events: none;                     /* клики идут в кнопку */
-  filter: drop-shadow(0 8px 12px rgba(0,0,0,.35)); /* мягкая тень */
-}
-
-@media (max-width:375px),(max-height:667px){
-  .hotspot--wintable{
-    left:  calc(var(--wintable-x-s)/var(--design-w)*100%);
-    top:   calc(var(--wintable-y-s)/var(--design-h)*100%);
-    width: calc(var(--wintable-w-s)/var(--design-w)*100%);
-    height:calc(var(--wintable-h-s)/var(--design-h)*100%);
-  }
-}
-@media (min-width:768px),(min-height:1024px){
-  .hotspot--wintable{
-    left:  calc(var(--wintable-x-l)/var(--design-w)*100%);
-    top:   calc(var(--wintable-y-l)/var(--design-h)*100%);
-    width: calc(var(--wintable-w-l)/var(--design-w)*100%);
-    height:calc(var(--wintable-h-l)/var(--design-h)*100%);
-  }
-}
-
-
 /* Сделать карточку диалога сплошной как в FAQ */
 .modal--opaque .modal__dialog{
   background: var(--chip);
@@ -1280,42 +1314,6 @@ html,body{
   padding-bottom: 8px;           /* было 12px */
 }
 
-
-/* Хотспот «Действия» */
-.hotspot--actions{
-  left:  calc(var(--actions-x-m)/var(--design-w)*100%);
-  top:   calc(var(--actions-y-m)/var(--design-h)*100%);
-  width: calc(var(--actions-w-m)/var(--design-w)*100%);
-  height:calc(var(--actions-h-m)/var(--design-h)*100%);
-  z-index: 30;
-}
-/* Иконка «Действия» поверх фона сцены */
-.hotspot--actions::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:center / contain no-repeat;
-  background-image:url("./bgicons/plam.png"); /* один ресурс (без @2x) */
-  pointer-events:none; /* чтобы клики шли в кнопку */
-  filter: drop-shadow(0 8px 12px rgba(0,0,0,.35)); /* мягкая тень (опционально) */
-}
-
-@media (max-width:375px),(max-height:667px){
-  .hotspot--actions{
-    left:  calc(var(--actions-x-s)/var(--design-w)*100%);
-    top:   calc(var(--actions-y-s)/var(--design-h)*100%);
-    width: calc(var(--actions-w-s)/var(--design-w)*100%);
-    height:calc(var(--actions-h-s)/var(--design-h)*100%);
-  }
-}
-@media (min-width:768px),(min-height:1024px){
-  .hotspot--actions{
-    left:  calc(var(--actions-x-l)/var(--design-w)*100%);
-    top:   calc(var(--actions-y-l)/var(--design-h)*100%);
-    width: calc(var(--actions-w-l)/var(--design-w)*100%);
-    height:calc(var(--actions-h-l)/var(--design-h)*100%);
-  }
-}
 
 /* Попап «Действия» (используем твои общие стили + чуть дополнений) */
 .actions-popup{
