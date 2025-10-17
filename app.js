@@ -943,14 +943,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Быстрый самотест: пишем размеры и наличие пенька в консоль
-  window.setTimeout(()=>{
-    ['stump','plus','gift','notebook'].forEach(name=>{
-      const el = document.querySelector(`.hotspot--${name}`);
-      if (!el) { console.warn('нет хот-спота:', name); return; }
-      const r = el.getBoundingClientRect();
-      console.log(`hotspot:${name}`, r.width.toFixed(1), '×', r.height.toFixed(1), 'at', r.left.toFixed(1), r.top.toFixed(1));
-    });
-  }, 0);
 })();
 
