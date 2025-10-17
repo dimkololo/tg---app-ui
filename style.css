@@ -1351,7 +1351,7 @@ html,body{
   width:  calc(var(--plane-w-m)/var(--design-w)*100%);
   height: calc(var(--plane-h-m)/var(--design-h)*100%);
 
-  z-index:26;
+  z-index:23;
   pointer-events:none;
 
   /* Гиф растягиваем под контейнер без обрезки и стартуем от левого края */
