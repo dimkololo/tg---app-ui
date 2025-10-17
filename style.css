@@ -228,6 +228,7 @@ html,body{
   width: calc(var(--tv-w-m)/var(--design-w)*100%);
   height:calc(var(--tv-h-m)/var(--design-h)*100%);
   z-index:24; /* ниже иконок, выше фона */
+  container-type: size; /* ← это главное */
 }
 
 /* сам телевизор как фон у якоря */
