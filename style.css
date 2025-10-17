@@ -247,7 +247,7 @@ html,body{
   top:  41.414%;
   width: 29.961%;
   height:54.545%;
-  transform: translate(-50%, -50%);
+  transform: translate3d(-50%, -50%, 0);
   z-index:32; /* поверх тв */
 }
 
