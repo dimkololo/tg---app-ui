@@ -368,14 +368,6 @@ html,body{
   transform: translate3d(-50%, -50%, 0) scale(.98);
 }
 
-/* пенёк */
-.hotspot--stump{
-  left:  calc(var(--stump-x-m)/var(--design-w)*100%);
-  top:   calc(var(--stump-y-m)/var(--design-h)*100%);
-  width: calc(var(--stump-w-m)/var(--design-w)*100%);
-  height:calc(var(--stump-h-m)/var(--design-h)*100%);
-  z-index:30;
-}
 
 /* Иконка пня как фон у хотспота (APNG) */
 .hotspot--stump::before{
@@ -502,12 +494,6 @@ html,body{
 /* ====== small ====== */
 @media (max-width:375px),(max-height:667px){
   .stage{--design-w:var(--sw); --design-h:var(--sh)}
-  .hotspot--stump{
-    left:  calc(var(--stump-x-s)/var(--design-w)*100%);
-    top:   calc(var(--stump-y-s)/var(--design-h)*100%);
-    width: calc(var(--stump-w-s)/var(--design-w)*100%);
-    height:calc(var(--stump-h-s)/var(--design-h)*100%);
-  }
   .hotspot--plus{
     left:calc(var(--plus-x-s)/var(--design-w)*100%); top:calc(var(--plus-y-s)/var(--design-h)*100%);
     width:calc(var(--plus-w-s)/var(--design-w)*100%); height:calc(var(--plus-h-s)/var(--design-h)*100%);
@@ -532,12 +518,6 @@ html,body{
 /* ====== large ====== */
 @media (min-width:768px),(min-height:1024px){
   .stage{--design-w:var(--lw); --design-h:var(--lh)}
-  .hotspot--stump{
-    left:  calc(var(--stump-x-l)/var(--design-w)*100%);
-    top:   calc(var(--stump-y-l)/var(--design-h)*100%);
-    width: calc(var(--stump-w-l)/var(--design-w)*100%);
-    height:calc(var(--stump-h-l)/var(--design-h)*100%);
-  }
   .hotspot--plus{
     left:calc(var(--plus-x-l)/var(--design-w)*100%); top:calc(var(--plus-y-l)/var(--design-h)*100%);
     width:calc(var(--plus-w-l)/var(--design-w)*100%); height:calc(var(--plus-h-l)/var(--design-h)*100%);
