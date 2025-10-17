@@ -14,20 +14,14 @@
 --tv-x-l:410;    --tv-y-l:550; --tv-w-l:420; --tv-h-l:323;
 
   /* ===== photohereru (текст у пенька) ===== */
-  /* medium: w=71 h=70, x=248 y=536 (→ center: 283.5, 571) */
   --photohereru-x-m:283.5;  --photohereru-y-m:571;   --photohereru-w-m:71;  --photohereru-h-m:70;
-  /* small: w=56 h=55, x=232 y=436 (→ center: 260, 463.5) */
   --photohereru-x-s:260;    --photohereru-y-s:463.5; --photohereru-w-s:56;  --photohereru-h-s:55;
-  /* large: w=105 h=103, x=498 y=826 (→ center: 550.5, 877.5) */
   --photohereru-x-l:550.5;  --photohereru-y-l:877.5; --photohereru-w-l:105; --photohereru-h-l:103;
 
   /* ===== wintable (листочек на телевизор) ===== */
-  /* medium: w=77 h=108, x=284 y=318 (→ center: 322.5, 372) */
   --wintable-x-m:322.5;  --wintable-y-m:372;   --wintable-w-m:77;  --wintable-h-m:108;
-  /* small: w=52 h=74, x=263 y=282 (→ center: 289, 319) */
-  --wintable-x-s:289;    --wintable-y-s:319;   --wintable-w-s:52;  --wintable-h-s:74;
-  /* large: w=94 h=133, x=562 y=530 (→ center: 609, 596.5) */
-  --wintable-x-l:609;    --wintable-y-l:596.5; --wintable-w-l:94;  --wintable-h-l:133;
+  --wintable-x-s:300;    --wintable-y-s:290;   --wintable-w-s:52;  --wintable-h-s:74;
+  --wintable-x-l:590;    --wintable-y-l:565; --wintable-w-l:94;  --wintable-h-l:133;
 
   /* дизайн-холсты */
   --mw:393; --mh:853;      /* medium */
@@ -36,11 +30,11 @@
 
   /* ПЕНЁК — координаты центра и размеры (в пикселях макета) */
   --stump-x-m:300; --stump-y-m:540; --stump-w-m:170; --stump-h-m:142;
-  --stump-x-s:280; --stump-y-s:442; --stump-w-s:145; --stump-h-s:121;   /* обновлено */
+  --stump-x-s:300; --stump-y-s:442; --stump-w-s:145; --stump-h-s:121;   /* обновлено */
   --stump-x-l:580; --stump-y-l:840; --stump-w-l:238; --stump-h-l:198;
 
   /* Плюс-облако (иконка выведена слоем ::before) */
-  --plus-x-m:290; --plus-y-m:145; --plus-w-m:190; --plus-h-m:90;
+  --plus-x-m:290; --plus-y-m:135; --plus-w-m:190; --plus-h-m:90;
   --plus-x-s:277; --plus-y-s:100; --plus-w-s:181; --plus-h-s:70;       /* обновлено */
   --plus-x-l:640; --plus-y-l:145; --plus-w-l:320; --plus-h-l:140;
 
@@ -61,22 +55,19 @@
   --notebook-x-l:160; --notebook-y-l:1070; --notebook-w-l:225; --notebook-h-l:177;
 
   /* FAQ-облако (часть фона, слева от плюс-облака) — подгони размеры/координаты под макет */
-  --faq-x-m: 80;  --faq-y-m: 145;  --faq-w-m: 130; --faq-h-m: 85;   /* medium */
+  --faq-x-m: 80;  --faq-y-m: 135;  --faq-w-m: 130; --faq-h-m: 85;   /* medium */
   --faq-x-s: 80;  --faq-y-s: 100;  --faq-w-s: 140; --faq-h-s: 75;   /* small  (обновлено) */
   --faq-x-l: 140;  --faq-y-l: 145;  --faq-w-l: 240; --faq-h-l: 120;  /* large  */
 
   /* Хотспот «Действия» (центр-координаты) */
   --actions-x-m: 110;  --actions-y-m: 510;  --actions-w-m: 198; --actions-h-m: 272;
-  --actions-x-s: 105;   --actions-y-s: 430;    --actions-w-s: 158; --actions-h-s: 217;
-  --actions-x-l: 225;   --actions-y-l: 780;    --actions-w-l: 302; --actions-h-l: 416;
+  --actions-x-s: 85;   --actions-y-s: 430;    --actions-w-s: 158; --actions-h-s: 217;
+  --actions-x-l: 245;   --actions-y-l: 755;    --actions-w-l: 302; --actions-h-l: 416;
 
   /* самолет */
 
-   /* medium 393×853 */
   --plane-y-m: 100;  --plane-w-m: 393;  --plane-h-m: 263.94;
-  /* small 375×667 */
   --plane-y-s: 70;  --plane-w-s: 375;  --plane-h-s: 251.85;
-  /* large 834×1194 */
   --plane-y-l: 100;  --plane-w-l: 834; --plane-h-l: 560.11;
   
 }
@@ -597,6 +588,7 @@ html,body{
   top:   calc(var(--photohereru-y-m)/var(--design-h)*100%);
   width: calc(var(--photohereru-w-m)/var(--design-w)*100%);
   height:calc(var(--photohereru-h-m)/var(--design-h)*100%);
+  z-index:24;
   background-image:image-set(
     url("./bgicons/photohereru.png") 1x,
     url("./bgicons/photohereru@2x.png") 2x
