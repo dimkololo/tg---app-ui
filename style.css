@@ -196,6 +196,7 @@ html,body{
 /* легкий «отклик» по нажатию — по желанию */
 .hotspot--actions:active{
   transform: translate3d(-50%, -50%, 0) scale(.98);
+}
 
 @media (max-width:375px),(max-height:667px){
   .hotspot--actions{
@@ -239,6 +240,7 @@ html,body{
   /* легкий «отклик» по нажатию — по желанию */
 .hotspot--wintable:active{
   transform: translate3d(-50%, -50%, 0) scale(.98);
+}
 
 @media (max-width:375px),(max-height:667px){
   .hotspot--wintable{
@@ -312,6 +314,7 @@ html,body{
 /* легкий «отклик» по нажатию — по желанию */
 .hotspot--gift:active{
   transform: translate3d(-50%, -50%, 0) scale(.98);
+}
 
 
 /* дневник */
@@ -362,6 +365,7 @@ html,body{
   /* легкий «отклик» по нажатию — по желанию */
 .hotspot--plus:active{
   transform: translate3d(-50%, -50%, 0) scale(.98);
+}
 
 /* контент внутри облака — поверх фона */
 .hotspot--plus .plus-ui{
@@ -494,6 +498,7 @@ html,body{
   /* легкий «отклик» по нажатию — по желанию */
 .hotspot--faq:active{
   transform: translate3d(-50%, -50%, 0) scale(.98);
+}
 
 
 /* small */
