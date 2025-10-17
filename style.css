@@ -93,53 +93,41 @@ html,body{
 /* фон подложки = цвет неба */
 /* фон подложки = цвет неба */
 .scene{
-  background: var(--sky);                  /* цвет неба */
+  /* уже есть */
   position: relative;
   display: grid;
-  place-items: end center;                /* ← прижимаем сцену к НИЗУ */
+  place-items: end center;
   width: 100vw;
   height: 100svh;
   overflow: hidden;
+
+  /* НОВОЕ: один универсальный фон */
+  background-color: var(--sky);                  /* базовый цвет под картинку */
+  background-image: url("./bgicons/bg-master.png"); /* <-- ваш большой фон */
+  background-size: cover;                        /* закрыть весь экран */
+  background-repeat: no-repeat;
+  background-position: 50% 100%;                 /* центр-низ (см. примечание ниже) */
 }
 @supports (height: 100dvh){
-  .scene{ height: 100dvh; }               /* стабильней на iOS/Android */
+  .scene{ height: 100dvh; }                      /* стабильней на мобилках */
 }
 
-.scene::before{
-  content:"";
-  position:absolute;
-  top:0; left:0; right:0;
-  height:max(env(safe-area-inset-top), 12px);  /* 8–12px можно менять */
-  background: var(--sky);                      /* цвет верхней кромки неба */
-  pointer-events:none;
-  z-index:1;
-}
 
 /* Сцена — размер задаёт картинка */
 .stage{
   position: relative;
-  display: inline-block;     /* ширина/высота = картинке */
-  max-width: 100vw;
-  max-height: 100svh;
-  overflow: visible;         /* важное: не прятать, пусть хот-споты совпадают */
-  /* ↑ ДОБАВИТЬ базовые дизайн-размеры (medium) */
+  display: block;         /* можно и inline-block, но block надёжнее */
+  width: 100vw;
+  height: 100svh;         /* важное: реальная высота контейнера */
+  overflow: visible;
+
+  /* как и было — «дизайн-холсты» для пересчёта координат */
   --design-w: var(--mw);
   --design-h: var(--mh);
 }
-
-.stage picture{ display:block; }
-.stage__img{
-  display:block;
-  width: auto;
-  height: auto;
-  max-width: 100vw;
-  max-height: 100svh;
-  object-fit: contain;       /* НИЧЕГО не кадрируем */
-  object-position: 50% 100%; 
-  pointer-events:none;
+@supports (height: 100dvh){
+  .stage{ height: 100dvh; }
 }
-
-
 
 /* SMALL: маленький холст */
 @media (max-width:375px),(max-height:667px){
