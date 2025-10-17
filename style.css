@@ -64,6 +64,12 @@
   --actions-x-s: 95;   --actions-y-s: 400;    --actions-w-s: 158; --actions-h-s: 217;
   --actions-x-l: 245;   --actions-y-l: 755;    --actions-w-l: 302; --actions-h-l: 416;
 
+  /* меньшая зона клика для Actions */
+--actions-hit-w-m: 140; --actions-hit-h-m: 190;  /* ~70% от 198×272 */
+--actions-hit-w-s: 125; --actions-hit-h-s: 172;  /* ~70% от 178×245 */
+--actions-hit-w-l: 212; --actions-hit-h-l: 292;  /* ~70% от 302×416 */
+
+
   /* самолет */
 
   --plane-y-m: 100;  --plane-w-m: 393;  --plane-h-m: 263.94;
@@ -172,41 +178,57 @@ html,body{
   cursor: pointer;
 }
 
-/* Хотспот «Действия» */
+/* ХИТ-ОБЛАСТЬ = меньше, центр в тех же координатах */
 .hotspot--actions{
   left:  calc(var(--actions-x-m)/var(--design-w)*100%);
   top:   calc(var(--actions-y-m)/var(--design-h)*100%);
-  width: calc(var(--actions-w-m)/var(--design-w)*100%);
-  height:calc(var(--actions-h-m)/var(--design-h)*100%);
+  width: calc(var(--actions-hit-w-m)/var(--design-w)*100%);
+  height:calc(var(--actions-hit-h-m)/var(--design-h)*100%);
   z-index: 30;
 }
-/* Иконка «Действия» поверх фона сцены */
+
+/* КАРТИНКА = прежнего (большого) размера, центрирована внутри кнопки */
 .hotspot--actions::before{
   content:"";
   position:absolute;
-  inset:0;
+  left:50%; top:50%;
+  width:  calc(var(--actions-w-m)/var(--design-w)*100%);
+  height: calc(var(--actions-h-m)/var(--design-h)*100%);
+  transform: translate(-50%, -50%);
   background:center / contain no-repeat;
-  background-image:url("./bgicons/plam.png"); /* один ресурс (без @2x) */
-  pointer-events:none; /* чтобы клики шли в кнопку */
-  filter: drop-shadow(0 5px 1px rgba(0,0,0,.35)); /* мягкая тень (опционально) */
+  background-image: url("./bgicons/plam.png");
+  pointer-events: none; /* клики идут ТОЛЬКО в кнопку (меньшую) */
+  filter: drop-shadow(0 5px 1px rgba(0,0,0,.35));
 }
 
+/* small */
 @media (max-width:375px),(max-height:667px){
   .hotspot--actions{
     left:  calc(var(--actions-x-s)/var(--design-w)*100%);
     top:   calc(var(--actions-y-s)/var(--design-h)*100%);
-    width: calc(var(--actions-w-s)/var(--design-w)*100%);
-    height:calc(var(--actions-h-s)/var(--design-h)*100%);
+    width: calc(var(--actions-hit-w-s)/var(--design-w)*100%);
+    height:calc(var(--actions-hit-h-s)/var(--design-h)*100%);
+  }
+  .hotspot--actions::before{
+    width:  calc(var(--actions-w-s)/var(--design-w)*100%);
+    height: calc(var(--actions-h-s)/var(--design-h)*100%);
   }
 }
+
+/* large */
 @media (min-width:768px),(min-height:1024px){
   .hotspot--actions{
     left:  calc(var(--actions-x-l)/var(--design-w)*100%);
     top:   calc(var(--actions-y-l)/var(--design-h)*100%);
-    width: calc(var(--actions-w-l)/var(--design-w)*100%);
-    height:calc(var(--actions-h-l)/var(--design-h)*100%);
+    width: calc(var(--actions-hit-w-l)/var(--design-w)*100%);
+    height:calc(var(--actions-hit-h-l)/var(--design-h)*100%);
+  }
+  .hotspot--actions::before{
+    width:  calc(var(--actions-w-l)/var(--design-w)*100%);
+    height: calc(var(--actions-h-l)/var(--design-h)*100%);
   }
 }
+
 
 /* Кликабельная зона по «листочку» */
 .hotspot--wintable{
