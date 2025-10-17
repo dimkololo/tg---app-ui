@@ -20,25 +20,24 @@
     <button class="hotspot hotspot--actions" type="button" aria-label="Открыть меню действий"></button>
 
 
-<!-- декоративные наклейки поверх фона -->
-<div class="decal decal--photohereru" aria-hidden="true"></div>
-<!-- декоративный слой: телевизор (под хотспотами) -->
-<div class="decal decal--tv" aria-hidden="true"></div>
-
-
       
-<!-- Кликабельная зона по листочку на телевизоре -->
-<button class="hotspot hotspot--wintable" type="button" aria-label="Таблица лидеров"></button>
-
+<!-- Кликабельная зона по листочку на телевизоре в якоре -->
+<div class="anchor anchor--tv">
+  <button class="hotspot hotspot--wintable" aria-label="Лидеры"></button>
+</div>
 
 
       <!-- Хот-споты -->
+  <div class="anchor anchor--stump">
       <button
         class="hotspot hotspot--stump"
         type="button"
         data-open-modal="upload-popup"
         aria-label="Открыть попап загрузки"
       ></button>
+      <!-- декоративные наклейки поверх фона -->
+      <div class="decal decal--photohereru" aria-hidden="true"></div>
+  </div>
 
       <!-- Плюс-облако отдельным слоем с индикатором баланса -->
       <button
