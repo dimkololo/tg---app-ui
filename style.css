@@ -18,10 +18,10 @@
   --photohereru-x-s:270;    --photohereru-y-s:465; --photohereru-w-s:65;  --photohereru-h-s:60;
   --photohereru-x-l:560;  --photohereru-y-l:877.5; --photohereru-w-l:110; --photohereru-h-l:102;
 
-  /* ===== wintable (листочек на телевизор) ===== */
+  /* ===== wintable (листочек на телевизор) 
   --wintable-x-m:322.5;  --wintable-y-m:372;   --wintable-w-m:77;  --wintable-h-m:108;
   --wintable-x-s:300;    --wintable-y-s:290;   --wintable-w-s:52;  --wintable-h-s:74;
-  --wintable-x-l:590;    --wintable-y-l:535; --wintable-w-l:94;  --wintable-h-l:133;
+  --wintable-x-l:590;    --wintable-y-l:535; --wintable-w-l:94;  --wintable-h-l:133; ===== */
 
   /* дизайн-холсты */
   --mw:393; --mh:853;      /* medium */
