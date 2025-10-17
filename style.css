@@ -684,36 +684,10 @@ html,body{
 
 /* PHOTOHERERU (текст у пенька) — medium */
 .decal--photohereru{
-  left:  calc(var(--photohereru-x-m)/var(--design-w)*100%);
-  top:   calc(var(--photohereru-y-m)/var(--design-h)*100%);
-  width: calc(var(--photohereru-w-m)/var(--design-w)*100%);
-  height:calc(var(--photohereru-h-m)/var(--design-h)*100%);
   z-index:31;
   background-image:
     url("./bgicons/photohereru.png");
 }
-
-
-@media (max-width:375px),(max-height:667px){
-  
-  .decal--photohereru{
-    left:  calc(var(--photohereru-x-s)/var(--design-w)*100%);
-    top:   calc(var(--photohereru-y-s)/var(--design-h)*100%);
-    width: calc(var(--photohereru-w-s)/var(--design-w)*100%);
-    height:calc(var(--photohereru-h-s)/var(--design-h)*100%);
-  }
-  
-}
-@media (min-width:768px),(min-height:1024px){
-  
-  .decal--photohereru{
-    left:  calc(var(--photohereru-x-l)/var(--design-w)*100%);
-    top:   calc(var(--photohereru-y-l)/var(--design-h)*100%);
-    width: calc(var(--photohereru-w-l)/var(--design-w)*100%);
-    height:calc(var(--photohereru-h-l)/var(--design-h)*100%);
- 
-}
-}  
   
 
 /* ====== попапы: общие ====== */
