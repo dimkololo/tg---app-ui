@@ -45,12 +45,12 @@
   --plus-padleft-m:50px;
 
   /* Подарок */
-  --gift-x-m:305; --gift-y-m:740; --gift-w-m:115; --gift-h-m:120;
+  --gift-x-m:305; --gift-y-m:760; --gift-w-m:115; --gift-h-m:120;
   --gift-x-s:291; --gift-y-s:590; --gift-w-s:98; --gift-h-s:102;       /* обновлено */
   --gift-x-l:680; --gift-y-l:1070; --gift-w-l:162; --gift-h-l:168;
 
   /* Дневник */
-  --notebook-x-m:110; --notebook-y-m:740; --notebook-w-m:157; --notebook-h-m:123;
+  --notebook-x-m:110; --notebook-y-m:760; --notebook-w-m:157; --notebook-h-m:123;
   --notebook-x-s:105; --notebook-y-s:590; --notebook-w-s:135; --notebook-h-s:106; /* обновлено */
   --notebook-x-l:160; --notebook-y-l:1070; --notebook-w-l:225; --notebook-h-l:177;
 
