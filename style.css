@@ -1437,13 +1437,14 @@ html,body{
 
 /* Большой таймер над кнопкой в попапе загрузки */
 .upload-popup [data-cd-text]{
-  display: block;
-  font-weight: 800;
-  font-size: 22px;
-  line-height: 1.2;
-  text-align: center;
-  margin-bottom: 12px;
-  user-select: none;
+  display:block;
+  color:#BABABA;
+  font-weight:800;
+  font-size:22px;
+  line-height:1.2;
+  text-align:center;
+  margin-bottom:12px;
+  user-select:none;
 }
 
 /* Кнопка отправки по умолчанию (если нет своих стилей — можно оставить) */
@@ -1486,16 +1487,6 @@ html,body{
 
 .upload-popup .btn-submit{ width:100%; }
 .upload-popup .btn-submit[disabled]{ opacity:.5; pointer-events:none; }
-
-/* большой таймер над кнопкой в попапе загрузки */
-.upload-popup [data-cd-text]{
-  color:#BABABA;              /* ← вот эта строка управляет цветом */
-  font-weight:800;
-  font-size:22px;
-  line-height:1.2;
-  text-align:center;
-  margin-bottom:12px;
-}
 
 .btn-pay--green{
   background: var(--plam-green);
