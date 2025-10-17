@@ -59,9 +59,9 @@
   --gift-x-l:680; --gift-y-l:1070; --gift-w-l:162; --gift-h-l:168;
 
   /* Дневник */
-  --notebook-x-m:110; --notebook-y-m:740; --notebook-w-m:150; --notebook-h-m:120;
-  --notebook-x-s:105; --notebook-y-s:590; --notebook-w-s:133; --notebook-h-s:86; /* обновлено */
-  --notebook-x-l:160; --notebook-y-l:1070; --notebook-w-l:220; --notebook-h-l:160;
+  --notebook-x-m:110; --notebook-y-m:740; --notebook-w-m:157; --notebook-h-m:123;
+  --notebook-x-s:105; --notebook-y-s:590; --notebook-w-s:135; --notebook-h-s:106; /* обновлено */
+  --notebook-x-l:160; --notebook-y-l:1070; --notebook-w-l:225; --notebook-h-l:177;
 
   /* FAQ-облако (часть фона, слева от плюс-облака) — подгони размеры/координаты под макет */
   --faq-x-m: 80;  --faq-y-m: 145;  --faq-w-m: 130; --faq-h-m: 85;   /* medium */
