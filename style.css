@@ -188,7 +188,7 @@ html,body{
   background:center / contain no-repeat;
   background-image:url("./bgicons/plam.png"); /* один ресурс (без @2x) */
   pointer-events:none; /* чтобы клики шли в кнопку */
-  filter: drop-shadow(0 8px 4px rgba(0,0,0,.35)); /* мягкая тень (опционально) */
+  filter: drop-shadow(0 8px 0px rgba(0,0,0,.35)); /* мягкая тень (опционально) */
 }
 
 @media (max-width:375px),(max-height:667px){
@@ -226,7 +226,7 @@ html,body{
   background-image: 
     url("./bgicons/wintable.png");
   pointer-events: none;                     /* клики идут в кнопку */
-  filter: drop-shadow(0 8px 4px rgba(0,0,0,.35)); /* мягкая тень */
+  filter: drop-shadow(0 8px 0px rgba(0,0,0,.35)); /* мягкая тень */
 }
 
 @media (max-width:375px),(max-height:667px){
@@ -266,7 +266,7 @@ html,body{
     url("./bgicons/stump.png");
  
   /* ТЕНЬ ВОКРУГ СИЛУЭТА */
-  filter: drop-shadow(0 8px 4px rgba(0,0,0,.35));
+  filter: drop-shadow(0 8px 0px rgba(0,0,0,.35));
   will-change: filter;
   pointer-events:none;
   z-index:1; 
@@ -293,7 +293,7 @@ html,body{
   background-image: url("./bgicons/gift.png"); /* без @2x — ок */
   
   /* ТЕНЬ ВОКРУГ СИЛУЭТА */
-  filter: drop-shadow(0 8px 4px rgba(0,0,0,.35));
+  filter: drop-shadow(0 8px 0px rgba(0,0,0,.35));
   will-change: filter;
   pointer-events:none;
   z-index:1; 
@@ -315,7 +315,7 @@ html,body{
   background: center / contain no-repeat;
   background-image: url("./bgicons/notebook.png"); /* один ресурс (без @2x) */
   pointer-events: none;                              /* клики идут в кнопку */
-  filter: drop-shadow(0 8px 4px rgba(0,0,0,.35));   /* тень как у других */
+  filter: drop-shadow(0 8px 0px rgba(0,0,0,.35));   /* тень как у других */
 }
 
 /* лёгкий отклик по нажатию — по желанию */
