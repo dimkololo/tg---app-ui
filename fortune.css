@@ -127,7 +127,7 @@
   transform:
     translate(-50%, -50%)
     rotate(var(--a, 0deg))           /* поворот к центру сектора */
-    translateX(var(--R, 200px))      /* выносим на окружность */
+    translateX(var(--R, 150px))      /* выносим на окружность */
     rotate(90deg);                  /* «лицом» к центру */
 
   font-size: clamp(18px, 4.8vmin, 32px);  /* КРУПНЕЕ */
