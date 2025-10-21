@@ -30,6 +30,20 @@
   const STORAGE_ORDER = 'fortune_wheel_order_session'; // порядок чисел в текущей сессии
   const BALANCE_KEY = 'plam_balance';
 
+  // DEV: сбрасывать запрет на кручение при reload страницы
+(() => {
+  try {
+    const nav = performance.getEntriesByType?.('navigation')?.[0];
+    const isReload = nav ? nav.type === 'reload'
+                         : (performance.navigation && performance.navigation.type === 1); // старые браузеры
+    if (isReload) {
+      sessionStorage.removeItem('fortune_spun_session');      // снова разрешаем крутить
+      sessionStorage.removeItem('fortune_wheel_order_session'); // опционально: перемешать сектора заново
+    }
+  } catch {}
+})();
+
+
   // Если центр сектора на 3 часа (стрелка справа), обычно оффсет = 0.
   // Если увидишь систематический промах на половину сектора — подстрой на ±18.
   const ANGLE_OFFSET = 0; // градусов
