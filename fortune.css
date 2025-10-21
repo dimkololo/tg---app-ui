@@ -22,8 +22,8 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;          /* центр по горизонтали */
-  justify-content: flex-start;  /* от верха, чтобы кнопка не заезжала на колесо */
+  align-items: center;         
+  justify-content: flex-start;  
   gap: clamp(16px, 3vh, 28px);
   padding: clamp(12px, 3vh, 24px)
            env(safe-area-inset-right, 12px)
