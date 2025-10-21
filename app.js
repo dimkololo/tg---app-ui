@@ -9,6 +9,33 @@ window.PLAM = window.PLAM || {
   cooldownUntil: null // ← когда закончится кулдаун (ms), null если нет кулдауна
 };
 
+// --- Баланс: общий кошелёк между страницами ---
+const BALANCE_KEY = 'plam_balance';
+
+function getBalanceLS(){
+  return parseInt(localStorage.getItem(BALANCE_KEY) || '0', 10);
+}
+function setBalanceLS(v){
+  localStorage.setItem(BALANCE_KEY, String(v));
+}
+function persistBalance(){
+  setBalanceLS(window.PLAM.balance || 0);
+}
+function syncBalanceFromLS(){
+  window.PLAM.balance = getBalanceLS();
+  updatePlusBalanceUI();
+}
+
+// при первом старте и при возврате со страницы колеса подтягиваем свежие данные
+window.addEventListener('DOMContentLoaded', syncBalanceFromLS);
+window.addEventListener('pageshow', syncBalanceFromLS);
+
+// если баланс изменился в другой вкладке/странице — обновим облако плюс
+window.addEventListener('storage', (e) => {
+  if (e.key === BALANCE_KEY) syncBalanceFromLS();
+});
+
+
 
 // --- Автозакрытие через 15 минут (анти-автозагрузка/макросы) ---
 (function setupAutoClose(){
