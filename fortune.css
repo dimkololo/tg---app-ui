@@ -75,7 +75,7 @@
   position: fixed;
   left: 12px;
   /* опускаем ниже системной панели Telegram */
-  top: calc(env(safe-area-inset-top, 0px) + var(--tg-topbar, 64px));
+  top: calc(env(safe-area-inset-top, 0px) + var(--tg-topbar, 54px));
 
   z-index: 300;
 
@@ -85,8 +85,8 @@
   border-radius: 24px;
 
   background:#fff;         /* белая */
-  color:#000;
-  font-weight:800;
+  color:#fff;
+  font-weight:700;
   font-size: 18px;         /* крупнее шрифт */
   border:0; cursor:pointer;
 
