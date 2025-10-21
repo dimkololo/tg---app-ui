@@ -114,6 +114,13 @@
     spinning = true;
     btnSpin.setAttribute('disabled', 'true');
 
+    // 👉 Стрелка "wiggle" в НАЧАЛЕ
+  if (pointer) {
+    pointer.classList.remove('wiggle'); // сброс, если класс уже был
+    void pointer.offsetWidth;           // рефлоу для перезапуска анимации
+    pointer.classList.add('wiggle');    // поехали
+  }
+
     const targetIndex = Math.floor(Math.random() * SECTORS);
     const prizePLAMc = order[targetIndex];
 
@@ -152,14 +159,6 @@
       // тост
       showToast(`+${prizePLAMc} PLAMc`);
     
-
-// анимация стрелки
-if (pointer) {
-  pointer.classList.remove('wiggle'); // перезапустить, если уже была
-  // force reflow
-  void pointer.offsetWidth;
-  pointer.classList.add('wiggle');
-}
       // перед выходом из onDone():
     sessionStorage.setItem('fortune_last_win', String(prizePLAMc)); // << для главной
     };
