@@ -11,7 +11,7 @@
   /* ...твои переменные... */
   --tv-ar-m: 257 / 198;  /* w/h из макета для medium */
   --tv-ar-s: 226 / 174;  /* small */
-  --tv-ar-l: 320 / 223;  /* large */
+  --tv-ar-l: 257 / 198;  /* large */
 
   /* ===== TV (телевизор как отдельный слой) ===== */
 --tv-x-m:200;  --tv-y-m:375;   --tv-w-m:257; --tv-h-m:198;
@@ -290,7 +290,7 @@ html,body{
 }
 
 /* Когда телевизор большой (≈420px ширины) — LARGE */
-@container (min-width: 450px){
+@container (min-width: 550px){
   .anchor--tv .hotspot--wintable{
     left: 92.857%;
     top:  45.356%;
