@@ -105,32 +105,36 @@
   }
 }
 
-/* цифры поверх PNG, радиус в PX от размера колеса */
+/* цифры: радиус вынесен в переменную; можно подстроить 0.40–0.45 */
 .wheel__numbers{
   position: absolute;
   inset: 0;
   z-index: 2;
   pointer-events: none;
-  --R: calc(var(--wheel-size) * 0.42); /* подгони 0.40–0.45 */
-  font-weight: 800;
+
+  --R: calc(var(--wheel-size) * 0.42);
+
+  font-weight: 900;
   color: #fff;
   text-shadow: 0 2px 4px rgba(0,0,0,.45);
 }
 
-
-/* ключевой фикс: используем translateX, и даём фолбэки переменным */
+/* КЛЮЧЕВОЕ: «повернуть к центру» и увеличить размер */
 .wheel__label{
   position: absolute;
   left: 50%;
   top: 50%;
   transform:
     translate(-50%, -50%)
-    rotate(var(--a, 0deg))
-    translateX(var(--R, 200px))
-    rotate(calc(-1 * var(--a, 0deg)));
-  font-size: clamp(12px, 3vmin, 18px);
+    rotate(var(--a, 0deg))           /* поворот к центру сектора */
+    translateX(var(--R, 200px))      /* выносим на окружность */
+    rotate(180deg);                  /* «лицом» к центру */
+
+  font-size: clamp(18px, 4.8vmin, 32px);  /* КРУПНЕЕ */
   line-height: 1;
-  white-space: nowrap;
+  letter-spacing: .02em;
+  text-align: center;
+  user-select: none;
 }
 
 /* чтобы поворот шел от центра контейнера */
