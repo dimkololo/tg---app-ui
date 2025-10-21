@@ -126,7 +126,7 @@
   top: 50%;
   transform:
     translate(-50%, -50%)
-    rotate(var(--a, 0deg))           /* поворот к центру сектора */
+    rotate(var(--a, 45deg))           /* поворот к центру сектора */
     translateX(var(--R, 200px))      /* выносим на окружность */
     rotate(180deg);                  /* «лицом» к центру */
 
