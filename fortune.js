@@ -10,9 +10,11 @@
   const numbersBox =
     document.getElementById('wheelNumbers') ||
     document.querySelector('.wheel__numbers');
+  
 
   const btnSpin = document.getElementById('btnSpin') || document.querySelector('.btn-spin');
   const btnBack = document.getElementById('btnBack') || document.querySelector('.btn-back');
+  const note = document.getElementById('spinNote');
 
   if (!rotor || !btnSpin) {
     console.error('[fortune] Не найдено колесо или кнопка вращения.');
@@ -124,16 +126,19 @@
       rotor.removeEventListener('transitionend', onDone);
       clearTimeout(safety);
 
-      // начисляем монеты
-      addToBalance(prizePLAMc);
+       // начисляем монеты
+      const newBalance = addToBalance(prizePLAMc);
 
       // помечаем, что крутилось в этой сессии
       markSpun();
 
       spinning = false;
       updateUI();
-      // Если нужно показывать выигрыш — здесь можно повесить свой toast/snackbar
-      // showToast(`+${prizePLAMc} PLAMc`);
+       // показать результат
+        if (note) {
+          note.hidden = false;
+          note.textContent = `Вы выиграли +${prizePLAMc} PLAMc. Баланс: ${newBalance} PLAMc.`;
+        }
     };
 
     rotor.addEventListener('transitionend', onDone, { once: true });
