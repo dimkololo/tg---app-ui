@@ -15,6 +15,7 @@
   const btnSpin = document.getElementById('btnSpin') || document.querySelector('.btn-spin');
   const btnBack = document.getElementById('btnBack') || document.querySelector('.btn-back');
   const note = document.getElementById('spinNote');
+  const pointer = document.querySelector('.wheel-pointer');
 
   if (!rotor || !btnSpin) {
     console.error('[fortune] Не найдено колесо или кнопка вращения.');
@@ -122,6 +123,14 @@
     rotor.style.transition = `transform ${SPIN_MS}ms cubic-bezier(0.12, 0.65, 0.06, 1)`;
     rotor.style.transform = `rotate(${currentTurns}deg)`;
 
+    function showToast(text){
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = text;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2400);
+}
+
     const onDone = () => {
       rotor.removeEventListener('transitionend', onDone);
       clearTimeout(safety);
@@ -139,7 +148,18 @@
           note.hidden = false;
           note.textContent = `Вы выиграли +${prizePLAMc} PLAMc. Баланс: ${newBalance} PLAMc.`;
         }
+      // тост
+showToast(`+${prizePLAMc} PLAMc`);
+
+// анимация стрелки
+if (pointer) {
+  pointer.classList.remove('wiggle'); // перезапустить, если уже была
+  // force reflow
+  void pointer.offsetWidth;
+  pointer.classList.add('wiggle');
+}
     };
+    
 
     rotor.addEventListener('transitionend', onDone, { once: true });
     const safety = setTimeout(onDone, SPIN_MS + 100); // страховка
