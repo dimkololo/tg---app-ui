@@ -18,58 +18,52 @@
 }
 
 /* именно этот контейнер должен быть вторым ребёнком .scene--fortune */
-/* было: grid; place-items/align-content — убираем */
+/* тело страницы – колонка, контент от верха */
 .fortune-body{
   min-height: 0;
-  display: flex;                 /* колонка вместо grid */
+  display: flex;
   flex-direction: column;
-  align-items: center;           /* по центру по горизонтали */
-  justify-content: center;       /* по центру по вертикали */
-  gap: clamp(14px, 3vh, 24px);
-  padding: 12px
+  align-items: center;          /* центр по горизонтали */
+  justify-content: flex-start;  /* от верха, чтобы кнопка не заезжала на колесо */
+  gap: clamp(16px, 3vh, 28px);
+  padding: clamp(12px, 3vh, 24px)
            env(safe-area-inset-right, 12px)
            max(24px, env(safe-area-inset-bottom, 12px))
            env(safe-area-inset-left, 12px);
 }
-/* на всякий — явно центрируем колесо и разводим слои */
-.wheel-stack{ 
+
+/* колесо */
+.wheel-stack{
+  position: relative;
+  --wheel-size: clamp(240px, 80vmin, 520px);
+  width:  var(--wheel-size);
+  height: var(--wheel-size);
   margin: 0 auto;
   z-index: 1;
 }
 
+/* сама картинка колеса */
 .wheel-img{
   position: absolute; inset: 0;
   width: 100%; height: 100%;
   object-fit: contain;
   transform-origin: 50% 50%;
-  will-change: transform;
+  z-index: 1;
 }
 
-/* стрелка */
-.wheel-pointer{
-  position: absolute;
-  right: -6%;
-  top: 50%;
-  transform: translateY(-50%);
-  width: clamp(28px, 7vw, 44px);
-  height: auto;
-  pointer-events: none;
-}
-
-/* кнопка */
+/* кнопка под колесом */
 .scene--fortune .btn-spin{
+  position: relative;
+  z-index: 2;
   display:inline-flex; align-items:center; justify-content:center;
   min-width:220px; height:56px; border-radius:35px;
   border:0; cursor:pointer;
   background:#FF7300; color:#fff; font-weight:800; font-size:18px;
   box-shadow:0 6px 14px rgba(255,115,0,.25);
-  position: relative;
-  z-index: 2; /* кнопка поверх колеса, если они соприкасаются */
 }
 .scene--fortune .btn-spin[disabled]{
   opacity:.5; pointer-events:none; cursor:default; filter:grayscale(.15);
 }
-
 
 /* назад */
 .btn-back{
@@ -84,25 +78,29 @@
 }
 .btn-back:active{ transform: translateY(1px); }
 
-/* контейнер цифр поверх PNG */
+/* цифры поверх PNG, радиус в PX от размера колеса */
 .wheel__numbers{
   position: absolute;
   inset: 0;
   z-index: 2;
   pointer-events: none;
-
-  /* радиус для меток: доля от размера колеса */
-  --R: calc(var(--wheel-size) * 0.42); /* подгони 0.40–0.45 под свою графику */
+  --R: calc(var(--wheel-size) * 0.42); /* подгони 0.40–0.45 */
   font-weight: 800;
   color: #fff;
   text-shadow: 0 2px 4px rgba(0,0,0,.45);
 }
 
-/* каждая метка сектора; --a приходит из JS (градусы) */
+
+/* ключевой фикс: используем translateX, и даём фолбэки переменным */
 .wheel__label{
   position: absolute;
-  left: 50%; top: 50%;
-  transform: translate(-50%,-50%) rotate(var(--a)) translate(var(--R)) rotate(calc(-1 * var(--a)));
+  left: 50%;
+  top: 50%;
+  transform:
+    translate(-50%, -50%)
+    rotate(var(--a, 0deg))
+    translateX(var(--R, 200px))
+    rotate(calc(-1 * var(--a, 0deg)));
   font-size: clamp(12px, 3vmin, 18px);
   line-height: 1;
   white-space: nowrap;
@@ -113,16 +111,25 @@
   transform-origin: 50% 50%;
 }
 
-/* ротор занимает всю область стека */
+/* ротор занимает весь круг и крутится из центра */
 .wheel-rotor{
   position: absolute;
   inset: 0;
   transform-origin: 50% 50%;
 }
+/* стрелка — сосед ротора, НЕ вращается */
+.wheel-pointer{
+  position: absolute;
+  right: -6%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: clamp(28px, 7vw, 44px);
+  height: auto;
+  pointer-events: none;
+  z-index: 5;
+}
 
-/* слои: PNG под цифрами, указатель сверху */
-.wheel-img{ z-index: 1; }
-.wheel-pointer{ z-index: 5; }
+
 
 /* лёгкая «пружинка» стрелки */
 @keyframes pointer-bounce {
