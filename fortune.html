@@ -23,15 +23,17 @@
 
     <!-- ЦЕНТР СТРАНИЦЫ: колесо + кнопка -->
     <section class="fortune-body" role="main">
-      <div class="wheel-stack" id="wheel">
+      <div class="wheel-stack wheel-rotor" id="wheelRotor">
         <!-- КОЛЕСО -->
         <img class="wheel-img" id="wheelImg" src="./bgicons/wheel.png" alt="Колесо">
-
+      
         <!-- ЧИСЛА НА СЕКТОРАХ (заполняются из JS) -->
         <div class="wheel__numbers" id="wheelNumbers"></div>
-        <!-- УКАЗАТЕЛЬ (отдельный файл-стрелка). Если временно встроена в PNG колеса — этот IMG можно скрыть. -->
-         <img class="wheel-pointer" src="./bgicons/pointer.png" alt="" aria-hidden="true">
+      
+        <!-- УКАЗАТЕЛЬ (не крутится) -->
+        <img class="wheel-pointer" src="./bgicons/pointer.png" alt="" aria-hidden="true">
       </div>
+
 
       <!-- КНОПКА «Вращать» -->
       <button class="btn-spin" id="btnSpin" type="button">Вращать</button>
