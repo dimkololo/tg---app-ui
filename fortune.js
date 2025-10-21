@@ -84,8 +84,7 @@
       span.className = 'wheel__label';
       span.textContent = order[i];
       // стало — в центр сектора
-      const angle = ANGLE_OFFSET + i * STEP + STEP / 2;
-      span.style.setProperty('--a', angle + 'deg');
+      const angle = ANGLE_OFFSET + i * STEP;
       span.style.setProperty('--a', angle + 'deg');
       numbersBox.appendChild(span);
     }
