@@ -30,7 +30,7 @@
   const STORAGE_ORDER = 'fortune_wheel_order_session'; // порядок чисел в текущей сессии
   const BALANCE_KEY = 'plam_balance';
 
-  // DEV: сбрасывать запрет на кручение при reload страницы
+  // DEV: сбрасывать запрет на кручение при reload страницы. убрать этот блок в проде и замени sessionStorage на localStorage, если нужен реальный суточный лимит).
 (() => {
   try {
     const nav = performance.getEntriesByType?.('navigation')?.[0];
