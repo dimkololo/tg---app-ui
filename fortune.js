@@ -1,28 +1,37 @@
-// Номиналы по секторам — начиная с сектора на "3 часа", далее ПО ЧАСОВОЙ
-const SECTORS = [2,4,6,8,10,12,14,16,18,20];   // 10 штук
-const SECTOR_DEG = 360 / SECTORS.length;       // 36°
-const WHEEL_SPINS = 10;                         // лишние обороты
-const DURATION_SEC = 7;                         // длительность анимации
+// ===== НАСТРОЙКИ =====
+const SECTORS = [2,4,6,8,10,12,14,16,18,20]; // 10 значений, начиная с сектора на "3 часа"
+const SECTOR_DEG = 360 / SECTORS.length;     // 36°
+const WHEEL_SPINS = 10;                      // лишние обороты
+const DURATION_SEC = 7;                      // длительность анимации
 const STORAGE_KEY_NEXT = 'fortuneNextTs';
-const STORAGE_KEY_BAL = 'plamBalance';         // локальный баланс (если нужен)
+const STORAGE_KEY_BAL  = 'plamBalance';
 
-// Инициализация
+// >>> ВРЕМЕННО ДЛЯ ТЕСТА: сбрасывать лок максимум при каждом перезагрузе
+const DEV_RESET_ON_RELOAD = true;
+
+// ===== DOM =====
 const wheel   = document.getElementById('wheel');
 const btnSpin = document.getElementById('btnSpin');
 const note    = document.getElementById('spinNote');
 const numsBox = document.getElementById('wheelNumbers');
+const btnBack = document.getElementById('btnBack');
 
-// 1) Рисуем цифры по окружности
+// ===== ИНИЦ =====
+// 0) временный сброс локапа (удали перед продом!)
+if (DEV_RESET_ON_RELOAD) {
+  localStorage.removeItem(STORAGE_KEY_NEXT);
+}
+
+// 1) нарисовать цифры по окружности
 SECTORS.forEach((value, i) => {
   const span = document.createElement('span');
   span.className = 'wheel__label';
-  // угол для i-го сектора: 0°, 36°, 72° ... (центр сектора)
-  span.style.setProperty('--a', `${i * SECTOR_DEG}deg`);
+  span.style.setProperty('--a', `${i * SECTOR_DEG}deg`); // 0°, 36°, 72°...
   span.textContent = value;
   numsBox.appendChild(span);
 });
 
-// 2) Блокируем кнопку, если ещё не прошли сутки
+// 2) проверить доступность
 const now = Date.now();
 const nextTs = +localStorage.getItem(STORAGE_KEY_NEXT) || 0;
 if (now < nextTs) {
@@ -30,51 +39,49 @@ if (now < nextTs) {
   showNote(nextTs);
 }
 
-// 3) Вращение
-btnSpin.addEventListener('click', async () => {
+// 3) кнопка «Назад»
+btnBack.addEventListener('click', () => {
+  if (window.history.length > 1) {
+    history.back();
+  } else {
+    // если нет истории (например, открыто напрямую) — вернём на главную
+    location.href = './index.html';  // при необходимости поменяй путь
+  }
+});
+
+// 4) вращение
+btnSpin.addEventListener('click', () => {
   if (btnSpin.disabled) return;
 
-  // Для античитинга это должно приходить с бэка:
-  // const { index, nextAllowedAt } = await fetch(...);
+  // для продакшена это должен выбрать сервер
   const index = Math.floor(Math.random() * SECTORS.length);
 
   spinToIndex(index).then(() => {
-    // Начисляем монеты (на реальном проекте делай это на сервере)
     const prize = SECTORS[index];
+
+    // обновим локальный баланс (или вызови свой метод обновления UI)
     const bal = +(localStorage.getItem(STORAGE_KEY_BAL) || 0) + prize;
     localStorage.setItem(STORAGE_KEY_BAL, bal);
 
-    // Ставим дневной лок
-    const day = 24*60*60*1000;
+    // поставим лок: сутки (в тестовом режиме всё равно сбросится при перезагрузке)
+    const day = 24 * 60 * 60 * 1000;
     const next = Date.now() + day;
     localStorage.setItem(STORAGE_KEY_NEXT, next);
 
     btnSpin.disabled = true;
     showNote(next);
 
-    // Если на главной странице читаешь баланс из localStorage — он уже обновлён.
-    // Если облако «плюс» рисуется отдельно, просто обнови его при заходе.
     alert(`+${prize} PLAMc`);
   });
 });
 
-// Функция анимации к нужному сектору
+// ===== ФУНКЦИИ =====
 function spinToIndex(index){
   return new Promise(resolve => {
-    // Вращаем КОЛЕСО. Угол считаем так:
-    // сектор #0 изначально смотрит на "3 часа" ⇒ его центр = 0°
-    // чтобы привести сектор i под стрелку, крутим на -i*36°
-    const target = WHEEL_SPINS*360 - index*SECTOR_DEG;
-
-    // плавная анимация
+    const target = WHEEL_SPINS * 360 - index * SECTOR_DEG; // сектор 0 уже "на 3 часа"
     wheel.style.transition = `transform ${DURATION_SEC}s cubic-bezier(.17,.89,.12,1)`;
-    wheel.style.transform = `rotate(${target}deg)`;
-
-    const onEnd = () => { 
-      wheel.removeEventListener('transitionend', onEnd);
-      resolve();
-    };
-    wheel.addEventListener('transitionend', onEnd, { once:true });
+    wheel.style.transform  = `rotate(${target}deg)`;
+    wheel.addEventListener('transitionend', () => resolve(), { once: true });
   });
 }
 
@@ -83,5 +90,5 @@ function showNote(nextTs){
   const hrs = Math.floor(diff/3600000);
   const mins = Math.floor((diff%3600000)/60000);
   note.hidden = false;
-  note.textContent = `Следующее вращение через ${hrs}ч ${mins}м.`;
+  note.textContent = `Следующее вращение через ${hrs}ч ${mins}м. (в тесте сбросится при обновлении)`;
 }
