@@ -1,106 +1,162 @@
-// ===== НАСТРОЙКИ =====
-const SECTORS = [2,4,6,8,10,12,14,16,18,20]; // 10 значений, начиная с сектора на "3 часа"
-const SECTOR_DEG = 360 / SECTORS.length;     // 36°
-const WHEEL_SPINS = 10;                      // лишние обороты
-const DURATION_SEC = 7;                      // длительность анимации
-const STORAGE_KEY_NEXT = 'fortuneNextTs';
-const STORAGE_KEY_BAL  = 'plamBalance';
+// fortune.js v3 — устойчив к изменениям классов/ID
 
-// >>> ВРЕМЕННО ДЛЯ ТЕСТА: сбрасывать лок максимум при каждом перезагрузе
-const DEV_RESET_ON_RELOAD = true;
+(function () {
+  // --- ЭЛЕМЕНТЫ (находим по ID и с запасными селекторами) ---
+  const rotor =
+    document.getElementById('wheelRotor') ||
+    document.querySelector('.wheel-rotor') ||
+    document.getElementById('wheelImg') ||
+    document.querySelector('.wheel__img, .wheel-img');
 
-// ===== DOM =====
-const wheel   = document.getElementById('wheel');
-const btnSpin = document.getElementById('btnSpin');
-const note    = document.getElementById('spinNote');
-const numsBox = document.getElementById('wheelNumbers');
-const btnBack = document.getElementById('btnBack');
+  const numbersBox =
+    document.getElementById('wheelNumbers') ||
+    document.querySelector('.wheel__numbers');
 
-// ===== ИНИЦ =====
-// 0) временный сброс локапа (удали перед продом!)
-if (DEV_RESET_ON_RELOAD) {
-  localStorage.removeItem(STORAGE_KEY_NEXT);
-}
+  const btnSpin = document.getElementById('btnSpin') || document.querySelector('.btn-spin');
+  const note = document.getElementById('spinNote') || document.querySelector('.fortune__note');
+  const btnBack = document.getElementById('btnBack') || document.querySelector('.btn-back');
 
-// 1) нарисовать цифры по окружности
-SECTORS.forEach((value, i) => {
-  const span = document.createElement('span');
-  span.className = 'wheel__label';
-  span.style.setProperty('--a', `${i * SECTOR_DEG}deg`); // 0°, 36°, 72°...
-  span.textContent = value;
-  numsBox.appendChild(span);
-});
-
-// 2) проверить доступность
-const now = Date.now();
-const nextTs = +localStorage.getItem(STORAGE_KEY_NEXT) || 0;
-if (now < nextTs) {
-  btnSpin.disabled = true;
-  showNote(nextTs);
-}
-
-// 3) кнопка «Назад»
-btnBack.addEventListener('click', () => {
-  if (window.history.length > 1) {
-    history.back();
-  } else {
-    // если нет истории (например, открыто напрямую) — вернём на главную
-    location.href = './index.html';  // при необходимости поменяй путь
+  if (!rotor || !btnSpin) {
+    console.error('[fortune] Не найдено колесо или кнопка вращения.');
+    return;
   }
-});
 
-// 4) вращение
-let isSpinning = false; // флаг на время анимации
+  // --- КОНСТАНТЫ ---
+  const VALUES = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]; // 10 секторов
+  const SECTORS = VALUES.length; // 10
+  const STEP = 360 / SECTORS;    // 36°
+  const SPIN_MS = 7000;          // 7 секунд
+  const STORAGE_SPUN = 'fortune_spun_session';   // для тестов — сбрасывается после reload
+  const STORAGE_ORDER = 'fortune_wheel_order_session'; // порядок чисел в текущей сессии
+  const BALANCE_KEY = 'plam_balance';
 
-btnSpin.addEventListener('click', () => {
-  // если уже крутим или дневной лок стоит — выходим
-  if (btnSpin.disabled || isSpinning) return;
+  // Если центр сектора на 3 часа (стрелка справа), обычно оффсет = 0.
+  // Если увидишь систематический промах на половину сектора — подстрой на ±18.
+  const ANGLE_OFFSET = 0; // градусов
 
-  // моментально блокируем
-  isSpinning = true;
-  btnSpin.disabled = true;
-  btnSpin.setAttribute('aria-busy', 'true');
+  // --- УТИЛИТЫ ---
+  const shuffle = (arr) => {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  };
 
-  // для теста: случайный сектор (на проде — спросить у сервера)
-  const index = Math.floor(Math.random() * SECTORS.length);
+  const getSessionJSON = (k, fallback = null) => {
+    try {
+      const raw = sessionStorage.getItem(k);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch { return fallback; }
+  };
+  const setSessionJSON = (k, v) => sessionStorage.setItem(k, JSON.stringify(v));
 
-  spinToIndex(index).then(() => {
-    const prize = SECTORS[index];
+  const getBalance = () => parseInt(localStorage.getItem(BALANCE_KEY) || '0', 10);
+  const addToBalance = (delta) => {
+    const next = getBalance() + delta;
+    localStorage.setItem(BALANCE_KEY, String(next));
+    return next;
+  };
 
-    // обновляем локальный баланс
-    const bal = +(localStorage.getItem(STORAGE_KEY_BAL) || 0) + prize;
-    localStorage.setItem(STORAGE_KEY_BAL, bal);
+  // --- ПОРЯДОК ЧИСЕЛ НА КОЛЕСЕ (стабилен в рамках сессии) ---
+  let order = getSessionJSON(STORAGE_ORDER);
+  if (!order || order.length !== SECTORS) {
+    order = shuffle(VALUES);
+    setSessionJSON(STORAGE_ORDER, order);
+  }
 
-    // ставим суточный лок
-    const next = Date.now() + 24*60*60*1000;
-    localStorage.setItem(STORAGE_KEY_NEXT, next);
-    showNote(next);
+  // --- РЕНДЕР ЦИФР ---
+  if (numbersBox) {
+    numbersBox.innerHTML = '';
+    // Раскладываем 10 меток по кругу, начиная со «стрелки» на 3 часа.
+    for (let i = 0; i < SECTORS; i++) {
+      const span = document.createElement('span');
+      span.className = 'wheel__label';
+      span.textContent = order[i];
+      // угол от оси X (вправо), по часовой стрелке
+      const angle = ANGLE_OFFSET + i * STEP;
+      span.style.setProperty('--a', angle + 'deg');
+      numbersBox.appendChild(span);
+    }
+  }
 
-    // уведомление (замени на свой UI)
-    alert(`+${prize} PLAMc`);
+  // --- СОСТОЯНИЕ КНОПКИ (тестовый режим: сбрасывается после reload) ---
+  const markSpun = () => sessionStorage.setItem(STORAGE_SPUN, '1');
+  const isSpun = () => sessionStorage.getItem(STORAGE_SPUN) === '1';
 
-    // КНОПКУ НЕ РАЗБЛОКИРУЕМ — пусть остаётся disabled до завтра
-    // (в тестовом режиме всё сбросится после перезагрузки страницы)
-    isSpinning = false;
-    btnSpin.setAttribute('aria-busy', 'false');
-  });
-});
+  const updateUI = () => {
+    if (!note) return;
+    if (isSpun()) {
+      btnSpin.setAttribute('disabled', 'true');
+      note.hidden = false;
+      note.textContent = 'Можно крутить один раз (сбрасывается при обновлении страницы для теста).';
+    } else {
+      btnSpin.removeAttribute('disabled');
+      note.hidden = true;
+      note.textContent = '';
+    }
+  };
 
+  updateUI();
 
-// ===== ФУНКЦИИ =====
-function spinToIndex(index){
-  return new Promise(resolve => {
-    const target = WHEEL_SPINS * 360 - index * SECTOR_DEG; // сектор 0 уже "на 3 часа"
-    wheel.style.transition = `transform ${DURATION_SEC}s cubic-bezier(.17,.89,.12,1)`;
-    wheel.style.transform  = `rotate(${target}deg)`;
-    wheel.addEventListener('transitionend', () => resolve(), { once: true });
-  });
-}
+  // --- ЛОГИКА ВРАЩЕНИЯ ---
+  let spinning = false;
+  let currentTurns = 0; // накопленный угол (для последовательных запусков — тут один раз)
 
-function showNote(nextTs){
-  const diff = Math.max(0, nextTs - Date.now());
-  const hrs = Math.floor(diff/3600000);
-  const mins = Math.floor((diff%3600000)/60000);
-  note.hidden = false;
-  note.textContent = `Следующее вращение через ${hrs}ч ${mins}м. (в тесте сбросится при обновлении)`;
-}
+  const spinOnce = () => {
+    if (spinning || isSpun()) return;
+
+    // 🔒 сразу блокируем, чтобы не спамили
+    spinning = true;
+    btnSpin.setAttribute('disabled', 'true');
+
+    // Случайный сектор
+    const targetIndex = Math.floor(Math.random() * SECTORS);
+    const prizePLAMc = order[targetIndex];
+
+    // Чтобы выбранный сектор оказался под стрелкой справа (0°),
+    // нужно провернуть колесо на (360 - угол центра сектора) + N*360
+    const sectorCenterAngle = ANGLE_OFFSET + targetIndex * STEP; // где сейчас центр выбранного сектора
+    const baseRotations = 6; // полных оборотов (можешь 5–8 сделать)
+    currentTurns += baseRotations * 360 + (360 - (sectorCenterAngle % 360));
+
+    // Плавное вращение
+    rotor.style.transition = `transform ${SPIN_MS}ms cubic-bezier(0.12, 0.65, 0.06, 1)`;
+    rotor.style.transform = `rotate(${currentTurns}deg)`;
+
+    // После завершения: зачисление + пометки
+    const onDone = () => {
+      rotor.removeEventListener('transitionend', onDone);
+      // safety таймер на случай, если transitionend не сработает
+      clearTimeout(safety);
+      // Зачисляем монеты
+      const newBalance = addToBalance(prizePLAMc);
+
+      // Помечаем «крутили» (на сессию)
+      markSpun();
+
+      // Сообщение
+      if (note) {
+        note.hidden = false;
+        note.textContent = `+${prizePLAMc} PLAMc! Ваш баланс: ${newBalance} PLAMc.`;
+      }
+
+      spinning = false;
+      updateUI();
+    };
+
+    rotor.addEventListener('transitionend', onDone, { once: true });
+    const safety = setTimeout(onDone, SPIN_MS + 100); // страховка
+  };
+
+  btnSpin.addEventListener('click', spinOnce);
+
+  // --- «Назад» ---
+  if (btnBack) {
+    btnBack.addEventListener('click', () => {
+      if (history.length > 1) history.back();
+      else location.href = './index.html';
+    });
+  }
+})();
