@@ -423,6 +423,7 @@ function initUploadPopup(){
         if ((window.PLAM.balance||0) < leftMin){ alert('Недостаточно PLAMc'); return; }
         window.PLAM.balance -= leftMin;
         updatePlusBalanceUI();
+        persistBalance(); // ← ДОБАВИТЬ
 
         window.PLAM.cooldownUntil = null; // выходим из кулдауна
         renderUploadUI();
@@ -465,6 +466,7 @@ function initUploadPopup(){
 
     window.PLAM.balance -= need;
     updatePlusBalanceUI();
+    persistBalance(); // ← ДОБАВИТЬ
 
     // TODO: отправка на сервер/TG
 
@@ -563,6 +565,7 @@ function initTasksPopup(){
         window.PLAM.balance = (window.PLAM.balance || 0) + 10;
         state.rewarded = true;
         updatePlusBalanceUI();
+        persistBalance(); // ← ДОБАВИТЬ
         try { window.Telegram?.WebApp?.showAlert?.('+10 PLAMc'); } catch(_) {}
       }
       state.done = true;
@@ -590,6 +593,7 @@ function initBuyStars(){
       const amount = Number(btn.dataset.amount || 0);
       window.PLAM.balance = (window.PLAM.balance || 0) + amount;
       updatePlusBalanceUI();
+      persistBalance(); // ← ДОБАВИТЬ
 
       try { window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light'); } catch(_) {}
       try { window.Telegram?.WebApp?.showAlert?.(`+${amount} PLAMc`); } catch(_) {}
@@ -737,7 +741,8 @@ function initConfirmPremium(){
     window.PLAM.premiumUntil = Date.now() + SEVEN_DAYS;
 
     updatePlusBalanceUI();
-
+    persistBalance(); // ← ДОБАВИТЬ
+    
     // закрываем только подтверждение и обновляем открытый профиль
     closeStack();
     refreshProfileUI();
