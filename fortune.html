@@ -4,35 +4,35 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Колесо фортуны</title>
-  <!-- Можно подключить твой общий style.css, чтобы фон сцены совпал -->
+
+  <!-- общий фон/шрифты из твоего проекта -->
   <link rel="stylesheet" href="./style.css?v=51">
-  <link rel="stylesheet" href="./fortune.css?v=1">
+  <!-- стили колеса -->
+  <link rel="stylesheet" href="./fortune.css?v=2">
 </head>
 <body>
   <main class="scene">
     <div class="stage">
 
+      <!-- КНОПКА НАЗАД -->
+      <button class="btn-back" id="btnBack" type="button" aria-label="Назад">Назад</button>
+
       <div class="fortune">
-        <!-- Колесо -->
         <div class="wheel" id="wheel">
-          <img class="wheel__img" src="./bgicons/wheel.png" alt="Колесо" />
-
-          <!-- Цифры поверх колеса -->
+          <img class="wheel__img" src="./assets/wheel.png" alt="Колесо">
           <div class="wheel__numbers" id="wheelNumbers"></div>
-
-          <!-- Если стрелка будет отдельным файлом — раскомментируй: -->
-          <img class="wheel__pointer" src="./bgicons/pointer.png" alt="" aria-hidden="true" />
-  
+          <!-- если вынесешь стрелку в отдельный файл — раскомментируй:
+          <img class="wheel__pointer" src="./assets/pointer.png" alt="" aria-hidden="true">
+          -->
         </div>
 
         <button class="btn-spin" id="btnSpin">Вращать</button>
-
         <p class="fortune__note" id="spinNote" hidden></p>
       </div>
 
     </div>
   </main>
 
-  <script src="./fortune.js?v=1"></script>
+  <script src="./fortune.js?v=2"></script>
 </body>
 </html>
