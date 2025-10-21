@@ -50,30 +50,42 @@ btnBack.addEventListener('click', () => {
 });
 
 // 4) вращение
-btnSpin.addEventListener('click', () => {
-  if (btnSpin.disabled) return;
+let isSpinning = false; // флаг на время анимации
 
-  // для продакшена это должен выбрать сервер
+btnSpin.addEventListener('click', () => {
+  // если уже крутим или дневной лок стоит — выходим
+  if (btnSpin.disabled || isSpinning) return;
+
+  // моментально блокируем
+  isSpinning = true;
+  btnSpin.disabled = true;
+  btnSpin.setAttribute('aria-busy', 'true');
+
+  // для теста: случайный сектор (на проде — спросить у сервера)
   const index = Math.floor(Math.random() * SECTORS.length);
 
   spinToIndex(index).then(() => {
     const prize = SECTORS[index];
 
-    // обновим локальный баланс (или вызови свой метод обновления UI)
+    // обновляем локальный баланс
     const bal = +(localStorage.getItem(STORAGE_KEY_BAL) || 0) + prize;
     localStorage.setItem(STORAGE_KEY_BAL, bal);
 
-    // поставим лок: сутки (в тестовом режиме всё равно сбросится при перезагрузке)
-    const day = 24 * 60 * 60 * 1000;
-    const next = Date.now() + day;
+    // ставим суточный лок
+    const next = Date.now() + 24*60*60*1000;
     localStorage.setItem(STORAGE_KEY_NEXT, next);
-
-    btnSpin.disabled = true;
     showNote(next);
 
+    // уведомление (замени на свой UI)
     alert(`+${prize} PLAMc`);
+
+    // КНОПКУ НЕ РАЗБЛОКИРУЕМ — пусть остаётся disabled до завтра
+    // (в тестовом режиме всё сбросится после перезагрузки страницы)
+    isSpinning = false;
+    btnSpin.setAttribute('aria-busy', 'false');
   });
 });
+
 
 // ===== ФУНКЦИИ =====
 function spinToIndex(index){
