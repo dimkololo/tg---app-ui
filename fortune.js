@@ -1,7 +1,6 @@
-// fortune.js v3 — устойчив к изменениям классов/ID
-
+// fortune.js v3.1 — статическая подсказка в HTML, JS её не трогает
 (function () {
-  // --- ЭЛЕМЕНТЫ (находим по ID и с запасными селекторами) ---
+  // --- ЭЛЕМЕНТЫ ---
   const rotor =
     document.getElementById('wheelRotor') ||
     document.querySelector('.wheel-rotor') ||
@@ -13,7 +12,6 @@
     document.querySelector('.wheel__numbers');
 
   const btnSpin = document.getElementById('btnSpin') || document.querySelector('.btn-spin');
-  const note = document.getElementById('spinNote') || document.querySelector('.fortune__note');
   const btnBack = document.getElementById('btnBack') || document.querySelector('.btn-back');
 
   if (!rotor || !btnSpin) {
@@ -26,27 +24,23 @@
   const SECTORS = VALUES.length; // 10
   const STEP = 360 / SECTORS;    // 36°
   const SPIN_MS = 7000;          // 7 секунд
-  const STORAGE_SPUN = 'fortune_spun_session';   // для тестов — сбрасывается после reload
+  const STORAGE_SPUN = 'fortune_spun_session';         // тестовый режим: сброс при reload
   const STORAGE_ORDER = 'fortune_wheel_order_session'; // порядок чисел в текущей сессии
   const BALANCE_KEY = 'plam_balance';
+  const ANGLE_OFFSET = 0; // сектор, на который указывает стрелка справа (3 часа)
 
-  // DEV: сбрасывать запрет на кручение при reload страницы. убрать этот блок в проде и замени sessionStorage на localStorage, если нужен реальный суточный лимит).
-(() => {
-  try {
-    const nav = performance.getEntriesByType?.('navigation')?.[0];
-    const isReload = nav ? nav.type === 'reload'
-                         : (performance.navigation && performance.navigation.type === 1); // старые браузеры
-    if (isReload) {
-      sessionStorage.removeItem('fortune_spun_session');      // снова разрешаем крутить
-      sessionStorage.removeItem('fortune_wheel_order_session'); // опционально: перемешать сектора заново
-    }
-  } catch {}
-})();
-
-
-  // Если центр сектора на 3 часа (стрелка справа), обычно оффсет = 0.
-  // Если увидишь систематический промах на половину сектора — подстрой на ±18.
-  const ANGLE_OFFSET = 0; // градусов
+  // --- ТЕСТОВЫЙ СБРОС ПРИ ОБНОВЛЕНИИ СТРАНИЦЫ ---
+  (() => {
+    try {
+      const nav = performance.getEntriesByType?.('navigation')?.[0];
+      const isReload = nav ? nav.type === 'reload'
+                           : (performance.navigation && performance.navigation.type === 1);
+      if (isReload) {
+        sessionStorage.removeItem(STORAGE_SPUN);
+        sessionStorage.removeItem(STORAGE_ORDER);
+      }
+    } catch {}
+  })();
 
   // --- УТИЛИТЫ ---
   const shuffle = (arr) => {
@@ -57,7 +51,6 @@
     }
     return a;
   };
-
   const getSessionJSON = (k, fallback = null) => {
     try {
       const raw = sessionStorage.getItem(k);
@@ -83,81 +76,64 @@
   // --- РЕНДЕР ЦИФР ---
   if (numbersBox) {
     numbersBox.innerHTML = '';
-    // Раскладываем 10 меток по кругу, начиная со «стрелки» на 3 часа.
     for (let i = 0; i < SECTORS; i++) {
       const span = document.createElement('span');
       span.className = 'wheel__label';
       span.textContent = order[i];
-      // угол от оси X (вправо), по часовой стрелке
       const angle = ANGLE_OFFSET + i * STEP;
       span.style.setProperty('--a', angle + 'deg');
       numbersBox.appendChild(span);
     }
   }
 
-  // --- СОСТОЯНИЕ КНОПКИ (тестовый режим: сбрасывается после reload) ---
+  // --- СОСТОЯНИЕ КНОПКИ ---
   const markSpun = () => sessionStorage.setItem(STORAGE_SPUN, '1');
   const isSpun = () => sessionStorage.getItem(STORAGE_SPUN) === '1';
 
   const updateUI = () => {
-    if (!note) return;
     if (isSpun()) {
       btnSpin.setAttribute('disabled', 'true');
-      note.hidden = false;
-      note.textContent = 'Можно крутить один раз (сбрасывается при обновлении страницы для теста).';
     } else {
       btnSpin.removeAttribute('disabled');
-      note.hidden = true;
-      note.textContent = '';
     }
   };
-
   updateUI();
 
   // --- ЛОГИКА ВРАЩЕНИЯ ---
   let spinning = false;
-  let currentTurns = 0; // накопленный угол (для последовательных запусков — тут один раз)
+  let currentTurns = 0;
 
   const spinOnce = () => {
     if (spinning || isSpun()) return;
 
-    // 🔒 сразу блокируем, чтобы не спамили
+    // блокируем сразу, чтобы не спамили кликами
     spinning = true;
     btnSpin.setAttribute('disabled', 'true');
 
-    // Случайный сектор
     const targetIndex = Math.floor(Math.random() * SECTORS);
     const prizePLAMc = order[targetIndex];
 
-    // Чтобы выбранный сектор оказался под стрелкой справа (0°),
-    // нужно провернуть колесо на (360 - угол центра сектора) + N*360
-    const sectorCenterAngle = ANGLE_OFFSET + targetIndex * STEP; // где сейчас центр выбранного сектора
-    const baseRotations = 6; // полных оборотов (можешь 5–8 сделать)
+    const sectorCenterAngle = ANGLE_OFFSET + targetIndex * STEP;
+    const baseRotations = 6; // 5–8 на вкус
     currentTurns += baseRotations * 360 + (360 - (sectorCenterAngle % 360));
 
-    // Плавное вращение
     rotor.style.transition = `transform ${SPIN_MS}ms cubic-bezier(0.12, 0.65, 0.06, 1)`;
     rotor.style.transform = `rotate(${currentTurns}deg)`;
 
-    // После завершения: зачисление + пометки
     const onDone = () => {
       rotor.removeEventListener('transitionend', onDone);
-      // safety таймер на случай, если transitionend не сработает
       clearTimeout(safety);
-      // Зачисляем монеты
-      const newBalance = addToBalance(prizePLAMc);
 
-      // Помечаем «крутили» (на сессию)
+      // начисляем монеты
+      addToBalance(prizePLAMc);
+
+      // помечаем, что крутилось в этой сессии
       markSpun();
-
-      // Сообщение
-      if (note) {
-        note.hidden = false;
-        note.textContent = `+${prizePLAMc} PLAMc! Ваш баланс: ${newBalance} PLAMc.`;
-      }
 
       spinning = false;
       updateUI();
+      // Если нужно показывать выигрыш — здесь можно повесить свой toast/snackbar
+      // showToast(`+${prizePLAMc} PLAMc`);
     };
 
     rotor.addEventListener('transitionend', onDone, { once: true });
