@@ -144,12 +144,13 @@
       spinning = false;
       updateUI();
        // показать результат
-        if (note) {
-          note.hidden = false;
-          note.textContent = `Вы выиграли +${prizePLAMc} PLAMc. Баланс: ${newBalance} PLAMc.`;
-        }
+       // if (note) {
+         // note.hidden = false;
+          //note.textContent = `Вы выиграли +${prizePLAMc} PLAMc. Баланс: ${newBalance} PLAMc.`;
+       // }
       // тост
-showToast(`+${prizePLAMc} PLAMc`);
+      showToast(`+${prizePLAMc} PLAMc`);
+    
 
 // анимация стрелки
 if (pointer) {
@@ -158,6 +159,8 @@ if (pointer) {
   void pointer.offsetWidth;
   pointer.classList.add('wiggle');
 }
+      // перед выходом из onDone():
+    sessionStorage.setItem('fortune_last_win', String(prizePLAMc)); // << для главной
     };
     
 
