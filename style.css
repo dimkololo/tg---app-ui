@@ -290,7 +290,7 @@ html,body{
 }
 
 /* Когда телевизор большой (≈420px ширины) — LARGE */
-@container (min-width: 350px){
+@container (min-width: 450px){
   .anchor--tv .hotspot--wintable{
     left: 92.857%;
     top:  45.356%;
