@@ -83,3 +83,36 @@
   box-shadow:0 4px 10px rgba(0,0,0,.18);
 }
 .btn-back:active{ transform: translateY(1px); }
+
+/* контейнер цифр поверх колеса */
+.wheel__numbers{
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0,0,0,.45);
+}
+
+/* каждая метка сектора; --a приходит из JS (градусы) */
+.wheel__label{
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%) rotate(var(--a)) translateX(var(--r, 42%)) rotate(calc(-1 * var(--a)));
+  font-size: clamp(12px, 3vmin, 18px);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* чтобы поворот шел от центра контейнера */
+.wheel-stack,
+.wheel-rotor{
+  transform-origin: 50% 50%;
+}
+
+/* слои: PNG под цифрами, указатель сверху */
+.wheel-img{ z-index: 1; }
+.wheel-pointer{ z-index: 5; }
+
