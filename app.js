@@ -214,6 +214,7 @@ function updatePlusBalanceUI(){
   if (el) el.textContent = String(window.PLAM.balance || 0);
 }
 updatePlusBalanceUI();
+syncBalanceFromLS();
 
 // --- Попап 1: загрузка фото ---
 function initUploadPopup(){
