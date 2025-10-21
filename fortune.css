@@ -84,12 +84,15 @@
 }
 .btn-back:active{ transform: translateY(1px); }
 
-/* контейнер цифр поверх колеса */
+/* контейнер цифр поверх PNG */
 .wheel__numbers{
   position: absolute;
   inset: 0;
-  pointer-events: none;
   z-index: 2;
+  pointer-events: none;
+
+  /* радиус для меток: доля от размера колеса */
+  --R: calc(var(--wheel-size) * 0.42); /* подгони 0.40–0.45 под свою графику */
   font-weight: 800;
   color: #fff;
   text-shadow: 0 2px 4px rgba(0,0,0,.45);
@@ -98,21 +101,60 @@
 /* каждая метка сектора; --a приходит из JS (градусы) */
 .wheel__label{
   position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%,-50%) rotate(var(--a)) translateX(var(--r, 42%)) rotate(calc(-1 * var(--a)));
+  left: 50%; top: 50%;
+  transform: translate(-50%,-50%) rotate(var(--a)) translate(var(--R)) rotate(calc(-1 * var(--a)));
   font-size: clamp(12px, 3vmin, 18px);
   line-height: 1;
   white-space: nowrap;
 }
 
 /* чтобы поворот шел от центра контейнера */
-.wheel-stack,
+.wheel-stack{
+  transform-origin: 50% 50%;
+}
+
+/* ротор занимает всю область стека */
 .wheel-rotor{
+  position: absolute;
+  inset: 0;
   transform-origin: 50% 50%;
 }
 
 /* слои: PNG под цифрами, указатель сверху */
 .wheel-img{ z-index: 1; }
 .wheel-pointer{ z-index: 5; }
+
+/* лёгкая «пружинка» стрелки */
+@keyframes pointer-bounce {
+  0%   { transform: translateY(-50%) rotate(0deg); }
+  30%  { transform: translateY(-50%) rotate(-9deg); }
+  60%  { transform: translateY(-50%) rotate(6deg); }
+  100% { transform: translateY(-50%) rotate(0deg); }
+}
+.wheel-pointer.wiggle{
+  animation: pointer-bounce 600ms ease-out;
+}
+
+/* тост */
+.toast{
+  position: fixed;
+  left: 50%;
+  bottom: max(16px, env(safe-area-inset-bottom, 12px));
+  transform: translateX(-50%);
+  background: rgba(0,0,0,.82);
+  color: #fff;
+  font-weight: 800;
+  padding: 12px 16px;
+  border-radius: 14px;
+  z-index: 300;
+  opacity: 0;
+  animation: toast-in 220ms ease-out forwards, toast-out 400ms ease-in 1800ms forwards;
+}
+@keyframes toast-in {
+  from { transform: translateX(-50%) translateY(8px); opacity: 0; }
+  to   { transform: translateX(-50%) translateY(0);    opacity: 1; }
+}
+@keyframes toast-out {
+  to   { transform: translateX(-50%) translateY(8px); opacity: 0; }
+}
 
