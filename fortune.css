@@ -81,12 +81,20 @@
   box-shadow: 0 6px 14px rgba(255,115,0,.25);
 }
 
-.btn-spin:disabled{
+/*.btn-spin:disabled{
   background: #777;
   color: #D9D9D9;
   box-shadow: none;
   cursor: not-allowed;
+}*/
+
+.btn-spin[disabled]{
+  opacity:.5;
+  pointer-events:none;
+  cursor:default;
+  filter:grayscale(.15);
 }
+
 
 .fortune__note{
   color:#fff;
