@@ -59,14 +59,17 @@
 }
 
 /* кнопка */
-.btn-spin{
+.scene--fortune .btn-spin{
   display:inline-flex; align-items:center; justify-content:center;
   min-width:220px; height:56px; border-radius:35px;
   border:0; cursor:pointer;
   background:#FF7300; color:#fff; font-weight:800; font-size:18px;
   box-shadow:0 6px 14px rgba(255,115,0,.25);
 }
-.btn-spin[disabled]{ opacity:.5; pointer-events:none; cursor:default; filter:grayscale(.15); }
+.scene--fortune .btn-spin[disabled]{
+  opacity:.5; pointer-events:none; cursor:default; filter:grayscale(.15);
+}
+
 
 /* назад */
 .btn-back{
