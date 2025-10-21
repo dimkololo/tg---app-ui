@@ -151,10 +151,10 @@
 /* стрелка — сосед ротора, НЕ вращается */
 .wheel-pointer{
   position: absolute;
-  right: -6%;
+  right: -2%;
   top: 50%;
   transform: translateY(-50%);
-  width: clamp(28px, 7vw, 44px);
+  width: clamp(40px, 8vw, 60px);
   height: auto;
   pointer-events: none;
   z-index: 5;
