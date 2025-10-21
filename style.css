@@ -36,7 +36,7 @@
   /* ПЕНЁК — координаты центра и размеры (в пикселях макета) */
   --stump-x-m:300; --stump-y-m:540; --stump-w-m:170; --stump-h-m:142;
   --stump-x-s:285; --stump-y-s:442; --stump-w-s:145; --stump-h-s:121;   /* обновлено */
-  --stump-x-l:580; --stump-y-l:840; --stump-w-l:238; --stump-h-l:198;
+  --stump-x-l:580; --stump-y-l:790; --stump-w-l:238; --stump-h-l:198;
 
   /* Плюс-облако (иконка выведена слоем ::before) */
   --plus-x-m:290; --plus-y-m:135; --plus-w-m:190; --plus-h-m:90;
