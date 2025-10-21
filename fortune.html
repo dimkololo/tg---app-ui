@@ -23,28 +23,14 @@
 
     <!-- ЦЕНТР СТРАНИЦЫ: колесо + кнопка -->
     <section class="fortune-body" role="main">
-      <div class="wheel-stack" aria-live="polite">
+      <div class="wheel-stack" id="wheel">
         <!-- КОЛЕСО -->
-      
-        <img
-          class="wheel-img"
-          id="wheelImg"
-          src="./bgicons/wheel.png"
-          alt="Колесо фортуны"
-          decoding="async"
-        >
+        <img class="wheel-img" id="wheelImg" src="./bgicons/wheel.png" alt="Колесо">
 
         <!-- ЧИСЛА НА СЕКТОРАХ (заполняются из JS) -->
-        <div class="wheel__numbers" id="wheelNumbers" aria-hidden="true"></div>
-
+        <div class="wheel__numbers" id="wheelNumbers"></div>
         <!-- УКАЗАТЕЛЬ (отдельный файл-стрелка). Если временно встроена в PNG колеса — этот IMG можно скрыть. -->
-        <img
-          class="wheel-pointer"
-          src="./bgicons/pointer.png"
-          alt=""
-          aria-hidden="true"
-          decoding="async"
-        >
+         <img class="wheel-pointer" src="./bgicons/pointer.png" alt="" aria-hidden="true">
       </div>
 
       <!-- КНОПКА «Вращать» -->
