@@ -2,37 +2,77 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  >
   <title>Колесо фортуны</title>
 
-  <!-- общий фон/шрифты из твоего проекта -->
+  <!-- Базовые стили проекта (фон, шрифты и т.п.) -->
   <link rel="stylesheet" href="./style.css?v=51">
-  <!-- стили колеса -->
+
+  <!-- Стили страницы колеса -->
   <link rel="stylesheet" href="./fortune.css?v=2">
 </head>
 <body>
-  <main class="scene">
-    <div class="stage">
-
-      <!-- КНОПКА НАЗАД -->
+  <main class="scene scene--fortune">
+    <!-- ВЕРХНЯЯ ПАНЕЛЬ: кнопка «Назад» -->
+    <header class="fortune-topbar" role="banner">
       <button class="btn-back" id="btnBack" type="button" aria-label="Назад">Назад</button>
+    </header>
 
-      <div class="fortune">
-        <div class="wheel" id="wheel">
-          <img class="wheel__img" src="./bgicons/wheel.png" alt="Колесо">
-          <div class="wheel__numbers" id="wheelNumbers"></div>
-          <!-- если вынесешь стрелку в отдельный файл — раскомментируй:-->
-          <img class="wheel__pointer" src="./bgicons/pointer.png" alt="" aria-hidden="true">
-          
-        </div>
+    <!-- ЦЕНТР СТРАНИЦЫ: колесо + кнопка -->
+    <section class="fortune-body" role="main">
+      <div class="wheel-stack" aria-live="polite">
+        <!-- КОЛЕСО -->
+        <img
+          class="wheel-img"
+          id="wheelImg"
+          src="./bgicons/wheel.png"
+          alt="Колесо фортуны"
+          decoding="async"
+        >
 
-        <button class="btn-spin" id="btnSpin">Вращать</button>
-        <p class="fortune__note" id="spinNote" hidden></p>
+        <!-- ЧИСЛА НА СЕКТОРАХ (заполняются из JS) -->
+        <div class="wheel__numbers" id="wheelNumbers" aria-hidden="true"></div>
+
+        <!-- УКАЗАТЕЛЬ (отдельный файл-стрелка). Если временно встроена в PNG колеса — этот IMG можно скрыть. -->
+        <img
+          class="wheel-pointer"
+          src="./bgicons/pointer.png"
+          alt=""
+          aria-hidden="true"
+          decoding="async"
+        >
       </div>
 
-    </div>
+      <!-- КНОПКА «Вращать» -->
+      <button class="btn-spin" id="btnSpin" type="button">Вращать</button>
+
+      <!-- ПОДПИСЬ/ПРИМЕЧАНИЕ -->
+      <p class="fortune__note" id="spinNote" hidden></p>
+    </section>
   </main>
 
-  <script src="./fortune.js?v=2"></script>
+  <!-- Основной скрипт страницы колеса -->
+  <script src="./fortune.js?v=2" defer></script>
+
+  <!-- Небольшой запасной обработчик «Назад», если ещё не добавлен в fortune.js -->
+  <script>
+    (function(){
+      const back = document.getElementById('btnBack');
+      if (back && !back.dataset.bound) {
+        back.dataset.bound = '1';
+        back.addEventListener('click', () => {
+          if (history.length > 1) history.back();
+          else location.href = './index.html';
+        });
+      }
+    })();
+  </script>
+
+  <noscript>
+    Включите JavaScript, чтобы использовать «Колесо фортуны».
+  </noscript>
 </body>
 </html>
