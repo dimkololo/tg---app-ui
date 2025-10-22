@@ -164,7 +164,7 @@
 /* центр. иконка — всегда по центру, масштаб от размера колеса */
 .wheel-stack{ 
   /* можно подстроить процент при желании */
-  --center-size: calc(var(--wheel-size) * 0.18);
+  --center-size: calc(var(--wheel-size) * 0.16);
 }
 
 .wheel-center{
