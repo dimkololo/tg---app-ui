@@ -61,7 +61,7 @@
   const STORAGE_ORDER = 'fortune_wheel_order_session'; // порядок чисел в текущей сессии
   const BALANCE_KEY = 'plam_balance';
   const ANGLE_OFFSET = 0; // сектор, на который указывает стрелка справа (3 часа)
-  const STORAGE_CD_UNTIL = 'fortune_cd_until';      // дедлайн кулдауна (ms, localStorage)
+  //РАСКОМЕНТИРОВАТЬ В ПРОДЕ const STORAGE_CD_UNTIL = 'fortune_cd_until';      // дедлайн кулдауна (ms, localStorage)
   const COOLDOWN_MS = 24 * 60 * 60 * 1000;          // 24 часа
 
   // --- ТЕСТОВЫЙ СБРОС ПРИ ОБНОВЛЕНИИ СТРАНИЦЫ ---
