@@ -64,6 +64,16 @@
   const STORAGE_CD_UNTIL = 'fortune_cd_until';      // дедлайн кулдауна (ms, localStorage)
   const COOLDOWN_MS = 24 * 60 * 60 * 1000;          // 24 часа
 
+  // --- DEV: принудительный сброс кулдауна на каждом заходе (удалить в проде) ---
+const DEV_RESET_ON_LOAD = false; // включи true, когда надо
+if (DEV_RESET_ON_LOAD) {
+  localStorage.removeItem(STORAGE_CD_UNTIL);
+  sessionStorage.removeItem(STORAGE_ORDER);
+  sessionStorage.removeItem(STORAGE_SPUN);
+  sessionStorage.removeItem('fortune_last_win');
+  localStorage.removeItem(BALANCE_KEY); // если хочешь обнулять баланс тоже
+}
+
   // --- ТЕСТОВЫЙ СБРОС ПРИ ОБНОВЛЕНИИ СТРАНИЦЫ УДАЛИТЬ В ПРОДЕ ---
   (() => {
     try {
@@ -152,7 +162,12 @@ const fmtLeft = (ms) => {
 
   // --- СОСТОЯНИЕ КНОПКИ ---
   const markSpun = () => setCooldownUntil(Date.now() + COOLDOWN_MS);
-  const isSpun = () => Date.now() < getCooldownUntil();
+  const isSpun = () => {
+  const until = getCooldownUntil();
+  if (!until) return false;
+  if (Date.now() >= until) { clearCooldown(); return false; }
+  return true;
+};
 
   const updateUI = () => {
     if (isSpun()) {
