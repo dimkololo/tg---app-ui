@@ -74,6 +74,7 @@
         sessionStorage.removeItem(STORAGE_SPUN);
         sessionStorage.removeItem(STORAGE_ORDER);
         sessionStorage.removeItem(STORAGE_CD_UNTIL);
+        sessionStorage.removeItem(COOLDOWN_MS);
       }
     } catch {}
   })();
