@@ -61,10 +61,10 @@
   const STORAGE_ORDER = 'fortune_wheel_order_session'; // порядок чисел в текущей сессии
   const BALANCE_KEY = 'plam_balance';
   const ANGLE_OFFSET = 0; // сектор, на который указывает стрелка справа (3 часа)
-  //РАСКОМЕНТИРОВАТЬ В ПРОДЕ const STORAGE_CD_UNTIL = 'fortune_cd_until';      // дедлайн кулдауна (ms, localStorage)
+  const STORAGE_CD_UNTIL = 'fortune_cd_until';      // дедлайн кулдауна (ms, localStorage)
   const COOLDOWN_MS = 24 * 60 * 60 * 1000;          // 24 часа
 
-  // --- ТЕСТОВЫЙ СБРОС ПРИ ОБНОВЛЕНИИ СТРАНИЦЫ ---
+  // --- ТЕСТОВЫЙ СБРОС ПРИ ОБНОВЛЕНИИ СТРАНИЦЫ УДАЛИТЬ В ПРОДЕ ---
   (() => {
     try {
       const nav = performance.getEntriesByType?.('navigation')?.[0];
@@ -73,6 +73,7 @@
       if (isReload) {
         sessionStorage.removeItem(STORAGE_SPUN);
         sessionStorage.removeItem(STORAGE_ORDER);
+        sessionStorage.removeItem(STORAGE_CD_UNTIL);
       }
     } catch {}
   })();
