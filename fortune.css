@@ -59,12 +59,13 @@
 /* кнопка под колесом */
 .scene--fortune .btn-spin{
   position: relative;
-  z-index: 2;
+  z-index: 10;
   display:inline-flex; align-items:center; justify-content:center;
   min-width:220px; height:56px; border-radius:35px;
   border:0; cursor:pointer;
   background:#FF7300; color:#fff; font-weight:800; font-size:18px;
   box-shadow:0 6px 14px rgba(255,115,0,.25);
+  pointer-events: auto;
 }
 .scene--fortune .btn-spin[disabled]{
   opacity:.5; pointer-events:none; cursor:default; filter:grayscale(.15);
@@ -144,6 +145,7 @@
 
 /* ротор занимает весь круг и крутится из центра */
 .wheel-rotor{
+  z-index: 1;
   position: absolute;
   inset: 0;
   transform-origin: 50% 50%;
@@ -205,6 +207,7 @@
   z-index: 300;
   opacity: 0;
   animation: toast-in 220ms ease-out forwards, toast-out 400ms ease-in 1800ms forwards;
+  pointer-events: none; 
 }
 @keyframes toast-in {
   from { transform: translateX(-50%) translateY(8px); opacity: 0; }
@@ -212,5 +215,11 @@
 }
 @keyframes toast-out {
   to   { transform: translateX(-50%) translateY(8px); opacity: 0; }
+}
+
+#fortuneTimer{
+  pointer-events: none;
+  font-weight: 800;
+  font-size: clamp(16px, 2.8vmin, 20px);
 }
 
