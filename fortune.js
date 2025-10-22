@@ -71,13 +71,24 @@
       const isReload = nav ? nav.type === 'reload'
                            : (performance.navigation && performance.navigation.type === 1);
       if (isReload) {
-        sessionStorage.removeItem(STORAGE_SPUN);
-        sessionStorage.removeItem(STORAGE_ORDER);
-        sessionStorage.removeItem(STORAGE_CD_UNTIL);
-        sessionStorage.removeItem(COOLDOWN_MS);
-      }
-    } catch {}
-  })();
+      // порядок чисел и «один спин» (если старый флаг ещё где-то остался)
+      sessionStorage.removeItem(STORAGE_ORDER); // 'fortune_wheel_order_session'
+      sessionStorage.removeItem(STORAGE_SPUN);  // 'fortune_spun_session' (больше не используем, но на всякий)
+
+      // 24h кулдаун — хранится в LOCAL storage
+      localStorage.removeItem(STORAGE_CD_UNTIL); // 'fortune_cd_until'
+
+      // если нужно — сбросить «последний выигрыш» для тоста на главной
+      sessionStorage.removeItem('fortune_last_win');
+
+      // (опционально для чистого теста) сбросить баланс:
+      localStorage.removeItem(BALANCE_KEY); // 'plam_balance'
+
+      // на всякий случай обновим UI
+      if (typeof updateUI === 'function') updateUI();
+    }
+  } catch {}
+})();
 
   // --- УТИЛИТЫ ---
   const shuffle = (arr) => {
