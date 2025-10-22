@@ -22,6 +22,31 @@
     return;
   }
 
+  // --- Блокировка горизонтальной ориентации (оверлей) ---
+(function setupOrientationOverlay(){
+  const lock = document.getElementById('orientationLock');
+  if (!lock) return;
+
+  const mq = window.matchMedia('(orientation: portrait)');
+
+  const update = () => {
+    const isPortrait = mq.matches || window.innerHeight >= window.innerWidth;
+    // показываем оверлей в горизонтали
+    lock.classList.toggle('is-active', !isPortrait);
+    // отключаем прокрутку под оверлеем
+    document.documentElement.style.overflow = !isPortrait ? 'hidden' : '';
+  };
+
+  // начальная проверка
+  update();
+
+  // реагируем на смену ориентации и ресайз (фолбэк для старых WebView)
+  try { mq.addEventListener('change', update); } catch(_) { /* iOS < 13 */ }
+  window.addEventListener('orientationchange', update);
+  window.addEventListener('resize', update);
+})();
+
+
   // --- КОНСТАНТЫ ---
   const VALUES = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]; // 10 секторов
   const SECTORS = VALUES.length; // 10
