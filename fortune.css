@@ -112,10 +112,10 @@
   z-index: 2;
   pointer-events: none;
 
-  --R: calc(var(--wheel-size) * 0.35);
+  --R: calc(var(--wheel-size) * 0.32);
 
   font-weight: 900;
-  color: #fff;
+  color: #210B00;
   text-shadow: 0 2px 4px rgba(0,0,0,.45);
 }
 
@@ -130,7 +130,7 @@
     translateX(var(--R, 200px))      /* выносим на окружность */
     rotate(90deg);                  /* «лицом» к центру */
 
-  font-size: clamp(18px, 4.8vmin, 32px);  /* КРУПНЕЕ */
+  font-size: clamp(18px, 6vmin, 32px);  /* КРУПНЕЕ */
   line-height: 1;
   letter-spacing: .02em;
   text-align: center;
