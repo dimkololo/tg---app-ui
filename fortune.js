@@ -20,25 +20,7 @@
   const btnBack = document.getElementById('btnBack') || document.querySelector('.btn-back');
   const note = document.getElementById('spinNote');
   const pointer = document.querySelector('.wheel-pointer');
-  const STORAGE_CD_UNTIL = 'fortune_cd_until';      // дедлайн кулдауна (ms, localStorage)
-  const COOLDOWN_MS = 24 * 60 * 60 * 1000;          // 24 часа
-
-  const getCooldownUntil = () => parseInt(localStorage.getItem(STORAGE_CD_UNTIL) || '0', 10) || 0;
-const setCooldownUntil = (ts) => localStorage.setItem(STORAGE_CD_UNTIL, String(ts));
-const clearCooldown = () => localStorage.removeItem(STORAGE_CD_UNTIL);
-
-const fmtLeft = (ms) => {
-  const s = Math.max(0, Math.floor(ms / 1000));
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  const ss = s % 60;
-  const hh = String(h).padStart(2,'0');
-  const mm = String(m).padStart(2,'0');
-  const ss2 = String(ss).padStart(2,'0');
-  return `${hh}ч. ${mm}мин. ${ss2}сек.`;
-};
-
-
+  
 
   if (!rotor || !btnSpin) {
     console.error('[fortune] Не найдено колесо или кнопка вращения.');
@@ -79,6 +61,8 @@ const fmtLeft = (ms) => {
   const STORAGE_ORDER = 'fortune_wheel_order_session'; // порядок чисел в текущей сессии
   const BALANCE_KEY = 'plam_balance';
   const ANGLE_OFFSET = 0; // сектор, на который указывает стрелка справа (3 часа)
+  const STORAGE_CD_UNTIL = 'fortune_cd_until';      // дедлайн кулдауна (ms, localStorage)
+  const COOLDOWN_MS = 24 * 60 * 60 * 1000;          // 24 часа
 
   // --- ТЕСТОВЫЙ СБРОС ПРИ ОБНОВЛЕНИИ СТРАНИЦЫ ---
   (() => {
@@ -117,6 +101,21 @@ const fmtLeft = (ms) => {
     return next;
   };
 
+  const getCooldownUntil = () => parseInt(localStorage.getItem(STORAGE_CD_UNTIL) || '0', 10) || 0;
+const setCooldownUntil = (ts) => localStorage.setItem(STORAGE_CD_UNTIL, String(ts));
+const clearCooldown = () => localStorage.removeItem(STORAGE_CD_UNTIL);
+
+const fmtLeft = (ms) => {
+  const s = Math.max(0, Math.floor(ms / 1000));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const ss = s % 60;
+  const hh = String(h).padStart(2,'0');
+  const mm = String(m).padStart(2,'0');
+  const ss2 = String(ss).padStart(2,'0');
+  return `${hh}ч. ${mm}мин. ${ss2}сек.`;
+};
+
   // --- ПОРЯДОК ЧИСЕЛ НА КОЛЕСЕ (стабилен в рамках сессии) ---
   let order = getSessionJSON(STORAGE_ORDER);
   if (!order || order.length !== SECTORS) {
@@ -139,8 +138,8 @@ const fmtLeft = (ms) => {
   }
 
   // --- СОСТОЯНИЕ КНОПКИ ---
-  const markSpun = () => sessionStorage.setItem(STORAGE_SPUN, '1');
-  const isSpun = () => sessionStorage.getItem(STORAGE_SPUN) === '1';
+  const markSpun = () => setCooldownUntil(Date.now() + COOLDOWN_MS);
+  const isSpun = () => Date.now() < getCooldownUntil();
 
   const updateUI = () => {
     if (isSpun()) {
