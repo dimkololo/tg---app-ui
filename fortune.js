@@ -10,12 +10,35 @@
   const numbersBox =
     document.getElementById('wheelNumbers') ||
     document.querySelector('.wheel__numbers');
+
+  const timerEl = 
+    document.getElementById('fortuneTimer');
+
   
 
   const btnSpin = document.getElementById('btnSpin') || document.querySelector('.btn-spin');
   const btnBack = document.getElementById('btnBack') || document.querySelector('.btn-back');
   const note = document.getElementById('spinNote');
   const pointer = document.querySelector('.wheel-pointer');
+  const STORAGE_CD_UNTIL = 'fortune_cd_until';      // дедлайн кулдауна (ms, localStorage)
+  const COOLDOWN_MS = 24 * 60 * 60 * 1000;          // 24 часа
+
+  const getCooldownUntil = () => parseInt(localStorage.getItem(STORAGE_CD_UNTIL) || '0', 10) || 0;
+const setCooldownUntil = (ts) => localStorage.setItem(STORAGE_CD_UNTIL, String(ts));
+const clearCooldown = () => localStorage.removeItem(STORAGE_CD_UNTIL);
+
+const fmtLeft = (ms) => {
+  const s = Math.max(0, Math.floor(ms / 1000));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const ss = s % 60;
+  const hh = String(h).padStart(2,'0');
+  const mm = String(m).padStart(2,'0');
+  const ss2 = String(ss).padStart(2,'0');
+  return `${hh}ч. ${mm}мин. ${ss2}сек.`;
+};
+
+
 
   if (!rotor || !btnSpin) {
     console.error('[fortune] Не найдено колесо или кнопка вращения.');
