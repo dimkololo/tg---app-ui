@@ -144,11 +144,41 @@ const fmtLeft = (ms) => {
   const updateUI = () => {
     if (isSpun()) {
       btnSpin.setAttribute('disabled', 'true');
+      startCooldownUI();
     } else {
       btnSpin.removeAttribute('disabled');
+      stopCooldownUI();
+       if (timerEl) timerEl.hidden = true; // таймер не виден, пока не крутили/когда не активен
     }
   };
   updateUI();
+
+  let cdTimerId = null;
+
+function stopCooldownUI(){
+  if (cdTimerId){ clearInterval(cdTimerId); cdTimerId = null; }
+}
+
+function startCooldownUI(){
+  if (!timerEl) return;
+  timerEl.hidden = false;
+  stopCooldownUI();
+  const tick = () => {
+    const left = getCooldownUntil() - Date.now();
+    if (left <= 0) {
+      // время истекло: скрываем таймер, включаем кнопку
+      stopCooldownUI();
+      timerEl.hidden = true;
+      clearCooldown();
+      updateUI();
+      return;
+    }
+    timerEl.textContent = fmtLeft(left);
+  };
+  tick();
+  cdTimerId = setInterval(tick, 1000);
+}
+
 
   // --- ЛОГИКА ВРАЩЕНИЯ ---
   let spinning = false;
@@ -167,6 +197,9 @@ const fmtLeft = (ms) => {
     void pointer.offsetWidth;           // рефлоу для перезапуска анимации
     pointer.classList.add('wiggle');    // поехали
   }
+    // СРАЗУ выставляем дедлайн и показываем таймер
+  markSpun();
+  updateUI();
 
     const targetIndex = Math.floor(Math.random() * SECTORS);
     const prizePLAMc = order[targetIndex];
