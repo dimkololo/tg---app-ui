@@ -161,6 +161,23 @@
   filter: drop-shadow(0 5px 1px rgba(0,0,0,.35));
 }
 
+/* центр. иконка — всегда по центру, масштаб от размера колеса */
+.wheel-stack{ 
+  /* можно подстроить процент при желании */
+  --center-size: calc(var(--wheel-size) * 0.22);
+}
+
+.wheel-center{
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);  /* идеальный центр */
+  width: var(--center-size);
+  height: auto;
+  z-index: 3;                        /* выше диска/цифр, ниже указателя */
+  pointer-events: none;              /* не перехватывает тапы */
+}
+
 
 
 /* лёгкая «пружинка» стрелки */
@@ -171,7 +188,7 @@
   100% { transform: translateY(-50%) rotate(0deg); }
 }
 .wheel-pointer.wiggle{
-  animation: pointer-bounce 600ms ease-out;
+  animation: pointer-bounce 800ms ease-out;
 }
 
 /* тост */
