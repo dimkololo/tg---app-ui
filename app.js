@@ -12,7 +12,7 @@ window.PLAM = window.PLAM || {
 // --- DEV СБРОС НА РЕЛОАДЕ (удалить в проде) ---
 const DEV_RESET_BALANCE_ON_RELOAD = true;
 
-(function devResetOnReload(){
+function devResetOnReload(){
   if (!DEV_RESET_BALANCE_ON_RELOAD) return;
 
   try {
@@ -36,7 +36,7 @@ const DEV_RESET_BALANCE_ON_RELOAD = true;
       updatePlusBalanceUI?.();
     }
   }
-})();
+}();
 
 
 // --- Баланс: общий кошелёк между страницами ---
