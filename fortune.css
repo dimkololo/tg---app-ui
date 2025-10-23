@@ -217,3 +217,33 @@
   to   { transform: translateX(-50%) translateY(8px); opacity: 0; }
 }
 
+/* Табы в топбаре */
+.fortune-tabs{
+  display:flex; gap:10px; align-items:center; justify-content:center;
+  margin-top: 8px;
+}
+.fortune-tab{
+  appearance:none; border:0; cursor:pointer;
+  padding:10px 14px; border-radius:999px;
+  font-weight:800; font-size:14px;
+  background:#EEE; color:#222;
+}
+.fortune-tab.is-active{
+  background:#FF7300; color:#fff;
+  box-shadow:0 6px 14px rgba(255,115,0,.25);
+}
+
+/* Панели вкладок */
+.tab-panel[hidden]{ display:none !important; }
+
+/* Плейсхолдер для «Задания» */
+.tasks-empty{
+  display:grid; place-items:center; gap:12px;
+  min-height: 40vh;
+  text-align:center;
+  opacity:.8;
+}
+.tasks-empty__img{ width:64px; height:auto; opacity:.6; }
+.tasks-empty__text{ font-weight:800; }
+
+
