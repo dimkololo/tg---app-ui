@@ -779,14 +779,33 @@ html,body{
 }
 
 /* ====== попап 3: призы ====== */
+
 .prizes-popup{width:100%; max-width:420px; display:grid; gap:14px}
-.prizes-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
+/* Сетка призов — растягивается, без пустых слотов */
+.prize-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 12px;
+}
 @media (max-width:375px),(max-height:667px){ .prizes-grid{grid-template-columns:repeat(2,1fr)} }
-.prize-card{position:relative; min-height:110px; background:var(--chip); border-radius:16px; padding:12px; display:flex; align-items:flex-end}
+/* Элемент списка: чекбокс + квадрат 100x100 */
+.prize-item{
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px; /* отступ между квадратом и чекбоксом (если твой чекбокс рендерится отдельно) */
+}
 .check-input{position:absolute; opacity:0; pointer-events:none}
 .checkmark{position:absolute; top:12px; right:12px; width:26px; height:26px; border-radius:50%; border:2px solid #FF7300}
 .checkmark::after{content:""; position:absolute; inset:5px; border-radius:50%; background:#FF7300; transform:scale(0); transition:transform .12s}
-.prize-card:has(.check-input:checked) .checkmark::after{transform:scale(1)}
+/* Квадрат под подарок (контейнер 100x100, скругление 12) */
+.prize-card{
+  width: 100px;
+  height: 100px;
+  border-radius: 12px;
+  background: #eee center / cover no-repeat;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.06);
+}
 .prize-body{color:#000; opacity:.75; font-size:12px}
 .prize-title{font-weight:700; margin-bottom:4px; opacity:.9}
 .prize-sub{font-size:11px}
