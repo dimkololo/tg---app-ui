@@ -853,39 +853,17 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-
-// Попап «Действия»
+// «Действия» → сразу на страницу колеса (вкладка 'wheel')
 document.addEventListener('DOMContentLoaded', () => {
-  const modal   = document.getElementById('actionsModal');
-  const opener  = document.querySelector('.hotspot--actions');
-  if (!modal || !opener) return;
-
-  const content = modal.querySelector('.modal__content');
-  const btnTasks = modal.querySelector('[data-open-tasks]');
-  btnTasks?.addEventListener('click', () => {
-    openStack('actions-tasks');   // откроется непрозрачный стек-попап поверх «Действий»
-  });
-
-  const open = () => {
-    modal.hidden = false;
-    document.documentElement.style.overflow = 'hidden';
-    content && content.classList.add('is-scrollable');
-  };
-  const close = () => {
-    modal.hidden = true;
-    document.documentElement.style.overflow = '';
-  };
-
-  opener.addEventListener('click', open);
-  modal.addEventListener('click', (e) => {
-    const isBackdrop = e.target.classList.contains('modal__backdrop');
-    const isCloseBtn = e.target.closest('[data-close="actionsModal"]');
-    if (isBackdrop || isCloseBtn) close();
-  });
-  window.addEventListener('keydown', (e) => {
-    if (!modal.hidden && e.key === 'Escape') close();
+  const opener = document.querySelector('.hotspot--actions');
+  if (!opener) return;
+  opener.addEventListener('click', (e) => {
+    e.preventDefault();
+    location.href = './fortune.html?tab=wheel';
   });
 });
+
+
 
 // ===== Pixel-perfect hit по альфе PNG =====
 // Используем вектор события pointer (работает и на мыши, и на тач)
