@@ -12,7 +12,7 @@ window.PLAM = window.PLAM || {
 // --- DEV СБРОС НА РЕЛОАДЕ (удалить в проде) ---
 const DEV_RESET_BALANCE_ON_RELOAD = true;
 
-function devResetOnReload(){
+(function devResetOnReload(){
   if (!DEV_RESET_BALANCE_ON_RELOAD) return;
 
   try {
@@ -23,20 +23,20 @@ function devResetOnReload(){
     if (isReload) {
       // 1) Обнуляем общий кошелёк
       localStorage.removeItem('plam_balance');
-
-      // 2) (по желанию) снимаем 24ч кулдаун колеса, чтобы сразу можно было крутить
+      // 2) Снимаем кулдаун колеса (если тестируешь колесо)
       localStorage.removeItem('fortune_cd_until');
     }
   } finally {
-    // Мгновенно перерисуем «облако плюс» после очистки
-    if (typeof syncBalanceFromLS === 'function') {
-      syncBalanceFromLS();
+    // безопасно вызываем синхронизацию UI
+    const syncFn = window.syncBalanceFromLS;
+    if (typeof syncFn === 'function') {
+      syncFn();
     } else {
       window.PLAM.balance = parseInt(localStorage.getItem('plam_balance') || '0', 10);
-      updatePlusBalanceUI?.();
+      if (typeof window.updatePlusBalanceUI === 'function') window.updatePlusBalanceUI();
     }
   }
-}();
+})();
 
 
 // --- Баланс: общий кошелёк между страницами ---
