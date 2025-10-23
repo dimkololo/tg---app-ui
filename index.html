@@ -460,56 +460,6 @@
   </section>
 </template>
 
-  <!-- Попап с двумя кнопками -->
-<div class="modal" id="actionsModal" hidden>
-  <div class="modal__backdrop" data-close="actionsModal"></div>
-  <div class="modal__dialog">
-    <button class="modal__close" data-close="actionsModal" aria-label="Закрыть">×</button>
-
-    <div class="modal__content is-scrollable">
-      <div class="actions-popup">
-        <div class="actions-buttons">
-          <button class="btn-pay" type="button" onclick="location.href='fortune.html'">Колесо фортуны</button>
-          <button class="btn-pay" type="button" data-open-tasks>Задания</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-  <template id="tpl-actions-tasks">
-  <section class="popup tasks-popup">
-    <div class="chip subs-card">
-      <h3 class="subs-title">
-        <img class="coin" src="./bgicons/earth-item.png"
-             srcset="./bgicons/earth-item.png 1x, ./bgicons/earth-item@2x.png 2x" alt="">
-        Подпишись и получи 10 PLAMc
-      </h3>
-
-      <div class="subs-links">
-        <a class="btn-link"
-           href="https://www.instagram.com/tembo_spb?igsh=MTZ2ZXp0Y2VzdGZncg=="
-           target="_blank" rel="noopener" data-task-ig>
-          Instagram
-        </a>
-        <a class="btn-link"
-           href="https://youtube.com/@thekodrashow?si=lSSlrGHqzkx5bp79"
-           target="_blank" rel="noopener" data-task-yt>
-          Youtube
-        </a>
-      </div>
-
-      <div class="u-center">
-        <button class="btn-check" type="button" data-tasks-check>Проверить</button>
-      </div>
-
-      <p class="subs-note">Открой обе ссылки, вернись и нажми «Проверить».</p>
-    </div>
-  </section>
-</template>
-
-
-
   <!-- Попап таблицы лидеров -->
 <div class="modal" id="leadersModal"  hidden>
   <div class="modal__backdrop" data-close="leadersModal"></div>
