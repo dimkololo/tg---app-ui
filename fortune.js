@@ -136,7 +136,12 @@ const fmtLeft = (ms) => {
 
   // --- СОСТОЯНИЕ КНОПКИ ---
   const markSpun = () => setCooldownUntil(Date.now() + COOLDOWN_MS);
-  const isSpun = () => Date.now() < getCooldownUntil();
+  const isSpun = () => {
+  const until = getCooldownUntil();
+  if (!until) return false;
+  if (Date.now() >= until) { clearCooldown(); return false; }
+  return true;
+};
 
 
   const updateUI = () => {
