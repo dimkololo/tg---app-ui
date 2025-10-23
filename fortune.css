@@ -246,4 +246,23 @@
 .tasks-empty__img{ width:64px; height:auto; opacity:.6; }
 .tasks-empty__text{ font-weight:800; }
 
+/* Разметка панели с колесом: центр и нормальные отступы */
+.tab-panel[data-panel="wheel"]{
+  display: flex;
+  flex-direction: column;
+  align-items: center;                         /* центрируем кнопку */
+  gap: clamp(20px, 4vh, 36px);                 /* расстояние между колесом, кнопкой и таймером */
+}
+
+/* на всякий случай — если где-то переопределится */
+.tab-panel[data-panel="wheel"] .btn-spin{
+  align-self: center;
+}
+
+/* таймер тоже по центру */
+#fortuneTimer{
+  text-align: center;
+}
+
+
 
