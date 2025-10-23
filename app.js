@@ -619,6 +619,24 @@ function initPrizes(){
   payBtn.disabled = !anySelected;
 }
 
+  // Делегирование кликов по сетке
+grid.addEventListener('click', (e) => {
+  const item = e.target.closest('.prize-item');
+  if (!item) return;
+  item.classList.toggle('is-selected');
+  syncPayBtn();
+});
+
+// Доступность с клавиатуры (Enter/Space)
+grid.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const item = e.target.closest('.prize-item');
+  if (!item) return;
+  e.preventDefault();
+  item.classList.toggle('is-selected');
+  syncPayBtn();
+});
+
   root.addEventListener('change', (e)=>{
     if (e.target.matches('.check-input')) syncPayBtn();
   });
