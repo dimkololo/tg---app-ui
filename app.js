@@ -9,6 +9,36 @@ window.PLAM = window.PLAM || {
   cooldownUntil: null // ← когда закончится кулдаун (ms), null если нет кулдауна
 };
 
+// --- DEV СБРОС НА РЕЛОАДЕ (удалить в проде) ---
+const DEV_RESET_BALANCE_ON_RELOAD = true;
+
+(function devResetOnReload(){
+  if (!DEV_RESET_BALANCE_ON_RELOAD) return;
+
+  try {
+    const nav = performance.getEntriesByType?.('navigation')?.[0];
+    const isReload = nav ? nav.type === 'reload'
+                         : (performance.navigation && performance.navigation.type === 1);
+
+    if (isReload) {
+      // 1) Обнуляем общий кошелёк
+      localStorage.removeItem('plam_balance');
+
+      // 2) (по желанию) снимаем 24ч кулдаун колеса, чтобы сразу можно было крутить
+      localStorage.removeItem('fortune_cd_until');
+    }
+  } finally {
+    // Мгновенно перерисуем «облако плюс» после очистки
+    if (typeof syncBalanceFromLS === 'function') {
+      syncBalanceFromLS();
+    } else {
+      window.PLAM.balance = parseInt(localStorage.getItem('plam_balance') || '0', 10);
+      updatePlusBalanceUI?.();
+    }
+  }
+})();
+
+
 // --- Баланс: общий кошелёк между страницами ---
 const BALANCE_KEY = 'plam_balance';
 
