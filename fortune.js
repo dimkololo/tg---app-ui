@@ -61,26 +61,6 @@
   const STORAGE_CD_UNTIL = 'fortune_cd_until';      // дедлайн кулдауна (ms, localStorage)
   const COOLDOWN_MS = 24 * 60 * 60 * 1000;          // 24 часа
 
-  // DEV: сбрасывать колесо при reload именно на странице колеса
-const DEV_RESET_WHEEL_ON_RELOAD = true; // ← в проде поставить false
-
-(() => {
-  if (!DEV_RESET_WHEEL_ON_RELOAD) return;
-  try {
-    const nav = performance.getEntriesByType?.('navigation')?.[0];
-    const isReload = nav ? nav.type === 'reload'
-                         : (performance.navigation && performance.navigation.type === 1);
-    if (isReload) {
-      // Перемешать сектора заново / снять старый флажок «крутили»
-      sessionStorage.removeItem(STORAGE_ORDER);
-      sessionStorage.removeItem(STORAGE_SPUN);
-
-      // Кулдаун 24ч: если ты уже чистишь его в app.js — эту строку можно убрать.
-      // Оставь её, если хочется сбрасывать кулдаун и при прямом reload колеса:
-      // localStorage.removeItem('fortune_cd_until');
-    }
-  } catch {}
-})();
 
 
   // --- УТИЛИТЫ ---
