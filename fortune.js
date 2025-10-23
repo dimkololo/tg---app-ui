@@ -60,7 +60,6 @@
   const ANGLE_OFFSET = 0; // сектор, на который указывает стрелка справа (3 часа)
   const STORAGE_CD_UNTIL = 'fortune_cd_until';      // дедлайн кулдауна (ms, localStorage)
   const COOLDOWN_MS = 24 * 60 * 60 * 1000;          // 24 часа
-  const STORAGE_TIMER_SEEN = 'fortune_timer_seen'; // sessionStorage флаг видимости таймера в этой вкладке
   let cdTimerId = null;
 
 
@@ -165,7 +164,6 @@ function startCooldownUI(){
       stopCooldownUI();
       timerEl.hidden = true;
       clearCooldown();
-      sessionStorage.removeItem(STORAGE_TIMER_SEEN);
       updateUI();
       return;
     }
