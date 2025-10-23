@@ -70,15 +70,6 @@
       if (isReload) {
         sessionStorage.removeItem(STORAGE_SPUN);
         sessionStorage.removeItem(STORAGE_ORDER);
-        // 24h кулдаун — хранится в LOCAL storage
-        localStorage.removeItem(STORAGE_CD_UNTIL); // 'fortune_cd_until'
-
-      // если нужно — сбросить «последний выигрыш» для тоста на главной
-      sessionStorage.removeItem('fortune_last_win');
-
-      // (опционально для чистого теста) сбросить баланс:
-       localStorage.removeItem(BALANCE_KEY); // 'plam_balance'
-
       }
     } catch {}
   })();
