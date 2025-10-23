@@ -789,7 +789,7 @@ html,body{
   gap: 12px;
   justify-content: flex-start;      /* всегда слева */
 }
-@media (max-width:375px),(max-height:667px){ .prize-grid{grid-template-columns:repeat(2,1fr)} }
+
 /* Если приз ОДИН — центрируем всю сетку */
 .prize-grid:not(:has(.prize-item:nth-child(2))){
   justify-content: center;          /* центр только для 1 элемента */
