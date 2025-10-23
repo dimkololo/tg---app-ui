@@ -282,16 +282,32 @@
 .fortune-tab.is-active{ transform: translateY(-1px); }
 
 
-/* таймер поверх разметки, не влияет на поток */
+/* панель колеса по центру, расстояние между колесом и зоной кнопки */
+.tab-panel[data-panel="wheel"]{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(20px, 4vh, 36px);
+}
+
+/* обёртка — якорь для таймера */
+.wheel-cta{
+  position: relative;                  /* ← таймер будет позиционироваться от неё */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* таймер под кнопкой, не влияет на лэйаут */
 #fortuneTimer{
-  position: fixed;
+  position: absolute;
+  top: calc(100% + 10px);              /* 10px — зазор под кнопкой, подправь по вкусу */
   left: 50%;
   transform: translateX(-50%);
-  bottom: calc(env(safe-area-inset-bottom, 12px) + clamp(24px, 4vh, 48px));
   margin: 0;
   text-align: center;
-  pointer-events: none;
-  z-index: 290; /* выше контента */
+  pointer-events: none;                 /* не ловит клики */
+  z-index: 1;                           /* ниже тостов/попапов, выше фона */
 }
 
 
