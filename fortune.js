@@ -128,9 +128,10 @@ const fmtLeft = (ms) => {
   const isSpun = () => {
   const until = getCooldownUntil();
   if (!until) return false;
-  if (Date.now() >= until) { clearCooldown(); return false; }
+  if (Date.now() >= until) { clearCooldown(); return false; } // авто-очистка просроченного
   return true;
 };
+
 
 
   const updateUI = () => {
@@ -178,6 +179,14 @@ function startCooldownUI(){
 
   const spinOnce = () => {
     if (spinning || isSpun()) return;
+
+    const left = getCooldownUntil() - Date.now();
+  if (left > 0) {
+    // кнопка кажется активной, но спин по кулдауну — объясняем пользователю
+    showToast(`Доступно через ${fmtLeft(left)}`);
+    updateUI(); // на всякий случай актуализируем UI
+    return;
+  }
 
     // блокируем сразу, чтобы не спамили кликами
     spinning = true;
