@@ -228,7 +228,7 @@ function startCooldownUI(){
   el.className = 'toast';
   el.textContent = text;
   document.body.appendChild(el);
-  setTimeout(() => el.remove(), 2400);
+  setTimeout(() => el.remove(), 4200);
 }
 
     const onDone = () => {
