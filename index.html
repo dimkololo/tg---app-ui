@@ -325,16 +325,9 @@
   <!-- Попап 3: призы/выплата -->
   <template id="tpl-prizes">
     <section class="popup prizes-popup">
-      <div class="prizes-grid" data-prizes>
-        <label class="prize-card chip"><input type="checkbox" class="check-input" /><span class="checkmark"></span><div class="prize-body"><div class="prize-title">Приз 1</div><div class="prize-sub">Описание</div></div></label>
-        <label class="prize-card chip"><input type="checkbox" class="check-input" /><span class="checkmark"></span><div class="prize-body"><div class="prize-title">Приз 2</div><div class="prize-sub">Описание</div></div></label>
-        <label class="prize-card chip"><input type="checkbox" class="check-input" /><span class="checkmark"></span><div class="prize-body"><div class="prize-title">Приз 3</div><div class="prize-sub">Описание</div></div></label>
-        <label class="prize-card chip"><input type="checkbox" class="check-input" /><span class="checkmark"></span><div class="prize-body"><div class="prize-title">Приз 4</div><div class="prize-sub">Описание</div></div></label>
-        <label class="prize-card chip"><input type="checkbox" class="check-input" /><span class="checkmark"></span><div class="prize-body"><div class="prize-title">Приз 5</div><div class="prize-sub">Описание</div></div></label>
-        <label class="prize-card chip"><input type="checkbox" class="check-input" /><span class="checkmark"></span><div class="prize-body"><div class="prize-title">Приз 6</div><div class="prize-sub">Описание</div></div></label>
-      </div>
-
-      <div class="u-center"><button class="btn-pay" type="button" disabled>Выплатить</button></div>
+      <!-- Список призов (динамически) -->
+      <div class="prize-grid" data-prize-grid></div>
+       <div class="u-center"><button class="btn-pay" type="button" disabled>Выплатить</button></div>
       <p class="pay-note">Нажимая кнопку «Выплатить» вы подтверждаете, что ознакомлены с правилами и публичной офертой.</p>
     </section>
   </template>
