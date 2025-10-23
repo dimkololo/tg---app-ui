@@ -55,7 +55,7 @@
 /* кнопка под колесом */
 .scene--fortune .btn-spin{
   position: relative;
-  z-index: 2;
+  z-index: 10;
   display:inline-flex; align-items:center; justify-content:center;
   min-width:220px; height:56px; border-radius:35px;
   border:0; cursor:pointer;
@@ -110,7 +110,9 @@
   position: absolute;
   inset: 0;
   transform-origin: 50% 50%;
+  z-index: 1; 
 }
+
 /* стрелка — сосед ротора, НЕ вращается */
 .wheel-pointer{
   position: absolute;
@@ -141,10 +143,6 @@
   pointer-events: none;              /* не перехватывает тапы */
 }
 
-#fortuneTimer { pointer-events: none; }
-.toast { pointer-events: none; }
-.wheel-rotor { z-index: 1; }
-.scene--fortune .btn-spin { position: relative; z-index: 10; }
 
 /* лёгкая «пружинка» стрелки */
 @keyframes pointer-bounce {
@@ -171,7 +169,9 @@
   z-index: 300;
   opacity: 0;
   animation: toast-in 220ms ease-out forwards, toast-out 400ms ease-in 3200ms forwards;
+  pointer-events: none;
 }
+
 @keyframes toast-in {
   from { transform: translateX(-50%) translateY(8px); opacity: 0; }
   to   { transform: translateX(-50%) translateY(0);    opacity: 1; }
@@ -260,10 +260,6 @@
   align-self: center;
 }
 
-/* таймер тоже по центру */
-#fortuneTimer{
-  text-align: center;
-}
 
 /* плавное появление/исчезновение содержимого вкладок */
 .tab-panel{ will-change: opacity, transform; }
@@ -284,6 +280,28 @@
   transition: background-color .2s ease, color .2s ease, box-shadow .2s ease, transform .16s ease;
 }
 .fortune-tab.is-active{ transform: translateY(-1px); }
+
+/* панель колеса — нужна опорная позиция для абсолютного таймера */
+.tab-panel[data-panel="wheel"]{
+  position: relative;                     /* ← опорный контейнер */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(20px, 4vh, 36px);
+}
+
+/* таймер поверх разметки, не влияет на поток */
+#fortuneTimer{
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(env(safe-area-inset-bottom, 12px) + clamp(24px, 4vh, 48px));
+  margin: 0;                              /* чтобы не добавлял отступы */
+  text-align: center;
+  pointer-events: none;                    /* клики проходят сквозь */
+  z-index: 6;                              /* выше фона, ниже тостов/попапов */
+}
+
 
 
 
