@@ -181,12 +181,12 @@ function startCooldownUI(){
     if (spinning || isSpun()) return;
 
     const left = getCooldownUntil() - Date.now();
-  if (left > 0) {
-    // кнопка кажется активной, но спин по кулдауну — объясняем пользователю
-    showToast(`Доступно через ${fmtLeft(left)}`);
-    updateUI(); // на всякий случай актуализируем UI
-    return;
-  }
+    if (left > 0) {
+      // кнопка кажется активной, но спин по кулдауну — объясняем пользователю
+      showToast(`Доступно через ${fmtLeft(left)}`);
+      updateUI(); // на всякий случай актуализируем UI
+      return;
+    }
 
     // блокируем сразу, чтобы не спамили кликами
     spinning = true;
