@@ -55,53 +55,29 @@ const panels = new Map(Array.from(document.querySelectorAll('.tab-panel')).map(p
 let currentTab = null;
 
 function setTab(name){
-  const next  = panels.get(name);
-  const prev  = panels.get(currentTab);
-
-  // переключаем состояния кнопок
   tabs.forEach(b=>{
     const on = b.dataset.tab === name;
     b.classList.toggle('is-active', on);
     b.setAttribute('aria-selected', on ? 'true' : 'false');
   });
+  panels.forEach((panel, key)=> panel.hidden = (key !== name));
 
-  if (prev && prev !== next) {
-    // красиво скрываем прежнюю панель
-    prev.classList.remove('anim-in');
-    prev.classList.add('anim-out');
-    prev.addEventListener('animationend', function hidePrev(){
-      prev.hidden = true;
-      prev.classList.remove('anim-out');
-      prev.removeEventListener('animationend', hidePrev);
-    }, { once:true });
-  }
-
-  // показываем новую с анимацией входа
-  if (next) {
-    next.hidden = false;                 // снять [hidden] перед анимацией
-    next.classList.remove('anim-out');
-    next.classList.add('anim-in');
-    next.addEventListener('animationend', ()=> next.classList.remove('anim-in'), { once:true });
-  }
-
-  // запомним/обновим URL
-  currentTab = name;
-  try{
+  // Сохраним в адресе и сессии
+  try {
     const url = new URL(location.href);
     url.searchParams.set('tab', name);
     history.replaceState(null, '', url.toString());
-  }catch{}
+    sessionStorage.setItem('fortune_tab', name);
+  } catch {}
 }
-
-
 // клик по табу
 tabs.forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
 
 // стартовая вкладка из URL или сессии (по умолчанию — колесо)
 (function initTab(){
   const urlTab = new URL(location.href).searchParams.get('tab');
+  const saved  = sessionStorage.getItem('fortune_tab');
   const initial = (urlTab || saved || 'wheel');
-  currentTab = initial;
   setTab(initial);
 })();
 
