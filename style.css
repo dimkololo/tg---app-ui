@@ -787,13 +787,24 @@ html,body{
   grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   gap: 12px;
 }
-@media (max-width:375px),(max-height:667px){ .prizes-grid{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:375px),(max-height:667px){ .prize-grid{grid-template-columns:repeat(2,1fr)} }
 /* Элемент списка: чекбокс + квадрат 100x100 */
 .prize-item{
+  position: relative;                /* якорь для .checkmark */
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px; /* отступ между квадратом и чекбоксом (если твой чекбокс рендерится отдельно) */
+  gap: 8px;
+}
+/* показать «точку» у выбранного */
+.prize-item .check-input:checked ~ .checkmark::after{
+  transform: scale(1);
+}
+/* (опционально) подсветить выбранную карточку */
+.prize-item .check-input:checked ~ .prize-card{
+  box-shadow:
+    inset 0 0 0 2px #FF7300,
+    0 0 0 1px rgba(0,0,0,.04);
 }
 .check-input{position:absolute; opacity:0; pointer-events:none}
 .checkmark{position:absolute; top:12px; right:12px; width:26px; height:26px; border-radius:50%; border:2px solid #FF7300}
