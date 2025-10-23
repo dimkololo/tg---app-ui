@@ -19,13 +19,16 @@
   <div id="orientationLock" class="orientation-lock" aria-hidden="true"></div>
   <main class="scene scene--fortune">
     <header class="fortune-topbar" role="banner">
-  <button class="btn-back" id="btnBack" type="button" aria-label="Назад">Назад</button>
+  <button class="btn-back" id="btnBack" type="button" aria-label="Назад">
+    <span class="i-back" aria-hidden="true"></span>
+  </button>
 
-  <!-- Табы -->
   <nav class="fortune-tabs" role="tablist" aria-label="Действия">
     <button class="fortune-tab is-active" role="tab" aria-selected="true" data-tab="wheel">Колесо фортуны</button>
     <button class="fortune-tab" role="tab" aria-selected="false" data-tab="tasks">Задания</button>
   </nav>
+
+  <span class="topbar-spacer" aria-hidden="true"></span>
 </header>
 
 <section class="fortune-body" role="main">
