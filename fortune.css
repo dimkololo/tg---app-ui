@@ -215,8 +215,8 @@
 /* простая иконка-стрелка без SVG */
 .i-back{
   width: 16px; height: 16px;
-  border-left: 2px solid currentColor;
-  border-bottom: 2px solid currentColor;
+  border-left: 3px solid currentColor;
+  border-bottom: 3px solid currentColor;
   transform: rotate(45deg);
 }
 
