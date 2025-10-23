@@ -782,12 +782,18 @@ html,body{
 
 .prizes-popup{width:100%; max-width:420px; display:grid; gap:14px}
 /* Сетка призов — растягивается, без пустых слотов */
+/* Сетка: слоты фиксированные по 100px, ряды начинаются слева */
 .prize-grid{
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(100px, 100px));
   gap: 12px;
+  justify-content: flex-start;      /* всегда слева */
 }
 @media (max-width:375px),(max-height:667px){ .prize-grid{grid-template-columns:repeat(2,1fr)} }
+/* Если приз ОДИН — центрируем всю сетку */
+.prize-grid:not(:has(.prize-item:nth-child(2))){
+  justify-content: center;          /* центр только для 1 элемента */
+}
 /* Элемент списка: чекбокс + квадрат 100x100 */
 .prize-item{
   display: inline-flex;
