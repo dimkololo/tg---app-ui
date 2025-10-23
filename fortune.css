@@ -178,7 +178,10 @@
   pointer-events: none;              /* не перехватывает тапы */
 }
 
-
+#fortuneTimer { pointer-events: none; }
+.toast { pointer-events: none; }
+.wheel-rotor { z-index: 1; }
+.scene--fortune .btn-spin { position: relative; z-index: 10; }
 
 /* лёгкая «пружинка» стрелки */
 @keyframes pointer-bounce {
