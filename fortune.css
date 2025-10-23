@@ -308,6 +308,9 @@
   text-align: center;
   pointer-events: none;                 /* не ловит клики */
   z-index: 1;                           /* ниже тостов/попапов, выше фона */
+  white-space: nowrap;     /* ← вся строка в одну линию */
+  display: block;          /* на всякий случай, чтобы не было inline-flex из прошлых правок */
+  line-height: 1.15;
 }
 
 
