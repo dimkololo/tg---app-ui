@@ -604,11 +604,9 @@ function initPrizes(){
     }
 
     grid.innerHTML = list.map(p => `
-  <label class="prize-item">
-    <input class="check-input" type="checkbox" name="prize" value="${p.id}">
+  <div class="prize-item" data-id="${p.id}" role="button" tabindex="0" title="${p.title||''}">
     <span class="prize-card" style="background-image:url('${p.img}')"></span>
-    <span class="checkmark"></span>
-  </label>
+  </div>
 `).join('');
 
     syncPayBtn();
@@ -616,10 +614,10 @@ function initPrizes(){
 
   // Кнопка «выплатить» активна только при выбранных призах
   function syncPayBtn(){
-    if (!payBtn) return;
-    const anyChecked = !!root.querySelector('.check-input:checked');
-    payBtn.disabled = !anyChecked;
-  }
+  if (!payBtn) return;
+  const anySelected = !!root.querySelector('.prize-item.is-selected');
+  payBtn.disabled = !anySelected;
+}
 
   root.addEventListener('change', (e)=>{
     if (e.target.matches('.check-input')) syncPayBtn();
