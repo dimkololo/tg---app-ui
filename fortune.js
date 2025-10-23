@@ -188,7 +188,7 @@ function startCooldownUI(){
   let currentTurns = 0;
 
   const spinOnce = () => {
-    if (spinning || isSpun()) return;
+    if (spinning) return;
 
     const left = getCooldownUntil() - Date.now();
   if (left > 0) {
