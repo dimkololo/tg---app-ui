@@ -175,7 +175,7 @@ function startCooldownUI(){
       updateUI();
       return;
     }
-    timerEl.textContent = fmtLeft(left);
+    timerEl.textContent = 'Возвращайся через: ' + fmtLeft(left);
   };
   tick();
   cdTimerId = setInterval(tick, 1000);
