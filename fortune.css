@@ -281,12 +281,6 @@
 }
 .fortune-tab.is-active{ transform: translateY(-1px); }
 
-.tab-panel[data-panel="wheel"]{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: clamp(20px, 4vh, 36px);
-}
 
 /* таймер поверх разметки, не влияет на поток */
 #fortuneTimer{
