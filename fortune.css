@@ -207,7 +207,7 @@
   border-radius: 14px;
   z-index: 300;
   opacity: 0;
-  animation: toast-in 220ms ease-out forwards, toast-out 400ms ease-in 1800ms forwards;
+  animation: toast-in 220ms ease-out forwards, toast-out 400ms ease-in 3200ms forwards;
 }
 @keyframes toast-in {
   from { transform: translateX(-50%) translateY(8px); opacity: 0; }
