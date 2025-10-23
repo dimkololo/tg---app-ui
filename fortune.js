@@ -70,6 +70,8 @@
       if (isReload) {
         sessionStorage.removeItem(STORAGE_SPUN);
         sessionStorage.removeItem(STORAGE_ORDER);
+        // ВАЖНО: 24h кулдаун хранится в localStorage
+      localStorage.removeItem('fortune_cd_until');
       }
     } catch {}
   })();
