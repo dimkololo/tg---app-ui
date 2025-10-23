@@ -48,6 +48,39 @@
   window.addEventListener('resize', update);
 })();
 
+  // --- ТАБЫ ---
+const tabs = Array.from(document.querySelectorAll('.fortune-tab'));
+const panels = new Map(Array.from(document.querySelectorAll('.tab-panel')).map(p => [p.dataset.panel, p]));
+
+function setTab(name){
+  tabs.forEach(b=>{
+    const on = b.dataset.tab === name;
+    b.classList.toggle('is-active', on);
+    b.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+  panels.forEach((panel, key)=> panel.hidden = (key !== name));
+
+  // Сохраним в адресе и сессии
+  try {
+    const url = new URL(location.href);
+    url.searchParams.set('tab', name);
+    history.replaceState(null, '', url.toString());
+    sessionStorage.setItem('fortune_tab', name);
+  } catch {}
+}
+
+// клик по табу
+tabs.forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
+
+// стартовая вкладка из URL или сессии (по умолчанию — колесо)
+(function initTab(){
+  const urlTab = new URL(location.href).searchParams.get('tab');
+  const saved  = sessionStorage.getItem('fortune_tab');
+  const initial = (urlTab || saved || 'wheel');
+  setTab(initial);
+})();
+
+
 
   // --- КОНСТАНТЫ ---
   const VALUES = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]; // 10 секторов
