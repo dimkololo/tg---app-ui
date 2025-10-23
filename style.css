@@ -1192,8 +1192,7 @@ html,body{
 .modal__dialog:has(.leaderboard-popup) .modal__close{ display:none; }
 
 /* Обрезаем содержимое по радиусу самого диалога — углы больше не «торчат» */
-.modal__dialog:has(.leaderboard-popup),
-.modal__dialog:has(.actions-popup){
+.modal__dialog:has(.leaderboard-popup){
   overflow: hidden;                 /* всё внутри режется по radius:42px */
 }
 
@@ -1376,40 +1375,6 @@ html,body{
 }
 
 
-/* Попап «Действия» (используем твои общие стили + чуть дополнений) */
-.actions-popup{
-  width:100%;
-  max-width:420px;
-  margin-inline:auto;
-  display:grid;
-  gap:14px;
-}
-.actions-title{
-  margin:0;
-  text-align:center;
-  color:#000;
-  font-weight:800;
-  font-size:20px;
-}
-.actions-buttons{
-  display:grid;
-  gap:12px;
-  justify-items:center;
-}
-
-/* Кнопки в попапе «Действия» без оранжевой тени */
-.modal__dialog:has(.actions-popup) .btn-pay{
-  box-shadow: none;                 /* или, если нужен нейтральный: 0 4px 10px rgba(0,0,0,.08) */
-}
-
-/* Меньше воздуха снизу у самого диалога для «Действий» */
-.modal__dialog:has(.actions-popup){
-  padding-bottom: 10px;             /* было 22px; подбери 8–12px по вкусу */
-}
-
-/* Чуть плотнее вертикальный ритм в попапе «Действия» (опционально) */
-.actions-popup{ gap: 10px; }
-.actions-buttons{ gap: 10px; }
 
 /* диалог — непрозрачный, скролл включён (у тебя это уже есть для .modal--opaque) */
 .modal--opaque .modal__dialog{ background: var(--chip); }
