@@ -9,6 +9,18 @@ window.PLAM = window.PLAM || {
   cooldownUntil: null // ← когда закончится кулдаун (ms), null если нет кулдауна
 };
 
+// --- Призы пользователя (храним локально до бэка) ---
+const PRIZES_KEY = 'plam_prizes';
+
+function loadPrizes(){
+  try { return JSON.parse(localStorage.getItem(PRIZES_KEY) || '[]'); }
+  catch(_) { return []; }
+}
+function savePrizes(list){
+  try { localStorage.setItem(PRIZES_KEY, JSON.stringify(list)); } catch(_) {}
+}
+
+window.PLAM.prizes = loadPrizes();
 
 
 
@@ -533,55 +545,6 @@ function initSubsRequired(){
 });
 }
 
-function initTasksPopup(){
-  const root = stackRoot.querySelector('.tasks-popup');
-  if (!root) return;
-
-  // Состояние заданий на время жизни страницы
-  const state = (window.PLAM.tasksV1 ||= {
-    ig:false, yt:false, done:false, rewarded:false
-  });
-
-  const btn = root.querySelector('[data-tasks-check]');
-  const aIG = root.querySelector('[data-task-ig]');
-  const aYT = root.querySelector('[data-task-yt]');
-
-  const sync = ()=>{
-    if (state.done){
-      btn.textContent = 'Спасибо';
-      btn.classList.add('is-ok'); // зелёная
-      btn.disabled = true;
-    } else {
-      btn.textContent = 'Проверить';
-      btn.classList.remove('is-ok');
-      btn.disabled = false;
-    }
-  };
-
-  // Считаем «подписан» по переходу по ссылке
-  aIG?.addEventListener('click', ()=>{ state.ig = true; });
-  aYT?.addEventListener('click', ()=>{ state.yt = true; });
-
-  btn?.addEventListener('click', ()=>{
-    if (state.ig && state.yt){
-      if (!state.rewarded){
-        window.PLAM.balance = (window.PLAM.balance || 0) + 10;
-        state.rewarded = true;
-        updatePlusBalanceUI();
-        persistBalance(); // ← ДОБАВИТЬ
-        try { window.Telegram?.WebApp?.showAlert?.('+10 PLAMc'); } catch(_) {}
-      }
-      state.done = true;
-      sync();
-    } else {
-      try { window.Telegram?.WebApp?.showAlert?.('Открой обе ссылки и вернись'); }
-      catch(_) { alert('Открой обе ссылки и вернись'); }
-    }
-  });
-
-  sync();
-}
-
 
 
 // --- Попап 2: магазин ---
@@ -605,20 +568,72 @@ function initBuyStars(){
 }
 
 // --- Попап 3: призы ---
+
+// Приветственный подарок — добавить один раз
+(function ensureWelcomePrize(){
+  const FLAG = 'plam_welcome_prize_given';
+  if (!localStorage.getItem(FLAG)) {
+    const list = loadPrizes();
+    list.push({
+      id: 'welcome-bear',
+      img: './bgicons/bear.png',
+      title: 'Приветственный подарок',
+    });
+    savePrizes(list);
+    window.PLAM.prizes = list;
+    localStorage.setItem(FLAG, '1');
+  }
+})();
+
 function initPrizes(){
   const root = modalRoot.querySelector('.prizes-popup');
   if (!root) return;
 
   const payBtn = root.querySelector('.btn-pay');
-  const sync = () => payBtn.disabled = !root.querySelector('.check-input:checked');
-  root.addEventListener('change', (e)=>{ if (e.target.matches('.check-input')) sync(); });
-  sync();
+  const grid   = root.querySelector('[data-prize-grid]');
 
-  payBtn.addEventListener('click', ()=>{
-    // TODO: логика выплаты
-    closeModal();
+  // Рендер сетки
+  function render(){
+    const list = (window.PLAM.prizes || []);
+    if (!grid) return;
+
+    if (list.length === 0){
+      grid.innerHTML = '<div style="opacity:.7;text-align:center;font-weight:800">Пока нет призов</div>';
+      payBtn && (payBtn.disabled = true);
+      return;
+    }
+
+    grid.innerHTML = list.map(p => `
+      <label class="prize-item">
+        <span class="prize-card" style="background-image:url('${p.img}')"></span>
+        <input class="check-input" type="checkbox" name="prize" value="${p.id}">
+      </label>
+    `).join('');
+
+    syncPayBtn();
+  }
+
+  // Кнопка «выплатить» активна только при выбранных призах
+  function syncPayBtn(){
+    if (!payBtn) return;
+    const anyChecked = !!root.querySelector('.check-input:checked');
+    payBtn.disabled = !anyChecked;
+  }
+
+  root.addEventListener('change', (e)=>{
+    if (e.target.matches('.check-input')) syncPayBtn();
   });
+
+  render();
+
+  // Нажатие на «выплатить» — пока просто закрыть (дальше привяжешь реальную логику)
+  payBtn?.addEventListener('click', ()=>{
+    // тут можешь собрать отмеченные призы:
+    // const ids = [...root.querySelectorAll('.check-input:checked')].map(i => i.value);
+    closeModal();
+  }, { once: true });
 }
+
 
 // --- Попап 4: профиль ---
 function initProfile(){
