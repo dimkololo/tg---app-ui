@@ -172,6 +172,7 @@ function startCooldownUI(){
       stopCooldownUI();
       timerEl.hidden = true;
       clearCooldown();
+      sessionStorage.removeItem(STORAGE_TIMER_SEEN);
       updateUI();
       return;
     }
