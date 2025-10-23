@@ -265,5 +265,26 @@
   text-align: center;
 }
 
+/* плавное появление/исчезновение содержимого вкладок */
+.tab-panel{ will-change: opacity, transform; }
+.tab-panel.anim-in{  animation: panel-in 220ms ease-out both; }
+.tab-panel.anim-out{ animation: panel-out 180ms ease-in  both; }
+
+@keyframes panel-in{
+  from{ opacity:0; transform: translateY(6px) scale(.98); }
+  to  { opacity:1; transform: none; }
+}
+@keyframes panel-out{
+  from{ opacity:1; transform: none; }
+  to  { opacity:0; transform: translateY(6px) scale(.98); }
+}
+
+/* немного анимации кнопок-таба */
+.fortune-tab{
+  transition: background-color .2s ease, color .2s ease, box-shadow .2s ease, transform .16s ease;
+}
+.fortune-tab.is-active{ transform: translateY(-1px); }
+
+
 
 
