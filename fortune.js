@@ -137,23 +137,17 @@ const fmtLeft = (ms) => {
 
 
 
- const updateUI = () => {
+const updateUI = () => {
   if (isSpun()) {
     btnSpin.setAttribute('disabled', 'true');
-    // показываем таймер ТОЛЬКО если пользователь уже нажимал в этой сессии
-    if (sessionStorage.getItem(STORAGE_TIMER_SEEN) === '1') {
-      startCooldownUI();
-    } else {
-      stopCooldownUI();
-      if (timerEl) timerEl.hidden = true;
-    }
+    startCooldownUI();                 // ← всегда показываем таймер, если кулдаун активен
   } else {
     btnSpin.removeAttribute('disabled');
     stopCooldownUI();
     if (timerEl) timerEl.hidden = true;
-    sessionStorage.removeItem(STORAGE_TIMER_SEEN); // таймер «забываем», как и просили
   }
 };
+
   updateUI();
 
 function stopCooldownUI(){
@@ -192,7 +186,6 @@ function startCooldownUI(){
     const left = getCooldownUntil() - Date.now();
   if (left > 0) {
     // нажали во время кулдауна — НЕ тост, а показать таймер
-    sessionStorage.setItem(STORAGE_TIMER_SEEN, '1');
     startCooldownUI();      // сразу показать отсчёт
     btnSpin.setAttribute('disabled', 'true');
     return;
@@ -210,7 +203,6 @@ function startCooldownUI(){
   }
     // СРАЗУ выставляем дедлайн и показываем таймер
   markSpun();
-  sessionStorage.setItem(STORAGE_TIMER_SEEN, '1');
   updateUI();
 
     const targetIndex = Math.floor(Math.random() * SECTORS);
@@ -268,4 +260,9 @@ function startCooldownUI(){
     });
   }
 })();
+
+// При возврате со страницы главной (bfcache) и при активации вкладки — освежить таймер/кнопку
+window.addEventListener('pageshow', updateUI);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) updateUI(); });
+
 
