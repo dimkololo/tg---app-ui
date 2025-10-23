@@ -643,12 +643,32 @@ grid.addEventListener('keydown', (e) => {
 
   render();
 
-  // Нажатие на «выплатить» — пока просто закрыть (дальше привяжешь реальную логику)
-  payBtn?.addEventListener('click', ()=>{
-    // тут можешь собрать отмеченные призы:
-    // const ids = [...root.querySelectorAll('.check-input:checked')].map(i => i.value);
-    closeModal();
-  }, { once: true });
+  payBtn?.addEventListener('click', () => {
+  const list = loadPrizes();
+  const ids = [...root.querySelectorAll('.prize-item.is-selected')].map(el => el.dataset.id);
+
+  ids.forEach(id => {
+    const p = list.find(x => x.id === id);
+    if (!p) return;
+
+    if (p.kind === 'tg_gift' && p.claimUrl){
+      try { window.Telegram?.WebApp?.openTelegramLink?.(p.claimUrl); }
+      catch(_) { location.href = p.claimUrl; }
+    }
+    p.claimed = true;  // пометили как выданный
+  });
+
+  const next = list.filter(p => !p.claimed);  // удаляем выданные из списка
+  savePrizes(next);
+  window.PLAM.prizes = next;
+
+  // перерисовать и закрыть
+  grid.innerHTML = '';
+  // можно тут же вызвать render(), если держишь её видимой в области:
+  // render();
+  closeModal();
+});
+
 }
 
 
