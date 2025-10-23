@@ -18,35 +18,41 @@
   <!-- Оверлей при горизонтальной ориентации -->
   <div id="orientationLock" class="orientation-lock" aria-hidden="true"></div>
   <main class="scene scene--fortune">
-    <!-- ВЕРХНЯЯ ПАНЕЛЬ: кнопка «Назад» -->
     <header class="fortune-topbar" role="banner">
-      <button class="btn-back" id="btnBack" type="button" aria-label="Назад">Назад</button>
-    </header>
+  <button class="btn-back" id="btnBack" type="button" aria-label="Назад">Назад</button>
 
-    <!-- ЦЕНТР СТРАНИЦЫ: колесо + кнопка -->
-    <section class="fortune-body" role="main">
-      <div class="wheel-stack" id="wheel">
-         <!-- РОТОР: крутится целиком (и PNG, и цифры) -->
-        <div class="wheel-rotor" id="wheelRotor">
-          <img class="wheel-img" id="wheelImg" src="./bgicons/wheel.png" alt="Колесо">
-          <div class="wheel__numbers" id="wheelNumbers"></div>
-        </div>
+  <!-- Табы -->
+  <nav class="fortune-tabs" role="tablist" aria-label="Действия">
+    <button class="fortune-tab is-active" role="tab" aria-selected="true" data-tab="wheel">Колесо фортуны</button>
+    <button class="fortune-tab" role="tab" aria-selected="false" data-tab="tasks">Задания</button>
+  </nav>
+</header>
 
-        <!-- ЦЕНТРАЛЬНАЯ ИКОНКА: НЕ крутится -->
-        <img class="wheel-center" src="./bgicons/earth-item@3x.png" alt="" aria-hidden="true">
-        <!-- УКАЗАТЕЛЬ: не крутится -->
-        <img class="wheel-pointer" src="./bgicons/pointer.png" alt="" aria-hidden="true">
+<section class="fortune-body" role="main">
+  <!-- ПАНЕЛЬ: Колесо -->
+  <div class="tab-panel" data-panel="wheel">
+    <div class="wheel-stack" id="wheel">
+      <div class="wheel-rotor" id="wheelRotor">
+        <img class="wheel-img" id="wheelImg" src="./bgicons/wheel.png" alt="Колесо">
+        <div class="wheel__numbers" id="wheelNumbers"></div>
       </div>
+      <img class="wheel-center" src="./bgicons/earth-item@3x.png" alt="" aria-hidden="true">
+      <img class="wheel-pointer" src="./bgicons/pointer.png" alt="" aria-hidden="true">
+    </div>
 
+    <button class="btn-spin" id="btnSpin" type="button">Вращать</button>
+    <p class="fortune__note" id="fortuneTimer" hidden></p>
+  </div>
 
-      <!-- КНОПКА «Вращать» -->
-      <button class="btn-spin" id="btnSpin" type="button">Вращать</button>
-      
-        <!-- таймер 24ч — сначала скрыт -->
-        <p class="fortune__note" id="fortuneTimer" hidden></p>
+  <!-- ПАНЕЛЬ: Задания (пока пустая) -->
+  <div class="tab-panel" data-panel="tasks" hidden>
+    <div class="tasks-empty">
+      <img src="./bgicons/notebook.png" alt="" class="tasks-empty__img" aria-hidden="true">
+      <p class="tasks-empty__text">Раздел «Задания» скоро будет доступен</p>
+    </div>
+  </div>
+</section>
 
-      
-    </section>
   </main>
 
   <!-- Основной скрипт страницы колеса -->
