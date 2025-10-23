@@ -604,11 +604,12 @@ function initPrizes(){
     }
 
     grid.innerHTML = list.map(p => `
-      <label class="prize-item">
-        <span class="prize-card" style="background-image:url('${p.img}')"></span>
-        <input class="check-input" type="checkbox" name="prize" value="${p.id}">
-      </label>
-    `).join('');
+  <label class="prize-item">
+    <input class="check-input" type="checkbox" name="prize" value="${p.id}">
+    <span class="prize-card" style="background-image:url('${p.img}')"></span>
+    <span class="checkmark"></span>
+  </label>
+`).join('');
 
     syncPayBtn();
   }
