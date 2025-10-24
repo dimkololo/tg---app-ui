@@ -350,11 +350,28 @@ function initUploadPopup(){
   const starsEl     = root.querySelector('[data-stars]');
   const secsEl      = root.querySelector('[data-secs]');
   const urlInput    = root.querySelector('input[name="social"]');
+  const infoBtn   = root.querySelector('.btn-info'); // ваша кнопка «!»
 
   // локальный state
   let objectUrl = null;
   let hasFile   = false;
   let cdTimerId = null; // интервал большого таймера
+
+   // «!» — всегда открывает справочную версию БЕЗ чекбокса
+  infoBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    openPolicyInfo();
+  });
+   // Перехватываем первый клик по input[type=file]
+  fileInput?.addEventListener('click', (e) => {
+    if (!localStorage.getItem(POLICY_FLAG)) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      // после принятия правил повторим клик по инпуту
+      openPolicyRequired(() => fileInput.click());
+    }
+  });
 
   // строка с большим таймером над кнопкой (создаём один раз)
   const submitRow = submitBtn?.closest('.u-center');
