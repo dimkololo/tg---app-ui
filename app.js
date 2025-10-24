@@ -285,26 +285,25 @@ syncBalanceFromLS();
 const POLICY_FLAG = 'policy_accept_v1';
 
 function ensurePolicyAccepted(next){
-  if (localStorage.getItem(POLICY_FLAG) === '1') { next?.(); return; }
+  if (localStorage.getItem('policy_accept_v1') === '1') { next?.(); return; }
 
-  
-  // На всякий случай закрыть стек, чтобы ничего не торчало позади
-  try { closeStack(); } catch(_) {}
+  try { closeStack(); } catch(_) {}      // на всякий случай закрыть стек
 
-  openModal('policy'); // откроет template id="tpl-policy"
+  openModal('policy');
   const root = modalRoot.querySelector('.policy-popup');
   const chk  = root.querySelector('#policyAgree');
   const ok   = root.querySelector('#policyAccept');
 
-  const sync = () => { ok.disabled = !chk.checked; };
+  const sync = () => ok.disabled = !chk.checked;
   chk.addEventListener('change', sync); sync();
 
   ok.addEventListener('click', () => {
-    localStorage.setItem(POLICY_FLAG, '1');
+    localStorage.setItem('policy_accept_v1','1');
     closeModal();
     next?.();
-  }, { once: true });
+  }, { once:true });
 }
+
 
 function initUploadPopup(){
   const root = modalRoot.querySelector('.upload-popup');
