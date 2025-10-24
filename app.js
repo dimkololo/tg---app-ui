@@ -341,15 +341,6 @@ updatePlusBalanceUI();
 syncBalanceFromLS();
 
 // --- Попап 1: загрузка фото ---
-
-// Одноразовое согласие с правилами
-function ensurePolicyAccepted(next){
-  if (localStorage.getItem(POLICY_FLAG) === '1') { next?.(); return; }
-  openPolicyRequired(() => next?.());
-}
-
-
-
 function initUploadPopup(){
   const root = modalRoot.querySelector('.upload-popup');
   if (!root) return;
