@@ -317,7 +317,9 @@ syncBalanceFromLS();
 // Одноразовое согласие с правилами
 
 function ensurePolicyAccepted(next){
-  if (localStorage.getItem('policy_accept_v1') === '1') { next?.(); return; }
+   if (localStorage.getItem(POLICY_FLAG) === '1') { next?.(); return; }
+  openPolicyRequired(() => next?.());
+}
 
   try { closeStack(); } catch(_) {}      // на всякий случай закрыть стек
 
