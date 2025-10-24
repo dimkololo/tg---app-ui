@@ -228,6 +228,17 @@ function closeModal(){
   document.documentElement.style.overflow = '';
 }
 
+// Если жмут на кнопку открытия загрузки — сначала спрашиваем согласие с Правилами
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-open-modal="upload-popup"]');
+  if (!btn) return;
+
+  e.preventDefault();
+  e.stopPropagation();
+  ensurePolicyAccepted(() => openModal('upload-popup'));
+}, true); // capture = true
+
+
 document.addEventListener('click', (e) => {
   const opener = e.target.closest('[data-open-modal]');
   if (opener) { openModal(opener.getAttribute('data-open-modal')); return; }
