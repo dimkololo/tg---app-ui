@@ -1559,6 +1559,73 @@ html,body{
   left: auto;    /* ← убираем «слева» */
 }
 
+/* === Policy popup buttons === */
+.policy-popup .modal__actions{
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 14px;
+}
+
+.policy-popup .btn{
+  flex: 1 1 0;
+  min-width: 140px;
+  height: 52px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 28px;
+  font-weight: 800;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  background: #D9D9D9;
+  color: #222;
+  box-shadow: 0 2px 6px rgba(0,0,0,.08);
+}
+
+.policy-popup .btn:active{ transform: translateY(1px); }
+
+/* основная (оранжевая) */
+.policy-popup .btn-primary{
+  background: #FF7300;
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(255,115,0,.25);
+}
+
+/* disabled — серая и некликабельна */
+.policy-popup .btn[disabled],
+.policy-popup .btn-primary[disabled]{
+  background: #D9D9D9 !important;
+  color: #777 !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+}
+
+/* поведение на фокус для доступности */
+.policy-popup .btn:focus-visible{
+  outline: 3px solid rgba(255,115,0,.5);
+  outline-offset: 2px;
+}
+
+/* чекбокс и подпись — крупнее и приятнее */
+.policy-popup .policy-check{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.policy-popup .policy-check input[type="checkbox"]{
+  width: 22px;
+  height: 22px;
+  accent-color: #FF7300; /* поддерживается в современных браузерах */
+}
+
+
 /* Если у стека нет глобального затемнения — оставь как есть (у тебя JS ставит 50%) */
 /* Но базово можно так, если вдруг понадобится общий стиль:
 [data-modal-stack]:not([aria-hidden="true"]) .modal__backdrop{
