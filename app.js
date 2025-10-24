@@ -141,14 +141,15 @@ function openModal(id){
   if (id === 'policy-required' || id === 'policy-info' || id === 'policy') initPolicyModal?.();
 }
 
+// --- Политика (один раз принять + отдельный инфо-показ) ---
 const POLICY_FLAG = 'plam_policy_accepted_v1';
 
 function openPolicyRequired(onAccepted){
-  openModal('policy-required');
-  const root = modalRoot.querySelector('.policy-popup');
+  openModal('policy-required');                 // шаблон с чекбоксом
+  const root   = modalRoot.querySelector('.policy-popup');
   if (!root) return;
 
-  const agree = root.querySelector('#policyAgree');
+  const agree  = root.querySelector('#policyAgree');
   const accept = root.querySelector('#policyAccept');
 
   accept.disabled = true;
@@ -164,8 +165,14 @@ function openPolicyRequired(onAccepted){
 }
 
 function openPolicyInfo(){
-  openModal('policy-info'); // просто показать, закрытие по [data-dismiss]
+  openModal('policy-info');                     // шаблон без чекбокса
 }
+
+function ensurePolicyAccepted(next){
+  if (localStorage.getItem(POLICY_FLAG) === '1') { next?.(); return; }
+  openPolicyRequired(() => next?.());
+}
+
 
 
 // второй слой модалки (стек)
