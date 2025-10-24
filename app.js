@@ -141,31 +141,18 @@ function openModal(id){
   if (id === 'policy-required' || id === 'policy-info' || id === 'policy') initPolicyModal?.();
 }
 
-// --- Политика (один раз принять + отдельный инфо-показ) ---
+// --- Политика (один раз принять + инфо-показ без галки) ---
 const POLICY_FLAG = 'plam_policy_accepted_v1';
 
 function openPolicyRequired(onAccepted){
-  openModal('policy-required');                 // шаблон с чекбоксом
-  const root   = modalRoot.querySelector('.policy-popup');
-  if (!root) return;
-
-  const agree  = root.querySelector('#policyAgree');
-  const accept = root.querySelector('#policyAccept');
-
-  accept.disabled = true;
-  agree?.addEventListener('change', () => {
-    accept.disabled = !agree.checked;
-  });
-
-  accept?.addEventListener('click', () => {
-    localStorage.setItem(POLICY_FLAG, '1');
-    closeModal();
-    onAccepted?.();
-  }, { once:true });
+  openModal('policy-required');                   // шаблон с чекбоксом
+  wirePolicyModal({ required: true, onAccept: onAccepted });
 }
 
+
 function openPolicyInfo(){
-  openModal('policy-info');                     // шаблон без чекбокса
+  openModal('policy-info');                       // шаблон без чекбокса
+  wirePolicyModal({ required: false });
 }
 
 function ensurePolicyAccepted(next){
