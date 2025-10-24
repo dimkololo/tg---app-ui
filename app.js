@@ -133,6 +133,7 @@ function openModal(id){
   if (id === 'profile')      initProfile();
   if (id === 'premium-timer') initPremiumTimer();
   if (id === 'faq') initFAQ();
+  if (id === 'policy') initPolicyModal();
 }
 
 // второй слой модалки (стек)
