@@ -1657,6 +1657,54 @@ html,body{
   accent-color: #FF7300; /* поддерживается в современных браузерах */
 }
 
+/* Плавные анимации для всех модалок */
+.modal,
+.modal--stack{
+  /* твои позиционирования остаются как есть */
+}
+
+.modal__backdrop{
+  /* старт — прозрачный */
+  background: rgba(0,0,0,0);
+  transition: background 220ms ease;
+}
+
+/* при открытом состоянии */
+.modal[aria-hidden="false"] .modal__backdrop{
+  background: rgba(0,0,0,.5);
+}
+
+/* диалог: лёгкий подъём + scale + fade */
+.modal__dialog{
+  transform: translateY(12px) scale(.98);
+  opacity: 0;
+  transition:
+    transform 260ms cubic-bezier(.22,.61,.36,1),
+    opacity   220ms ease;
+  will-change: transform, opacity;
+}
+
+/* открыто */
+.modal[aria-hidden="false"] .modal__dialog{
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+/* фаза закрытия: чуть вниз и лёгкое уменьшение прозрачности */
+.modal.is-leaving .modal__dialog{
+  transform: translateY(8px) scale(.985);
+  opacity: 0;
+}
+
+/* уважение к настройкам пользователя */
+@media (prefers-reduced-motion: reduce){
+  .modal__dialog,
+  .modal__backdrop{
+    transition: none !important;
+  }
+}
+
+
 
 /* Если у стека нет глобального затемнения — оставь как есть (у тебя JS ставит 50%) */
 /* Но базово можно так, если вдруг понадобится общий стиль:
