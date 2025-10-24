@@ -121,18 +121,24 @@ const modalContent = document.querySelector('[data-modal-content]');
 function openModal(id){
   const tpl = document.getElementById(`tpl-${id}`);
   if (!tpl) return;
+
   modalContent.innerHTML = '';
   modalContent.appendChild(tpl.content.cloneNode(true));
+
+  // показываем без задержки, но не ставим класс ухода
+  modalRoot.classList.remove('is-leaving');
   modalRoot.hidden = false;
   modalRoot.setAttribute('aria-hidden','false');
   document.documentElement.style.overflow = 'hidden';
 
+  // если надо что-то инициализировать после вставки:
   if (id === 'upload-popup') initUploadPopup();
   if (id === 'buy-stars')    initBuyStars();
   if (id === 'prizes')       initPrizes();
   if (id === 'profile')      initProfile();
   if (id === 'premium-timer') initPremiumTimer();
   if (id === 'faq') initFAQ();
+  if (id === 'policy-required' || id === 'policy-info' || id === 'policy') initPolicyModal?.();
 }
 
 const POLICY_FLAG = 'plam_policy_accepted_v1';
@@ -169,23 +175,35 @@ const stackContent = document.querySelector('[data-stack-content]');
 function openStack(id){
   const tpl = document.getElementById(`tpl-${id}`);
   if (!tpl) return;
+
   stackContent.innerHTML = '';
   stackContent.appendChild(tpl.content.cloneNode(true));
+
+  stackRoot.classList.remove('is-leaving');
   stackRoot.hidden = false;
   stackRoot.setAttribute('aria-hidden','false');
 
   if (id === 'premium-timer')   initPremiumTimer();
-  if (id === 'confirm-premium') initConfirmPremium();   // ← добавь это
-  if (id === 'subs-required')  initSubsRequired();
-  if (id === 'premium-help')  initPremiumHelp();
-  
+  if (id === 'confirm-premium') initConfirmPremium();
+  if (id === 'subs-required')   initSubsRequired();
+  if (id === 'premium-help')    initPremiumHelp();
+  if (id === 'actions-tasks')   initTasksPopup?.();
 }
 
 
 function closeStack(){
-  stackRoot.hidden = true;
+  stackRoot.classList.add('is-leaving');
   stackRoot.setAttribute('aria-hidden','true');
-  stackContent.innerHTML = '';
+
+  const done = () => {
+    stackRoot.hidden = true;
+    stackRoot.classList.remove('is-leaving');
+    stackContent.innerHTML = '';
+    stackRoot.removeEventListener('transitionend', done);
+  };
+
+  stackRoot.addEventListener('transitionend', done);
+  setTimeout(done, 350);
 }
 
 
@@ -248,10 +266,21 @@ function initPremiumTimer(){
 
 
 function closeModal(){
-  modalRoot.hidden = true;
+  // запускаем анимацию закрытия
+  modalRoot.classList.add('is-leaving');
   modalRoot.setAttribute('aria-hidden','true');
-  modalContent.innerHTML = '';
-  document.documentElement.style.overflow = '';
+
+  const done = () => {
+    modalRoot.hidden = true;
+    modalRoot.classList.remove('is-leaving');
+    modalContent.innerHTML = '';
+    document.documentElement.style.overflow = '';
+    modalRoot.removeEventListener('transitionend', done);
+  };
+
+  // ждём конца transition на диалоге (или таймаут как страховка)
+  modalRoot.addEventListener('transitionend', done);
+  setTimeout(done, 350);
 }
 
 // ПЕРЕХВАТ: если жмут на "Загрузку фото", сначала показываем "Правила"
