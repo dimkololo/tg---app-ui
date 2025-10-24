@@ -104,16 +104,18 @@
   <section class="popup upload-popup">
     <div class="u-center">
   <div class="pick-wrap">
-    <button class="btn-pick" type="button">Выбрать фото</button>
-    <!-- ВАЖНО: без hidden, без display:none -->
-    <input id="file-input"
-           class="file-input-overlay"
-           type="file"
-           accept="image/*"
-            />
+    <div class="pick-row">
+      <button class="btn-pick" type="button">Выбрать фото</button>
+      <button class="btn-info" type="button" data-open-policy title="Правила">!</button>
+
+      <!-- overlay должен лежать В ЭТОМ ЖЕ блоке, но перекрывать ТОЛЬКО левую кнопку -->
+      <input id="file-input"
+             class="file-input-overlay"
+             type="file"
+             accept="image/*">
+    </div>
   </div>
 </div>
-
 
     <!-- ПРЕДПРОСМОТР (между кнопкой и слайдером) -->
     <div class="picked-box" data-picked>
