@@ -8,8 +8,22 @@ window.PLAM = window.PLAM || {
   balance: 0, premium: false, photoCount: 0, premiumUntil: null, subsOk: false,
   cooldownUntil: null // ← когда закончится кулдаун (ms), null если нет кулдауна
 };
+// Выдать приветственные 50 PLAMc один раз
+(function ensureWelcomeCoins(){
+  const FLAG = 'plam_welcome_coins_given_v1';
+  if (!localStorage.getItem(FLAG)) {
+    addPrize({
+      id: 'welcome-coins-50',
+      kind: 'coins',
+      amount: 50,
+      img: './bgicons/plam-50.png', // ← твоя PNG (замени путь/имя при необходимости)
+      title: 'Приветственный приз: 50 PLAMc'
+    });
+    localStorage.setItem(FLAG, '1');
+  }
+})();
 
-// --- Призы пользователя (храним локально до бэка) ---
+// --- Призы пользователя ---
 const PRIZES_KEY = 'plam_prizes';
 
 function loadPrizes(){
@@ -18,6 +32,15 @@ function loadPrizes(){
 }
 function savePrizes(list){
   try { localStorage.setItem(PRIZES_KEY, JSON.stringify(list)); } catch(_) {}
+}
+
+// Добавить приз (coins/image/etc.)
+function addPrize(prize){
+  // prize: { id, kind:'coins', amount, img, title, claimed? }
+  const list = loadPrizes();
+  list.push(prize); // монет может быть много отдельных призов, не мержим
+  savePrizes(list);
+  window.PLAM.prizes = list;
 }
 
 window.PLAM.prizes = loadPrizes();
@@ -569,22 +592,6 @@ function initBuyStars(){
 
 // --- Попап 3: призы ---
 
-// Приветственный подарок — добавить один раз
-(function ensureWelcomePrize(){
-  const FLAG = 'plam_welcome_prize_given';
-  if (!localStorage.getItem(FLAG)) {
-    const list = loadPrizes();
-    list.push({
-      id: 'welcome-bear',
-      img: './bgicons/bear.png',
-      title: 'Приветственный подарок',
-    });
-    savePrizes(list);
-    window.PLAM.prizes = list;
-    localStorage.setItem(FLAG, '1');
-  }
-})();
-
 function initPrizes(){
   const root = modalRoot.querySelector('.prizes-popup');
   if (!root) return;
@@ -592,84 +599,87 @@ function initPrizes(){
   const payBtn = root.querySelector('.btn-pay');
   const grid   = root.querySelector('[data-prize-grid]');
 
-  // Рендер сетки
   function render(){
-    const list = (window.PLAM.prizes || []);
+    const list = (window.PLAM.prizes = loadPrizes());
     if (!grid) return;
 
-    if (list.length === 0){
+    if (!list.length){
       grid.innerHTML = '<div style="opacity:.7;text-align:center;font-weight:800">Пока нет призов</div>';
       payBtn && (payBtn.disabled = true);
       return;
     }
 
     grid.innerHTML = list.map(p => `
-  <div class="prize-item" data-id="${p.id}" role="button" tabindex="0" title="${p.title||''}">
-    <span class="prize-card" style="background-image:url('${p.img}')"></span>
-  </div>
-`).join('');
+      <div class="prize-item" data-id="${p.id}" role="button" tabindex="0" title="${p.title||''}">
+        <span class="prize-card" style="background-image:url('${p.img}')"></span>
+      </div>
+    `).join('');
 
     syncPayBtn();
   }
 
-  // Кнопка «выплатить» активна только при выбранных призах
+  function selectedIds(){
+    return [...root.querySelectorAll('.prize-item.is-selected')].map(el => el.dataset.id);
+  }
+
   function syncPayBtn(){
-  if (!payBtn) return;
-  const anySelected = !!root.querySelector('.prize-item.is-selected');
-  payBtn.disabled = !anySelected;
-}
+    if (!payBtn) return;
+    payBtn.disabled = selectedIds().length === 0;
+  }
 
-  // Делегирование кликов по сетке
-grid.addEventListener('click', (e) => {
-  const item = e.target.closest('.prize-item');
-  if (!item) return;
-  item.classList.toggle('is-selected');
-  syncPayBtn();
-});
-
-// Доступность с клавиатуры (Enter/Space)
-grid.addEventListener('keydown', (e) => {
-  if (e.key !== 'Enter' && e.key !== ' ') return;
-  const item = e.target.closest('.prize-item');
-  if (!item) return;
-  e.preventDefault();
-  item.classList.toggle('is-selected');
-  syncPayBtn();
-});
-
-  root.addEventListener('change', (e)=>{
-    if (e.target.matches('.check-input')) syncPayBtn();
+  // Выделение карточек кликом/клавой
+  grid.addEventListener('click', (e)=>{
+    const item = e.target.closest('.prize-item');
+    if (!item) return;
+    item.classList.toggle('is-selected');
+    syncPayBtn();
   });
+  grid.addEventListener('keydown', (e)=>{
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const item = e.target.closest('.prize-item');
+    if (!item) return;
+    e.preventDefault();
+    item.classList.toggle('is-selected');
+    syncPayBtn();
+  });
+
+  // Выплата: зачисляем монеты и удаляем выбранные призы
+  payBtn?.addEventListener('click', ()=>{
+    const list = loadPrizes();
+    const ids = selectedIds();
+
+    // считаем сумму монет по выбранным «coins»-призам
+    const sum = ids.reduce((acc, id)=>{
+      const p = list.find(x => x.id === id);
+      if (p && p.kind === 'coins') acc += (Number(p.amount) || 0);
+      return acc;
+    }, 0);
+
+    if (sum > 0){
+      // + монеты в общий баланс
+      window.PLAM.balance = (window.PLAM.balance || 0) + sum;
+      // синхронизируем локально, чтобы колесо и главная видели одно и то же хранилище
+      try { localStorage.setItem('plam_balance', String(window.PLAM.balance)); } catch(_) {}
+      // перерисуем «облако плюс»
+      try { updatePlusBalanceUI(); } catch(_) {}
+
+      // показать уведомление
+      try { window.Telegram?.WebApp?.showAlert?.(`+${sum} PLAMc`); } catch(_) {}
+    }
+
+    // удалить выданные призы
+    const next = list.filter(p => !ids.includes(p.id));
+    savePrizes(next);
+    window.PLAM.prizes = next;
+
+    // обновить UI
+    render();
+    closeModal();
+  }, { once: true });
 
   render();
-
-  payBtn?.addEventListener('click', () => {
-  const list = loadPrizes();
-  const ids = [...root.querySelectorAll('.prize-item.is-selected')].map(el => el.dataset.id);
-
-  ids.forEach(id => {
-    const p = list.find(x => x.id === id);
-    if (!p) return;
-
-    if (p.kind === 'tg_gift' && p.claimUrl){
-      try { window.Telegram?.WebApp?.openTelegramLink?.(p.claimUrl); }
-      catch(_) { location.href = p.claimUrl; }
-    }
-    p.claimed = true;  // пометили как выданный
-  });
-
-  const next = list.filter(p => !p.claimed);  // удаляем выданные из списка
-  savePrizes(next);
-  window.PLAM.prizes = next;
-
-  // перерисовать и закрыть
-  grid.innerHTML = '';
-  // можно тут же вызвать render(), если держишь её видимой в области:
-  // render();
-  closeModal();
-});
-
 }
+
 
 
 // --- Попап 4: профиль ---
