@@ -191,8 +191,8 @@
   </section>
 </template>
 
-  <!-- Правила отправки фото — БЕЗ вложенной .modal -->
-<template id="tpl-policy">
+  <!-- Правила: обязательное согласие (первый раз) -->
+<template id="tpl-policy-required">
   <section class="popup policy-popup">
     <h3 class="modal__title">Правила отправки фото</h3>
 
@@ -213,6 +213,24 @@
     </div>
   </section>
 </template>
+
+<!-- Правила: справка (по клику на «!») -->
+<template id="tpl-policy-info">
+  <section class="popup policy-popup">
+    <h3 class="modal__title">Правила отправки фото</h3>
+
+    <div class="policy-body is-scrollable">
+      <p><strong>Запрещено:</strong> обнажёнка/эротика; алкоголь/табак/наркотики; насилие и опасные действия; дискриминация/экстремизм; реклама, QR-коды, ссылки и контакты; личные/конфиденциальные данные; чужие фото без согласия; попытки обхода модерации.</p>
+      <p><strong>Требования:</strong> безопасный сюжет, без водяных знаков и крупных надписей, приличное качество.</p>
+      <p>Отправляя фото, вы подтверждаете, что вам 13+ и у вас есть права на изображение. Мы можем удалять материалы и ограничивать доступ при нарушениях.</p>
+    </div>
+
+    <div class="modal__actions">
+      <button class="btn btn-primary" data-dismiss>Понятно</button>
+    </div>
+  </section>
+</template>
+
 
 
 
