@@ -179,12 +179,14 @@ function wirePolicyModal({ required, onAccept } = {}){
   agree?.addEventListener('change', sync);
 
   // нажатие «Принять» / «Ок»
-  accept?.addEventListener('click', () => {
-    if (required && !(agree && agree.checked)) return; // защита от форса
-    if (required) localStorage.setItem(POLICY_FLAG, '1');
-    closeModal();
-    onAccept?.();
-  }, { once: true });
+accept?.addEventListener('click', () => {
+  if (required && !(agree && agree.checked)) return; // защита от форса
+  if (required) localStorage.setItem(POLICY_FLAG, '1');
+  closeModal(() => {
+    onAccept?.();              // открываем следующий попап уже после закрытия правил
+  });
+}, { once: true });
+
 }
 
 // Хелпер: показать правила перед первой загрузкой фото
