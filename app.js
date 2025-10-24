@@ -228,27 +228,25 @@ function closeModal(){
   document.documentElement.style.overflow = '';
 }
 
-// Если жмут на кнопку открытия загрузки — сначала спрашиваем согласие с Правилами
-document.addEventListener('click', (e) => {
-  const btn = e.target.closest('[data-open-modal="upload-popup"]');
-  if (!btn) return;
-
-  e.preventDefault();
-  e.stopPropagation();
-  ensurePolicyAccepted(() => openModal('upload-popup'));
-}, true); // capture = true
 
 
+// Стало (подменяем целиком этот блок):
 document.addEventListener('click', (e) => {
   const opener = e.target.closest('[data-open-modal]');
-  if (opener) { openModal(opener.getAttribute('data-open-modal')); return; }
+  if (!opener) return;
 
-  if (e.target.matches('[data-dismiss-stack]') || e.target.closest('[data-dismiss-stack]')) {
-    closeStack(); return;
+  const id = opener.getAttribute('data-open-modal');
+
+  // Если пытаемся открыть загрузку — сначала «Правила»
+  if (id === 'upload-popup') {
+    e.preventDefault();
+    ensurePolicyAccepted(() => openModal('upload-popup'));
+    return;
   }
-  if (e.target.matches('[data-dismiss]') || e.target.closest('[data-dismiss]')) {
-    closeModal(); return;
-  }
+
+  // Иначе работаем как раньше
+  openModal(id);
+  return;
 });
 
 document.addEventListener('keydown', (e) => {
