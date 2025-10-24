@@ -249,6 +249,11 @@ document.addEventListener('click', (e) => {
     openModal(id);
     return;
   }
+  // новый триггер для "!" в попапе загрузки
+  if (e.target.closest('[data-open-policy]')) {
+    openModal('policy');
+    return;
+  }
 
   // Закрыть СТЕК (верхний слой)
   if (e.target.matches('[data-dismiss-stack]') || e.target.closest('[data-dismiss-stack]')) {
