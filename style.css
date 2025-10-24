@@ -715,23 +715,23 @@ html,body{
 /* ====== попап 1: загрузка ====== */
 
 /* Полноэкранная модалка с прокруткой для Правил */
-.policy-dialog{
-  max-width: 520px;
-  max-height: 80vh;
-  display: flex;
-  flex-direction: column;
+.policy-popup{
+  width:100%;
+  max-width:520px;          /* как у других попапов */
+  display:flex;
+  flex-direction:column;
+  gap:12px;
 }
 .policy-body{
-  overflow: auto;
-  padding: 8px 0 12px;
-  line-height: 1.45;
+  max-height:60vh;
+  overflow:auto;
+  padding:8px 0 12px;
+  line-height:1.45;
 }
 .policy-check{
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  margin: 8px 0 12px;
+  display:flex; gap:8px; align-items:center;
 }
+
 
 .btn-pick,.btn-submit{
   display:inline-flex; align-items:center; justify-content:center;
