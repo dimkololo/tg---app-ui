@@ -713,6 +713,26 @@ html,body{
 .chip{background:var(--chip); border:1px solid rgba(0,0,0,.06); border-radius:16px}
 
 /* ====== попап 1: загрузка ====== */
+
+/* Полноэкранная модалка с прокруткой для Правил */
+.policy-dialog{
+  max-width: 520px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+.policy-body{
+  overflow: auto;
+  padding: 8px 0 12px;
+  line-height: 1.45;
+}
+.policy-check{
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 8px 0 12px;
+}
+
 .btn-pick,.btn-submit{
   display:inline-flex; align-items:center; justify-content:center;
   width:clamp(206px,90%,360px); height:56px; border-radius:35px;
