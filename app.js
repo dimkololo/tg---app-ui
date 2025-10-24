@@ -291,23 +291,26 @@ function initPremiumTimer(){
 }
 
 
-function closeModal(){
-  // запускаем анимацию закрытия
+function closeModal(next){
   modalRoot.classList.add('is-leaving');
   modalRoot.setAttribute('aria-hidden','true');
 
+  let fired = false;
   const done = () => {
+    if (fired) return;
+    fired = true;
     modalRoot.hidden = true;
     modalRoot.classList.remove('is-leaving');
     modalContent.innerHTML = '';
     document.documentElement.style.overflow = '';
     modalRoot.removeEventListener('transitionend', done);
+    next?.(); // ← ВАЖНО: вызываем после реального закрытия
   };
 
-  // ждём конца transition на диалоге (или таймаут как страховка)
-  modalRoot.addEventListener('transitionend', done);
-  setTimeout(done, 350);
+  modalRoot.addEventListener('transitionend', done, { once:true });
+  setTimeout(done, 400); // страховка чуть больше CSS-transition
 }
+
 
 // ПЕРЕХВАТ: если жмут на "Загрузку фото", сначала показываем "Правила"
 document.addEventListener('click', (e) => {
