@@ -272,6 +272,10 @@ const POLICY_FLAG = 'policy_accept_v1';
 function ensurePolicyAccepted(next){
   if (localStorage.getItem(POLICY_FLAG) === '1') { next?.(); return; }
 
+  
+  // На всякий случай закрыть стек, чтобы ничего не торчало позади
+  try { closeStack(); } catch(_) {}
+
   openModal('policy'); // откроет template id="tpl-policy"
   const root = modalRoot.querySelector('.policy-popup');
   const chk  = root.querySelector('#policyAgree');
