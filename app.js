@@ -228,26 +228,41 @@ function closeModal(){
   document.documentElement.style.overflow = '';
 }
 
-
-
-// Стало (подменяем целиком этот блок):
+// ПЕРЕХВАТ: если жмут на "Загрузку фото", сначала показываем "Правила"
 document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-open-modal="upload-popup"]');
+  if (!btn) return;
+
+  e.preventDefault();
+  e.stopPropagation();
+  e.stopImmediatePropagation();          // КЛЮЧЕВОЕ: не дать сработать общему делегатору
+  ensurePolicyAccepted(() => openModal('upload-popup'));
+}, true); // capture=true
+
+
+// ЕДИНЫЙ делегатор: открытие по [data-open-modal], закрытие по [data-dismiss]/[data-dismiss-stack]
+document.addEventListener('click', (e) => {
+  // Открытие
   const opener = e.target.closest('[data-open-modal]');
-  if (!opener) return;
-
-  const id = opener.getAttribute('data-open-modal');
-
-  // Если пытаемся открыть загрузку — сначала «Правила»
-  if (id === 'upload-popup') {
-    e.preventDefault();
-    ensurePolicyAccepted(() => openModal('upload-popup'));
+  if (opener) {
+    const id = opener.getAttribute('data-open-modal');
+    openModal(id);
     return;
   }
 
-  // Иначе работаем как раньше
-  openModal(id);
-  return;
+  // Закрыть СТЕК (верхний слой)
+  if (e.target.matches('[data-dismiss-stack]') || e.target.closest('[data-dismiss-stack]')) {
+    closeStack();
+    return;
+  }
+
+  // Закрыть обычную модалку
+  if (e.target.matches('[data-dismiss]') || e.target.closest('[data-dismiss]')) {
+    closeModal();
+    return;
+  }
 });
+
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
