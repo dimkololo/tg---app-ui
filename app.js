@@ -155,11 +155,44 @@ function openPolicyInfo(){
   wirePolicyModal({ required: false });
 }
 
+// Универсальная привязка событий к текущей открытой модалке правил
+function wirePolicyModal({ required, onAccept } = {}){
+  const root   = modalRoot.querySelector('.policy-popup');
+  if (!root) return;
+
+  // защита от двойной инициализации
+  if (root.__wired) return;
+  root.__wired = true;
+
+  const agree  = root.querySelector('#policyAgree');   // может НЕ быть (в инфо-версии)
+  const accept = root.querySelector('#policyAccept');  // основная кнопка
+
+  const sync = () => {
+    if (!accept) return;
+    // если нужен чекбокс — активируем кнопку только когда он отмечен
+    accept.disabled = required ? !(agree && agree.checked) : false;
+  };
+
+  // стартовое состояние
+  sync();
+
+  // живое обновление при клике по чекбоксу
+  agree?.addEventListener('change', sync);
+
+  // нажатие «Принять» / «Ок»
+  accept?.addEventListener('click', () => {
+    if (required && !(agree && agree.checked)) return; // защита от форса
+    if (required) localStorage.setItem(POLICY_FLAG, '1');
+    closeModal();
+    onAccept?.();
+  }, { once: true });
+}
+
+// Хелпер: показать правила перед первой загрузкой фото
 function ensurePolicyAccepted(next){
   if (localStorage.getItem(POLICY_FLAG) === '1') { next?.(); return; }
   openPolicyRequired(() => next?.());
 }
-
 
 
 // второй слой модалки (стек)
