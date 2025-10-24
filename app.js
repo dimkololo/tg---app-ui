@@ -313,29 +313,13 @@ updatePlusBalanceUI();
 syncBalanceFromLS();
 
 // --- Попап 1: загрузка фото ---
-// Одноразовое согласие с правилами
 
+// Одноразовое согласие с правилами
 function ensurePolicyAccepted(next){
-   if (localStorage.getItem(POLICY_FLAG) === '1') { next?.(); return; }
+  if (localStorage.getItem(POLICY_FLAG) === '1') { next?.(); return; }
   openPolicyRequired(() => next?.());
 }
 
-  try { closeStack(); } catch(_) {}      // на всякий случай закрыть стек
-
-  openModal('policy');
-  const root = modalRoot.querySelector('.policy-popup');
-  const chk  = root.querySelector('#policyAgree');
-  const ok   = root.querySelector('#policyAccept');
-
-  const sync = () => ok.disabled = !chk.checked;
-  chk.addEventListener('change', sync); sync();
-
-  ok.addEventListener('click', () => {
-    localStorage.setItem('policy_accept_v1','1');
-    closeModal();
-    next?.();
-  }, { once:true });
-}
 
 
 function initUploadPopup(){
