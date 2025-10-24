@@ -777,6 +777,49 @@ html,body{
   text-align:right;
 }
 .field:invalid{ outline:2px solid rgba(255,0,0,.35); }
+/* Ряд: кнопка + круглый "!" */
+.pick-row{
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 50px; /* кнопка растягивается, справа фикс 50px */
+  gap: 8px;
+  align-items: center;
+}
+
+/* круглый "!" справа от кнопки */
+.btn-info{
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 0;
+  cursor: pointer;
+  background: #D9D9D9;
+  color: #FF7300;
+  font-weight: 800;
+  font-size: 26px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,.12);
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-info:active{ transform: translateY(1px); }
+
+/* overlay инпута — перекрывает ТОЛЬКО область левой кнопки */
+.file-input-overlay{
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: calc(50px + 8px);  /* ширина .btn-info + gap */
+  bottom: 0;
+  opacity: 0;
+  cursor: pointer;
+  /* для iOS/Android, чтобы клик точно попадал */
+  -webkit-appearance: none;
+  appearance: none;
+}
+
 
 /* ====== попап 2: магазин ====== */
 .shop-header{width:100%; min-height:150px; display:grid; place-items:center; gap:4px; padding:14px 12px}
