@@ -257,6 +257,27 @@ updatePlusBalanceUI();
 syncBalanceFromLS();
 
 // --- Попап 1: загрузка фото ---
+// Одноразовое согласие с правилами
+const POLICY_FLAG = 'policy_accept_v1';
+
+function ensurePolicyAccepted(next){
+  if (localStorage.getItem(POLICY_FLAG) === '1') { next?.(); return; }
+
+  openModal('policy'); // откроет template id="tpl-policy"
+  const root = modalRoot.querySelector('.policy-popup');
+  const chk  = root.querySelector('#policyAgree');
+  const ok   = root.querySelector('#policyAccept');
+
+  const sync = () => { ok.disabled = !chk.checked; };
+  chk.addEventListener('change', sync); sync();
+
+  ok.addEventListener('click', () => {
+    localStorage.setItem(POLICY_FLAG, '1');
+    closeModal();
+    next?.();
+  }, { once: true });
+}
+
 function initUploadPopup(){
   const root = modalRoot.querySelector('.upload-popup');
   if (!root) return;
