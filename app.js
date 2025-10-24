@@ -995,16 +995,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function open() {
+   function open() {
+    modal.classList.remove('is-leaving');
     modal.hidden = false;
-    document.documentElement.style.overflow = 'hidden';   // блокируем скрол страницы
-    content && content.classList.add('is-scrollable');    // включаем скролл внутри попапа
-    fillMyRow();                                          // ← заполняем зелёную строку
+    modal.setAttribute('aria-hidden','false');     // ← добавили
+    document.documentElement.style.overflow = 'hidden';
+    content && content.classList.add('is-scrollable');
+    fillMyRow();
   }
-
+  
   function close() {
-    modal.hidden = true;
-    document.documentElement.style.overflow = '';         // возвращаем скрол
+    modal.classList.add('is-leaving');             // ← анимация закрытия
+    modal.setAttribute('aria-hidden','true');      // ← добавили
+
+    const done = () => {
+      modal.hidden = true;
+      modal.classList.remove('is-leaving');
+      document.documentElement.style.overflow = '';
+      modal.removeEventListener('transitionend', done);
+    };
+    modal.addEventListener('transitionend', done);
+    setTimeout(done, 350); // страховка
   }
 
   // открыть по клику на «листочек»
