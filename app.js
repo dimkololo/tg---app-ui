@@ -8,20 +8,7 @@ window.PLAM = window.PLAM || {
   balance: 0, premium: false, photoCount: 0, premiumUntil: null, subsOk: false,
   cooldownUntil: null // ← когда закончится кулдаун (ms), null если нет кулдауна
 };
-// Выдать приветственные 50 PLAMc один раз
-(function ensureWelcomeCoins(){
-  const FLAG = 'plam_welcome_coins_given_v1';
-  if (!localStorage.getItem(FLAG)) {
-    addPrize({
-      id: 'welcome-coins-50',
-      kind: 'coins',
-      amount: 50,
-      img: './bgicons/plam-50.png', // ← твоя PNG (замени путь/имя при необходимости)
-      title: 'Приветственный приз: 50 PLAMc'
-    });
-    localStorage.setItem(FLAG, '1');
-  }
-})();
+
 
 // --- Призы пользователя ---
 const PRIZES_KEY = 'plam_prizes';
@@ -44,6 +31,21 @@ function addPrize(prize){
 }
 
 window.PLAM.prizes = loadPrizes();
+
+// Выдать приветственные 50 PLAMc один раз
+(function ensureWelcomeCoins(){
+  const FLAG = 'plam_welcome_coins_given_v1';
+  if (!localStorage.getItem(FLAG)) {
+    addPrize({
+      id: 'welcome-coins-50',
+      kind: 'coins',
+      amount: 50,
+      img: './bgicons/plam-50.png', // ← твоя PNG (замени путь/имя при необходимости)
+      title: 'Приветственный приз: 50 PLAMc'
+    });
+    localStorage.setItem(FLAG, '1');
+  }
+})();
 
 
 
