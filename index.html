@@ -189,6 +189,34 @@
   </section>
 </template>
 
+  <!-- Правила отправки фото -->
+<template id="tpl-policy">
+  <div class="modal policy-popup">
+    <div class="modal__backdrop" data-dismiss></div>
+    <div class="modal__dialog policy-dialog">
+      <h3 class="modal__title">Правила отправки фото</h3>
+
+      <div class="policy-body is-scrollable">
+        <!-- ВСТАВЬ сюда текст политики -->
+        <p><strong>Запрещено:</strong> обнажёнка/эротика; алкоголь/табак/наркотики; насилие и опасные действия; дискриминация/экстремизм; реклама, QR-коды, ссылки и контакты; личные/конфиденциальные данные; чужие фото без согласия; попытки обхода модерации.</p>
+        <p><strong>Требования:</strong> безопасный сюжет, без водяных знаков и крупных надписей, приличное качество.</p>
+        <p>Отправляя фото, вы подтверждаете, что вам 13+ и у вас есть права на изображение. Мы можем удалять материалы и ограничивать доступ при нарушениях.</p>
+      </div>
+
+      <label class="policy-check">
+        <input type="checkbox" id="policyAgree">
+        <span>Мне 13+ и я согласен с правилами</span>
+      </label>
+
+      <div class="modal__actions">
+        <button class="btn" data-dismiss>Отмена</button>
+        <button class="btn btn-primary" id="policyAccept" disabled>Принять</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+
 
   <!-- Попап 2: покупка PLAMc -->
   <template id="tpl-buy-stars">
