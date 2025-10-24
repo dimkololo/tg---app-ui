@@ -315,7 +315,6 @@ syncBalanceFromLS();
 
 // --- Попап 1: загрузка фото ---
 // Одноразовое согласие с правилами
-const POLICY_FLAG = 'policy_accept_v1';
 
 function ensurePolicyAccepted(next){
   if (localStorage.getItem('policy_accept_v1') === '1') { next?.(); return; }
