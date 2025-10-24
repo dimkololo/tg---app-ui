@@ -138,7 +138,6 @@ function openModal(id){
   if (id === 'profile')      initProfile();
   if (id === 'premium-timer') initPremiumTimer();
   if (id === 'faq') initFAQ();
-  if (id === 'policy-required' || id === 'policy-info' || id === 'policy') initPolicyModal?.();
 }
 
 // --- Политика (один раз принять + инфо-показ без галки) ---
