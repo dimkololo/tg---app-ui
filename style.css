@@ -1186,17 +1186,6 @@ html,body{
   width: 100%;
 }
 
-/* Невидимый, но кликабельный инпут поверх кнопки */
-.file-input-overlay{
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  cursor: pointer;
-  -webkit-appearance: none;
-  border-radius: inherit;
-}
 
 /* Оверлей, блокирующий приложение в альбомной ориентации */
 .orientation-lock{
