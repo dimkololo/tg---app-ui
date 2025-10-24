@@ -304,12 +304,13 @@ function closeModal(next){
     modalContent.innerHTML = '';
     document.documentElement.style.overflow = '';
     modalRoot.removeEventListener('transitionend', done);
-    next?.(); // ← ВАЖНО: вызываем после реального закрытия
+    next?.(); // ← вызываем ПОСЛЕ реального закрытия
   };
 
   modalRoot.addEventListener('transitionend', done, { once:true });
-  setTimeout(done, 400); // страховка чуть больше CSS-transition
+  setTimeout(done, 400); // страховка
 }
+
 
 
 // ПЕРЕХВАТ: если жмут на "Загрузку фото", сначала показываем "Правила"
