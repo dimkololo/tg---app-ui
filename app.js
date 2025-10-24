@@ -294,12 +294,11 @@ function closeModal(){
 document.addEventListener('click', (e) => {
   const btn = e.target.closest('[data-open-modal="upload-popup"]');
   if (!btn) return;
-
   e.preventDefault();
   e.stopPropagation();
-  e.stopImmediatePropagation();          // КЛЮЧЕВОЕ: не дать сработать общему делегатору
+  e.stopImmediatePropagation();
   ensurePolicyAccepted(() => openModal('upload-popup'));
-}, true); // capture=true
+}, true); // capture
 
 
 // ЕДИНЫЙ делегатор: открытие по [data-open-modal], закрытие по [data-dismiss]/[data-dismiss-stack]
