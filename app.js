@@ -668,19 +668,6 @@ function initSubsRequired(){
 });
 }
 
-function initPolicyModal(){
-  const root   = modalRoot.querySelector('.policy-popup');
-  if (!root) return;
-  const agree  = root.querySelector('#policyAgree');
-  const accept = root.querySelector('#policyAccept');
-
-  const sync = () => { if (accept) accept.disabled = !agree?.checked; };
-  agree?.addEventListener('change', sync);
-  sync();
-}
-
-
-
 
 // --- Попап 2: магазин ---
 function initBuyStars(){
