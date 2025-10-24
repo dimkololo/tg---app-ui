@@ -136,6 +136,33 @@ function openModal(id){
   if (id === 'policy') initPolicyModal();
 }
 
+const POLICY_FLAG = 'plam_policy_accepted_v1';
+
+function openPolicyRequired(onAccepted){
+  openModal('policy-required');
+  const root = modalRoot.querySelector('.policy-popup');
+  if (!root) return;
+
+  const agree = root.querySelector('#policyAgree');
+  const accept = root.querySelector('#policyAccept');
+
+  accept.disabled = true;
+  agree?.addEventListener('change', () => {
+    accept.disabled = !agree.checked;
+  });
+
+  accept?.addEventListener('click', () => {
+    localStorage.setItem(POLICY_FLAG, '1');
+    closeModal();
+    onAccepted?.();
+  }, { once:true });
+}
+
+function openPolicyInfo(){
+  openModal('policy-info'); // просто показать, закрытие по [data-dismiss]
+}
+
+
 // второй слой модалки (стек)
 const stackRoot    = document.querySelector('[data-modal-stack]');
 const stackContent = document.querySelector('[data-stack-content]');
