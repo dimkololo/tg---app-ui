@@ -1104,7 +1104,7 @@ background: var(--chip-bg); /* лёгкий контраст активного 
 .pc-val{
   text-align:center; padding:6px 8px; border-radius:10px;
   background:#F5F5F5; font-weight:800;
-  color:#555;  
+  color:#888;  
 }
 .pc-val.is-premium{
   background:rgba(255,115,0,.08); color:#FF7300;
