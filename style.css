@@ -1006,6 +1006,62 @@ html,body{
   padding:10px 18px;
 }
 
+:root {
+--popup-bg: rgba(221, 221, 221, 0.25);
+--chip-bg: #D9D9D9; /* уже используется внутри приложения для чипов */
+--radius-xxl: 42px; /* скругления попапов по ТЗ */
+}
+
+
+.lang-switch {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+gap: 10px;
+background: var(--popup-bg);
+border-radius: var(--radius-xxl);
+padding: 8px 16px;
+margin: 16px auto 0; /* отступ сверху от плашки "Время показа фото" */
+user-select: none;
+-webkit-user-select: none;
+/* Центрирование внизу секции попапа */
+position: relative;
+left: 50%;
+transform: translateX(-50%);
+}
+
+
+.lang-switch__divider {
+opacity: 0.6;
+}
+
+
+.lang-switch__btn {
+appearance: none;
+border: 0;
+background: transparent; /* фон самого попапа — как просили */
+color: inherit;
+font: inherit;
+padding: 6px 10px;
+border-radius: calc(var(--radius-xxl) - 12px);
+line-height: 1;
+cursor: pointer;
+transition: transform .12s ease;
+}
+.lang-switch__btn:active { transform: scale(0.98); }
+
+
+.lang-switch__btn.is-active {
+background: var(--chip-bg); /* лёгкий контраст активного языка */
+}
+
+
+/* Небольшая адаптация для очень узких экранов */
+@media (max-width: 360px) {
+.lang-switch { gap: 8px; padding: 6px 12px; }
+.lang-switch__btn { padding: 5px 8px; }
+}
+
 /* ===== Премиум: сравнительная таблица ===== */
 .premium-compare{width:100%; max-width:420px;}
 .pc-title{
