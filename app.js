@@ -567,6 +567,10 @@ function initUploadPopup(){
       box?.querySelector('[data-mins]') ?.replaceChildren(String(leftMin));
       box?.querySelector('[data-coins]').replaceChildren(String(leftMin));
 
+      // Текст кнопки
+        const btnReset = box?.querySelector('[data-reset-now]');
+        if (btnReset) btnReset.textContent = T('reset.confirm', 'Подтвердить');
+
       box?.querySelector('[data-reset-now]')?.addEventListener('click', ()=>{
         if (getBalance() < leftMin){ alert(T('errors.not_enough','Недостаточно PLAMc')); return; }
         addBalance(-leftMin); updatePlusBalanceUI();
