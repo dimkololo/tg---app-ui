@@ -237,12 +237,12 @@
   // --- Tabs: wheel / tasks ---
 document.addEventListener('DOMContentLoaded', () => {
   const tabBtns = document.querySelectorAll('[data-tab]');
-  const panes   = document.querySelectorAll('[data-pane]');
-  if (!tabBtns.length || !panes.length) return;
+  const panels   = document.querySelectorAll('[data-panel]');
+  if (!tabBtns.length || !panels.length) return;
 
   function activate(name){
     tabBtns.forEach(b => b.classList.toggle('is-active', b.dataset.tab === name));
-    panes.forEach(p => p.hidden = p.dataset.pane !== name);
+    panels.forEach(p => p.hidden = p.dataset.panel !== name);
   }
 
   // Инициализация из URL (?tab=wheel|tasks)
