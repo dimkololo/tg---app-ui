@@ -1,5 +1,60 @@
-// fortune.js v3.1 — статическая подсказка в HTML, JS её не трогает
-(function () {
+// ========== fortune.js — LS-единообразие, миграции, тот же UX ==========
+
+(function(){
+  // --- LS helper ---
+  const LS = {
+    get(k, d = null) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch { return d; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+    remove(k) { try { localStorage.removeItem(k); } catch {} },
+    getJSON(k, d = null) { const s = LS.get(k, null); if (s === null) return d; try { return JSON.parse(s); } catch { return d; } },
+    setJSON(k, obj) { LS.set(k, JSON.stringify(obj)); },
+    getNum(k, d = 0) { const n = parseInt(LS.get(k, ''), 10); return Number.isFinite(n) ? n : d; },
+    setNum(k, n) { LS.set(k, String(n)); },
+  };
+
+  // --- Ключи (v2) ---
+  const K = {
+    BALANCE:           'plam_balance_v2',
+    WHEEL_CD_UNTIL:    'fortune_cd_until_v2',       // 24h кулдаун колеса
+    WHEEL_ORDER:       'fortune_wheel_order_v2',    // порядок чисел
+  };
+
+  // --- Миграция из v1 ---
+  (function migrate(){
+    if (localStorage.getItem('plam_balance') && !localStorage.getItem(K.BALANCE)) {
+      LS.set(K.BALANCE, localStorage.getItem('plam_balance'));
+    }
+    if (localStorage.getItem('fortune_cd_until') && !localStorage.getItem(K.WHEEL_CD_UNTIL)) {
+      LS.set(K.WHEEL_CD_UNTIL, localStorage.getItem('fortune_cd_until'));
+    }
+    // порядок ранее был в sessionStorage — теперь стабилен меж перезагрузок
+    // если есть прежний session ключ — перенесём как стартовую инициализацию
+    try {
+      const sess = sessionStorage.getItem('fortune_wheel_order_session');
+      if (sess && !localStorage.getItem(K.WHEEL_ORDER)) localStorage.setItem(K.WHEEL_ORDER, sess);
+    } catch {}
+  })();
+
+  // --- Состояние/утилиты ---
+  function getBalance(){ return LS.getNum(K.BALANCE, 0); }
+  function setBalance(v){ LS.setNum(K.BALANCE, v); }
+  function addToBalance(delta){ const next = getBalance() + delta; setBalance(next); return next; }
+
+  function getCooldownUntil(){ return LS.getNum(K.WHEEL_CD_UNTIL, 0); }
+  function setCooldownUntil(ts){ LS.setNum(K.WHEEL_CD_UNTIL, ts); }
+  function clearCooldown(){ LS.remove(K.WHEEL_CD_UNTIL); }
+
+  function fmtLeft(ms){
+    const s = Math.max(0, Math.floor(ms / 1000));
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const ss = s % 60;
+    const hh = String(h).padStart(2,'0');
+    const mm = String(m).padStart(2,'0');
+    const ss2 = String(ss).padStart(2,'0');
+    return `${hh}ч. ${mm}мин. ${ss2}сек.`;
+  }
+
   // --- ЭЛЕМЕНТЫ ---
   const rotor =
     document.getElementById('wheelRotor') ||
@@ -10,276 +65,171 @@
   const numbersBox =
     document.getElementById('wheelNumbers') ||
     document.querySelector('.wheel__numbers');
-  
 
-  const btnSpin = document.getElementById('btnSpin') || document.querySelector('.btn-spin');
-  const btnBack = document.getElementById('btnBack') || document.querySelector('.btn-back');
-  const note = document.getElementById('spinNote');
-  const pointer = document.querySelector('.wheel-pointer');
+  const btnSpin  = document.getElementById('btnSpin') || document.querySelector('.btn-spin');
+  const btnBack  = document.getElementById('btnBack') || document.querySelector('.btn-back');
+  const pointer  = document.querySelector('.wheel-pointer');
+  const timerEl  = document.getElementById('fortuneTimer');
 
   if (!rotor || !btnSpin) {
     console.error('[fortune] Не найдено колесо или кнопка вращения.');
     return;
   }
 
-  const timerEl = document.getElementById('fortuneTimer');
+  // --- Оверлей ориентации ---
+  (function setupOrientationOverlay(){
+    const lock = document.getElementById('orientationLock');
+    if (!lock) return;
+    const mq = window.matchMedia('(orientation: portrait)');
+    const update = () => {
+      const isPortrait = mq.matches || window.innerHeight >= window.innerWidth;
+      lock.classList.toggle('is-active', !isPortrait);
+      document.documentElement.style.overflow = !isPortrait ? 'hidden' : '';
+    };
+    update();
+    try { mq.addEventListener('change', update); } catch(_){}
+    window.addEventListener('orientationchange', update);
+    window.addEventListener('resize', update);
+  })();
 
-  // --- Блокировка горизонтальной ориентации (оверлей) ---
-(function setupOrientationOverlay(){
-  const lock = document.getElementById('orientationLock');
-  if (!lock) return;
+  // --- КОНСТАНТЫ КОЛЕСА ---
+  const VALUES    = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20];
+  const SECTORS   = VALUES.length;
+  const STEP      = 360 / SECTORS;    // 36°
+  const SPIN_MS   = 7000;             // 7 секунд
+  const ANGLE_OFFSET = 0;             // стрелка справа (3 часа)
+  const COOLDOWN_MS  = 24 * 60 * 60 * 1000;   // 24 часа
 
-  const mq = window.matchMedia('(orientation: portrait)');
-
-  const update = () => {
-    const isPortrait = mq.matches || window.innerHeight >= window.innerWidth;
-    // показываем оверлей в горизонтали
-    lock.classList.toggle('is-active', !isPortrait);
-    // отключаем прокрутку под оверлеем
-    document.documentElement.style.overflow = !isPortrait ? 'hidden' : '';
-  };
-
-  // начальная проверка
-  update();
-
-  // реагируем на смену ориентации и ресайз (фолбэк для старых WebView)
-  try { mq.addEventListener('change', update); } catch(_) { /* iOS < 13 */ }
-  window.addEventListener('orientationchange', update);
-  window.addEventListener('resize', update);
-})();
-
-  // --- ТАБЫ ---
-const tabs = Array.from(document.querySelectorAll('.fortune-tab'));
-const panels = new Map(Array.from(document.querySelectorAll('.tab-panel')).map(p => [p.dataset.panel, p]));
-
-let currentTab = null;
-
-function setTab(name){
-  tabs.forEach(b=>{
-    const on = b.dataset.tab === name;
-    b.classList.toggle('is-active', on);
-    b.setAttribute('aria-selected', on ? 'true' : 'false');
-  });
-  panels.forEach((panel, key)=> panel.hidden = (key !== name));
-
-  // Сохраним в адресе и сессии
-  try {
-    const url = new URL(location.href);
-    url.searchParams.set('tab', name);
-    history.replaceState(null, '', url.toString());
-    sessionStorage.setItem('fortune_tab', name);
-  } catch {}
-}
-// клик по табу
-tabs.forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
-
-// стартовая вкладка из URL или сессии (по умолчанию — колесо)
-(function initTab(){
-  const urlTab = new URL(location.href).searchParams.get('tab');
-  const saved  = sessionStorage.getItem('fortune_tab');
-  const initial = (urlTab || saved || 'wheel');
-  setTab(initial);
-})();
-
-
-
-  // --- КОНСТАНТЫ ---
-  const VALUES = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]; // 10 секторов
-  const SECTORS = VALUES.length; // 10
-  const STEP = 360 / SECTORS;    // 36°
-  const SPIN_MS = 7000;          // 7 секунд
-  const STORAGE_SPUN = 'fortune_spun_session';         // тестовый режим: сброс при reload
-  const STORAGE_ORDER = 'fortune_wheel_order_session'; // порядок чисел в текущей сессии
-  const BALANCE_KEY = 'plam_balance';
-  const ANGLE_OFFSET = 0; // сектор, на который указывает стрелка справа (3 часа)
-  const STORAGE_CD_UNTIL = 'fortune_cd_until';      // дедлайн кулдауна (ms, localStorage)
-  const COOLDOWN_MS = 24 * 60 * 60 * 1000;          // 24 часа
-  let cdTimerId = null;
-
-
-
-
-  // --- УТИЛИТЫ ---
-  const shuffle = (arr) => {
+  // --- Порядок чисел (теперь в LS, переживает reload) ---
+  function shuffle(arr){
     const a = arr.slice();
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
+    for (let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
     }
     return a;
-  };
-  const getSessionJSON = (k, fallback = null) => {
-    try {
-      const raw = sessionStorage.getItem(k);
-      return raw ? JSON.parse(raw) : fallback;
-    } catch { return fallback; }
-  };
-  const setSessionJSON = (k, v) => sessionStorage.setItem(k, JSON.stringify(v));
-
-  const getBalance = () => parseInt(localStorage.getItem(BALANCE_KEY) || '0', 10);
-  const addToBalance = (delta) => {
-    const next = getBalance() + delta;
-    localStorage.setItem(BALANCE_KEY, String(next));
-    return next;
-  };
-
-  const getCooldownUntil = () => parseInt(localStorage.getItem(STORAGE_CD_UNTIL) || '0', 10) || 0;
-const setCooldownUntil = (ts) => localStorage.setItem(STORAGE_CD_UNTIL, String(ts));
-const clearCooldown = () => localStorage.removeItem(STORAGE_CD_UNTIL);
-
-const fmtLeft = (ms) => {
-  const s = Math.max(0, Math.floor(ms / 1000));
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  const ss = s % 60;
-  const hh = String(h).padStart(2,'0');
-  const mm = String(m).padStart(2,'0');
-  const ss2 = String(ss).padStart(2,'0');
-  return `${hh}ч. ${mm}мин. ${ss2}сек.`;
-};
-
-  // --- ПОРЯДОК ЧИСЕЛ НА КОЛЕСЕ (стабилен в рамках сессии) ---
-  let order = getSessionJSON(STORAGE_ORDER);
+  }
+  let order = LS.getJSON(K.WHEEL_ORDER);
   if (!order || order.length !== SECTORS) {
     order = shuffle(VALUES);
-    setSessionJSON(STORAGE_ORDER, order);
+    LS.setJSON(K.WHEEL_ORDER, order);
   }
 
-  // --- РЕНДЕР ЦИФР ---
+  // --- Рендер цифр ---
   if (numbersBox) {
     numbersBox.innerHTML = '';
     for (let i = 0; i < SECTORS; i++) {
       const span = document.createElement('span');
       span.className = 'wheel__label';
       span.textContent = order[i];
-      // стало — в центр сектора
       const angle = ANGLE_OFFSET + i * STEP;
       span.style.setProperty('--a', angle + 'deg');
       numbersBox.appendChild(span);
     }
   }
 
-  // --- СОСТОЯНИЕ КНОПКИ ---
-  const markSpun = () => setCooldownUntil(Date.now() + COOLDOWN_MS);
-  const isSpun = () => {
-  const until = getCooldownUntil();
-  if (!until) return false;
-  if (Date.now() >= until) { clearCooldown(); return false; } // авто-очистка просроченного
-  return true;
-};
-
-
-
-const updateUI = () => {
-  if (isSpun()) {
-    btnSpin.setAttribute('disabled', 'true');
-    startCooldownUI();                 // ← всегда показываем таймер, если кулдаун активен
-  } else {
-    btnSpin.removeAttribute('disabled');
+  // --- Состояние кнопки/таймера ---
+  let cdTimerId = null;
+  function stopCooldownUI(){ if (cdTimerId){ clearInterval(cdTimerId); cdTimerId = null; } }
+  function startCooldownUI(){
+    if (!timerEl) return;
+    timerEl.hidden = false;
     stopCooldownUI();
-    if (timerEl) timerEl.hidden = true;
+    const tick = () => {
+      const left = getCooldownUntil() - Date.now();
+      if (left <= 0) {
+        stopCooldownUI();
+        timerEl.hidden = true;
+        clearCooldown();
+        updateUI();
+        return;
+      }
+      timerEl.textContent = `Возвращайся через: ${fmtLeft(left)}`;
+    };
+    tick();
+    cdTimerId = setInterval(tick, 1000);
   }
-};
+  function isSpun(){
+    const until = getCooldownUntil();
+    if (!until) return false;
+    if (Date.now() >= until) { clearCooldown(); return false; }
+    return true;
+  }
+  function markSpun(){ setCooldownUntil(Date.now() + COOLDOWN_MS); }
 
+  function updateUI(){
+    if (isSpun()) {
+      btnSpin.setAttribute('disabled','true');
+      startCooldownUI();
+    } else {
+      btnSpin.removeAttribute('disabled');
+      stopCooldownUI();
+      if (timerEl) timerEl.hidden = true;
+    }
+  }
   updateUI();
 
-function stopCooldownUI(){
-  if (cdTimerId){ clearInterval(cdTimerId); cdTimerId = null; }
-}
-
-function startCooldownUI(){
-  if (!timerEl) return;
-  timerEl.hidden = false;
-  stopCooldownUI();
-  const tick = () => {
-    const left = getCooldownUntil() - Date.now();
-    if (left <= 0) {
-      // время истекло: скрываем таймер, включаем кнопку
-      stopCooldownUI();
-      timerEl.hidden = true;
-      clearCooldown();
-      updateUI();
-      return;
-    }
-    timerEl.textContent = 'Возвращайся через: ' + fmtLeft(left);
-  };
-  tick();
-  cdTimerId = setInterval(tick, 1000);
-}
-
-
-  // --- ЛОГИКА ВРАЩЕНИЯ ---
+  // --- Логика вращения ---
   let spinning = false;
   let currentTurns = 0;
+
+  function showToast(text){
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.textContent = text;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3200); // показываем чуть дольше
+  }
 
   const spinOnce = () => {
     if (spinning) return;
 
     const left = getCooldownUntil() - Date.now();
-  if (left > 0) {
-    // нажали во время кулдауна — НЕ тост, а показать таймер
-    startCooldownUI();      // сразу показать отсчёт
-    btnSpin.setAttribute('disabled', 'true');
-    return;
-  }
+    if (left > 0) {
+      startCooldownUI();
+      btnSpin.setAttribute('disabled','true');
+      return;
+    }
 
-    // блокируем сразу, чтобы не спамили кликами
+    // блокируем сразу
     spinning = true;
-    btnSpin.setAttribute('disabled', 'true');
+    btnSpin.setAttribute('disabled','true');
 
-    // 👉 Стрелка "wiggle" в НАЧАЛЕ
-  if (pointer) {
-    pointer.classList.remove('wiggle'); // сброс, если класс уже был
-    void pointer.offsetWidth;           // рефлоу для перезапуска анимации
-    pointer.classList.add('wiggle');    // поехали
-  }
-    // СРАЗУ выставляем дедлайн и показываем таймер
-  markSpun();
-  updateUI();
+    // анимация стрелки
+    if (pointer) {
+      pointer.classList.remove('wiggle'); void pointer.offsetWidth; pointer.classList.add('wiggle');
+    }
+
+    // ставим кулдаун сразу и показываем таймер
+    markSpun(); updateUI();
 
     const targetIndex = Math.floor(Math.random() * SECTORS);
     const prizePLAMc = order[targetIndex];
 
     const sectorCenterAngle = ANGLE_OFFSET + targetIndex * STEP;
-    const baseRotations = 6; // 5–8 на вкус
+    const baseRotations = 6;
     currentTurns += baseRotations * 360 + (360 - (sectorCenterAngle % 360));
 
     rotor.style.transition = `transform ${SPIN_MS}ms cubic-bezier(0.12, 0.65, 0.06, 1)`;
-    rotor.style.transform = `rotate(${currentTurns}deg)`;
-
-    function showToast(text){
-  const el = document.createElement('div');
-  el.className = 'toast';
-  el.textContent = text;
-  document.body.appendChild(el);
-  setTimeout(() => el.remove(), 4200);
-}
+    rotor.style.transform  = `rotate(${currentTurns}deg)`;
 
     const onDone = () => {
       rotor.removeEventListener('transitionend', onDone);
       clearTimeout(safety);
 
-       // начисляем монеты
       const newBalance = addToBalance(prizePLAMc);
-
-
       spinning = false;
       updateUI();
-       // показать результат
-       // if (note) {
-         // note.hidden = false;
-          //note.textContent = `Вы выиграли +${prizePLAMc} PLAMc. Баланс: ${newBalance} PLAMc.`;
-       // }
-      // тост
+
       showToast(`+${prizePLAMc} PLAMc`);
-    
-      // перед выходом из onDone():
-    sessionStorage.setItem('fortune_last_win', String(prizePLAMc)); // << для главной
+
+      try { sessionStorage.setItem('fortune_last_win', String(prizePLAMc)); } catch(_){}
+      // синхронизируем плюс на главной через storage
+      try { localStorage.setItem(K.BALANCE, String(newBalance)); } catch(_){}
     };
-    
 
     rotor.addEventListener('transitionend', onDone, { once: true });
-    const safety = setTimeout(onDone, SPIN_MS + 100); // страховка
+    const safety = setTimeout(onDone, SPIN_MS + 120);
   };
 
   btnSpin.addEventListener('click', spinOnce);
@@ -291,10 +241,5 @@ function startCooldownUI(){
       else location.href = './index.html';
     });
   }
+
 })();
-
-// При возврате со страницы главной (bfcache) и при активации вкладки — освежить таймер/кнопку
-window.addEventListener('pageshow', updateUI);
-document.addEventListener('visibilitychange', () => { if (!document.hidden) updateUI(); });
-
-
