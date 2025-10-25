@@ -250,6 +250,10 @@ i18n.load('en', {
   // RESET
   "reset.title": "Reset {{mins}} minutes for {{coins}} PLAMc",
   "reset.confirm": "Confirm"
+
+  //placeholder
+  "upload.link_placeholder": "...link to social or website",
+  "upload.desc_placeholder": "...description",
 });
 
 // RU dictionary (чтобы переключение RU↔ENG работало без перезагрузки)
@@ -344,6 +348,9 @@ i18n.load('ru', {
 
   "reset.title": "Сбросить {{mins}} минут за {{coins}} PLAMc",
   "reset.confirm": "Подтвердить"
+
+  "upload.link_placeholder": "...ссылка на соц.сеть или сайт",
+  "upload.desc_placeholder": "...описание",
 });
 
 // RU-словарь не обязателен (русский уже в разметке), но можно добавить для симметрии:
