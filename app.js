@@ -196,6 +196,11 @@ const modalContent = document.querySelector('[data-modal-content]');
 const stackRoot    = document.querySelector('[data-modal-stack]');
 const stackContent = document.querySelector('[data-stack-content]');
 
+// --- i18n safe apply (безопасно, если i18n.js не подключён) ---
+function i18nApply(scope){
+  try { if (window.i18n && typeof window.i18n.apply === 'function') window.i18n.apply(scope || document); } catch(_){}
+}
+
 function openModal(id){
   const tpl = document.getElementById(`tpl-${id}`);
   if (!tpl) return;
@@ -205,10 +210,13 @@ function openModal(id){
   modalRoot.setAttribute('aria-hidden', 'false');
   document.documentElement.style.overflow = 'hidden';
 
+  // применим i18n к только что вставленному содержимому
+  i18nApply(modalRoot);
+
   if (id === 'upload-popup') initUploadPopup();
   if (id === 'buy-stars')    initBuyStars();
   if (id === 'prizes')       initPrizes();
-  if (id === 'profile')      initProfile();
+  if (id === 'profile')      { initProfile(); document.dispatchEvent(new CustomEvent('plam:profilePopup:open')); }
   if (id === 'premium-timer') initPremiumTimer();
   if (id === 'faq') initFAQ();
   if (id === 'policy' || id === 'policy-required' || id === 'policy-info') initPolicyModal();
@@ -226,6 +234,9 @@ function openStack(id){
   stackContent.appendChild(tpl.content.cloneNode(true));
   stackRoot.hidden = false;
   stackRoot.setAttribute('aria-hidden','false');
+
+  // применим i18n к только что вставленному содержимому стека
+  i18nApply(stackRoot);
 
   if (id === 'premium-timer')   initPremiumTimer();
   if (id === 'confirm-premium') initConfirmPremium();
@@ -943,78 +954,73 @@ document.addEventListener('DOMContentLoaded', () => {
   enableAlphaHit(document.querySelector('.hotspot--notebook'), './bgicons/notebook.png');
   enableAlphaHit(document.querySelector('.hotspot--plus'),     './bgicons/cloud-plus.png');
 });
+
+// --- RU|ENG переключатель (минимальный безопасный слой) ---
 (function(){
-const LS_KEY = 'plam_lang';
-const DEFAULT_LANG = 'ru';
+  const LS_KEY = 'plam_lang';
+  const DEFAULT_LANG = 'ru';
 
+  function applyLangAttr(code){
+    document.documentElement.setAttribute('data-lang', code);
+  }
 
-function applyLangAttr(code){
-document.documentElement.setAttribute('data-lang', code);
-}
+  function reflectUI(code){
+    const root = document.querySelector('.lang-switch');
+    if (!root) return;
+    const buttons = root.querySelectorAll('.lang-switch__btn');
+    buttons.forEach(btn => {
+      const on = btn.getAttribute('data-lang-target') === code;
+      btn.classList.toggle('is-active', on);
+      btn.setAttribute('aria-selected', String(on));
+    });
+  }
 
+  function setLang(code){
+    localStorage.setItem(LS_KEY, code);
+    applyLangAttr(code);
+    reflectUI(code);
+    // Если присутствует i18n.js — задействуем его без ошибок при отсутствии
+    if (window.i18n && typeof window.i18n.setLang === 'function') {
+      try { window.i18n.setLang(code); } catch(e) {}
+    }
+    if (window.i18n && typeof window.i18n.apply === 'function') {
+      try { window.i18n.apply(); } catch(e) {}
+    }
+  }
 
-function reflectUI(code){
-const root = document.querySelector('.lang-switch');
-if (!root) return;
-const buttons = root.querySelectorAll('.lang-switch__btn');
-buttons.forEach(btn => {
-const on = btn.getAttribute('data-lang-target') === code;
-btn.classList.toggle('is-active', on);
-btn.setAttribute('aria-selected', String(on));
-});
-}
+  function initLangSwitcher(){
+    // 1) Восстановим язык
+    const saved = localStorage.getItem(LS_KEY) || DEFAULT_LANG;
+    applyLangAttr(saved);
+    reflectUI(saved);
 
+    // 2) Делегирование кликов (на случай пересоздания попапа)
+    document.addEventListener('click', (e)=>{
+      const btn = e.target.closest && e.target.closest('.lang-switch__btn');
+      if (!btn) return;
+      const code = btn.getAttribute('data-lang-target');
+      if (!code) return;
+      setLang(code);
+    });
 
-function setLang(code){
-localStorage.setItem(LS_KEY, code);
-applyLangAttr(code);
-reflectUI(code);
-// Если присутствует ваш i18n.js — задействуем его без ошибок при отсутствии
-if (window.i18n && typeof window.i18n.setLang === 'function') {
-try { window.i18n.setLang(code); } catch(e) {}
-}
-if (window.i18n && typeof window.i18n.apply === 'function') {
-try { window.i18n.apply(); } catch(e) {}
-}
-}
+    // 3) Когда попап профиля открывается заново, сверим UI с актуальным языком
+    document.addEventListener('plam:profilePopup:open', ()=>{
+      const current = localStorage.getItem(LS_KEY) || DEFAULT_LANG;
+      reflectUI(current);
+    });
+  }
 
+  // DOM готов — инициализируем
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initLangSwitcher);
+  } else {
+    initLangSwitcher();
+  }
 
-function initLangSwitcher(){
-// 1) Восстановим язык
-const saved = localStorage.getItem(LS_KEY) || DEFAULT_LANG;
-applyLangAttr(saved);
-reflectUI(saved);
-
-
-// 2) Навесим делегирование кликов (на случай пересоздания попапа)
-document.addEventListener('click', (e)=>{
-const btn = e.target.closest && e.target.closest('.lang-switch__btn');
-if (!btn) return;
-const code = btn.getAttribute('data-lang-target');
-if (!code) return;
-setLang(code);
-});
-
-
-// 3) На всякий — когда попап профиля открывается заново, сверим UI с актуальным языком
-document.addEventListener('plam:profilePopup:open', ()=>{
-const current = localStorage.getItem(LS_KEY) || DEFAULT_LANG;
-reflectUI(current);
-});
-}
-
-
-// DOM готов — инициализируем
-if (document.readyState === 'loading') {
-document.addEventListener('DOMContentLoaded', initLangSwitcher);
-} else {
-initLangSwitcher();
-}
-
-
-// Экспорт на глобал при необходимости
-window.plamLang = { set: setLang };
+  // Экспорт на глобал при необходимости
+  window.plamLang = { set: setLang };
 })();
+
 // Debug хот-спотов
 (function debugHotspots(){
   const on = /[?&]debug=1/.test(location.search);
@@ -1025,4 +1031,3 @@ window.plamLang = { set: setLang };
     }
   });
 })();
-
