@@ -1039,7 +1039,7 @@ opacity: 0.6;
 .lang-switch__btn {
 appearance: none;
 border: 0;
-background: transparent; /* фон самого попапа — как просили */
+background: #D9D9D9; /* фон самого попапа — как просили */
 color: inherit;
 font: inherit;
 padding: 6px 10px;
