@@ -180,7 +180,8 @@ window.addEventListener('storage', (e) => {
         updateUI();
         return;
       }
-      timerEl.textContent = `Возвращайся через: ${fmtLeft(left)}`;
+      timerEl.textContent = Tlocal('fortune.return_in', 'Возвращайся через: {{time}}', { time: fmtLeft(left) });
+
     };
     tick();
     cdTimerId = setInterval(tick, 1000);
