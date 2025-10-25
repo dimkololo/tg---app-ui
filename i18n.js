@@ -249,7 +249,7 @@ i18n.load('en', {
 
   // RESET
   "reset.title": "Reset {{mins}} minutes for {{coins}} PLAMc",
-  "reset.confirm": "Confirm"
+  "reset.confirm": "Confirm",
 
   //placeholder
   "upload.link_placeholder": "...link to social or website",
@@ -347,7 +347,7 @@ i18n.load('ru', {
   "aria.open_profile": "Открыть профиль",
 
   "reset.title": "Сбросить {{mins}} минут за {{coins}} PLAMc",
-  "reset.confirm": "Подтвердить"
+  "reset.confirm": "Подтвердить",
 
   "upload.link_placeholder": "...ссылка на соц.сеть или сайт",
   "upload.desc_placeholder": "...описание",
