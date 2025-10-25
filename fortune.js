@@ -305,4 +305,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // при смене языка обновляем динамические тексты
+document.addEventListener('plam:langChanged', () => {
+  try { i18nApplyLocal(); } catch(_) {}
+  try { updateUI(); } catch(_) {}
+});
+
+
 })();
