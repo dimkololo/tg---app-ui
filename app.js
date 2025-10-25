@@ -190,6 +190,79 @@ function syncPhotoCountFromLS(){
   const timer = setInterval(tick, 1000);
 })();
 
+(function(){
+const LS_KEY = 'plam_lang';
+const DEFAULT_LANG = 'ru';
+
+
+function applyLangAttr(code){
+document.documentElement.setAttribute('data-lang', code);
+}
+
+
+function reflectUI(code){
+const root = document.querySelector('.lang-switch');
+if (!root) return;
+const buttons = root.querySelectorAll('.lang-switch__btn');
+buttons.forEach(btn => {
+const on = btn.getAttribute('data-lang-target') === code;
+btn.classList.toggle('is-active', on);
+btn.setAttribute('aria-selected', String(on));
+});
+}
+
+
+function setLang(code){
+localStorage.setItem(LS_KEY, code);
+applyLangAttr(code);
+reflectUI(code);
+// Если присутствует ваш i18n.js — задействуем его без ошибок при отсутствии
+if (window.i18n && typeof window.i18n.setLang === 'function') {
+try { window.i18n.setLang(code); } catch(e) {}
+}
+if (window.i18n && typeof window.i18n.apply === 'function') {
+try { window.i18n.apply(); } catch(e) {}
+}
+}
+
+
+function initLangSwitcher(){
+// 1) Восстановим язык
+const saved = localStorage.getItem(LS_KEY) || DEFAULT_LANG;
+applyLangAttr(saved);
+reflectUI(saved);
+
+
+// 2) Навесим делегирование кликов (на случай пересоздания попапа)
+document.addEventListener('click', (e)=>{
+const btn = e.target.closest && e.target.closest('.lang-switch__btn');
+if (!btn) return;
+const code = btn.getAttribute('data-lang-target');
+if (!code) return;
+setLang(code);
+});
+
+
+// 3) На всякий — когда попап профиля открывается заново, сверим UI с актуальным языком
+document.addEventListener('plam:profilePopup:open', ()=>{
+const current = localStorage.getItem(LS_KEY) || DEFAULT_LANG;
+reflectUI(current);
+});
+}
+
+
+// DOM готов — инициализируем
+if (document.readyState === 'loading') {
+document.addEventListener('DOMContentLoaded', initLangSwitcher);
+} else {
+initLangSwitcher();
+}
+
+
+// Экспорт на глобал при необходимости
+window.plamLang = { set: setLang };
+})();
+
 // --- Модалки (универсальная + стек) ---
 const modalRoot    = document.querySelector('[data-modal-root]');
 const modalContent = document.querySelector('[data-modal-content]');
