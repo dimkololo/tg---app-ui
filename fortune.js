@@ -5,6 +5,20 @@ function i18nApplyLocal(){
   try { window.i18n && window.i18n.apply && i18n.apply(document); } catch(_) {}
 }
 
+// локальный T-хелпер: использует i18n.t, а если перевода нет — подставляет vars в fallback
+function Tlocal(key, fallback, vars){
+  try {
+    if (window.i18n && typeof window.i18n.t === 'function') {
+      const s = i18n.t(key, vars);
+      if (s) return s;
+    }
+  } catch(_) {}
+  if (!fallback) return '';
+  if (!vars) return fallback;
+  return String(fallback).replace(/\{\{(\w+)\}\}/g, (_, k) => (k in vars ? String(vars[k]) : ''));
+}
+
+
 // начальная инициализация
 document.addEventListener('DOMContentLoaded', () => {
   i18nApplyLocal();
