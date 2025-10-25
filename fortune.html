@@ -6,7 +6,7 @@
     name="viewport"
     content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"
   >
-  <title>Колесо фортуны</title>
+  <title data-i18n="fortune.title">Колесо фортуны</title>
 
   <!-- Базовые стили проекта (фон, шрифты и т.п.) -->
   <link rel="stylesheet" href="./style.css?v=51">
@@ -19,50 +19,103 @@
   <div id="orientationLock" class="orientation-lock" aria-hidden="true"></div>
   <main class="scene scene--fortune">
     <header class="fortune-topbar" role="banner">
-  <button class="btn-back" id="btnBack" type="button" aria-label="Назад">
-    <span class="i-back" aria-hidden="true"></span>
-  </button>
+      <button class="btn-back" id="btnBack" type="button"
+              data-i18n-aria-label="common.close" aria-label="Назад">
+        <span class="i-back" aria-hidden="true"></span>
+      </button>
 
-  <nav class="fortune-tabs" role="tablist" aria-label="Действия">
-    <button class="fortune-tab is-active" role="tab" aria-selected="true" data-tab="wheel">Колесо фортуны</button>
-    <button class="fortune-tab" role="tab" aria-selected="false" data-tab="tasks">Задания</button>
-  </nav>
+      <nav class="fortune-tabs" role="tablist" aria-label="Действия">
+        <button class="fortune-tab is-active" role="tab" aria-selected="true" data-tab="wheel"
+                data-i18n="fortune.title">Колесо фортуны</button>
+        <button class="fortune-tab" role="tab" aria-selected="false" data-tab="tasks"
+                data-i18n="fortune.tasks_tab">Задания</button>
+      </nav>
 
-  <span class="topbar-spacer" aria-hidden="true"></span>
-</header>
+      <span class="topbar-spacer" aria-hidden="true"></span>
+    </header>
 
-<section class="fortune-body" role="main">
-  <!-- ПАНЕЛЬ: Колесо -->
-  <div class="tab-panel" data-panel="wheel">
-    <div class="wheel-stack" id="wheel">
-      <div class="wheel-rotor" id="wheelRotor">
-        <img class="wheel-img" id="wheelImg" src="./bgicons/wheel.png" alt="Колесо">
-        <div class="wheel__numbers" id="wheelNumbers"></div>
+    <section class="fortune-body" role="main">
+      <!-- ПАНЕЛЬ: Колесо -->
+      <div class="tab-panel" data-panel="wheel">
+        <div class="wheel-stack" id="wheel">
+          <div class="wheel-rotor" id="wheelRotor">
+            <img class="wheel-img" id="wheelImg" src="./bgicons/wheel.png" alt="" data-i18n-aria-label="leaders.podium_aria">
+            <div class="wheel__numbers" id="wheelNumbers"></div>
+          </div>
+          <img class="wheel-center" src="./bgicons/earth-item@3x.png" alt="" aria-hidden="true">
+          <img class="wheel-pointer" src="./bgicons/pointer.png" alt="" aria-hidden="true">
+        </div>
+
+        <!-- обёртка для кнопки и таймера -->
+        <div class="wheel-cta">
+          <button class="btn-spin" id="btnSpin" type="button" data-i18n="fortune.spin">Вращать</button>
+          <p class="fortune__note" id="fortuneTimer" hidden data-i18n="fortune.spinning">Кручение…</p>
+        </div>
       </div>
-      <img class="wheel-center" src="./bgicons/earth-item@3x.png" alt="" aria-hidden="true">
-      <img class="wheel-pointer" src="./bgicons/pointer.png" alt="" aria-hidden="true">
-    </div>
 
-    <!-- обёртка для кнопки и таймера -->
-  <div class="wheel-cta">
-    <button class="btn-spin" id="btnSpin" type="button">Вращать</button>
-    <p class="fortune__note" id="fortuneTimer" hidden></p>
-  </div>
-</div>
-  </div>
-
-  <!-- ПАНЕЛЬ: Задания (пока пустая) -->
-  <div class="tab-panel" data-panel="tasks" hidden>
-    <div class="tasks-empty">
-      <p class="tasks-empty__text">Раздел «Задания» скоро будет доступен</p>
-    </div>
-  </div>
-</section>
-
+      <!-- ПАНЕЛЬ: Задания (пока пустая) -->
+      <div class="tab-panel" data-panel="tasks" hidden>
+        <div class="tasks-empty">
+          <p class="tasks-empty__text" data-i18n="fortune.tasks_empty">Раздел «Задания» скоро будет доступен</p>
+        </div>
+      </div>
+    </section>
   </main>
+
+  <!-- подключаем i18n перед основным скриптом, чтобы переводы были доступны в fortune.js -->
+  <script src="./i18n.js?v=1" defer></script>
+
+  <!-- небольшой скрипт синхронизации языка и первичного применения переводов -->
+  <script>
+    (function(){
+      // у нас в i18n.js используется ключ localStorage 'plam_lang'
+      const LS_KEY = 'plam_lang';
+
+      function applyCurrentLang() {
+        try {
+          // Если i18n доступен — установим язык из LS (если есть) и применим словарь к документу
+          const lang = localStorage.getItem(LS_KEY);
+          if (window.i18n && typeof window.i18n.setLang === 'function' && lang) {
+            try { window.i18n.setLang(lang); } catch(_) {}
+          }
+          try { if (window.i18n && typeof window.i18n.apply === 'function') window.i18n.apply(document); } catch(_) {}
+        } catch(_) {}
+      }
+
+      // Применим при загрузке DOM (defer гарантирует выполнение после парсинга)
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', applyCurrentLang);
+      } else {
+        applyCurrentLang();
+      }
+
+      // Если язык сменили в другой вкладке — применим новый язык (storage сработает в других вкладках)
+      window.addEventListener('storage', (e) => {
+        if (e.key === LS_KEY) {
+          try {
+            if (window.i18n && typeof window.i18n.setLang === 'function') {
+              window.i18n.setLang(e.newValue || 'ru');
+            }
+          } catch(_) {}
+          try { if (window.i18n && typeof window.i18n.apply === 'function') window.i18n.apply(document); } catch(_) {}
+          // уведомим локальные слушатели, если они есть (например, fortune.js)
+          try { document.dispatchEvent(new CustomEvent('plam:langChanged', { detail:{ lang: e.newValue } })); } catch(_){}
+        }
+      });
+
+      // При локальной смене языка (пользователь нажал переключатель на другой странице),
+      // приложение на главной обычно вызывает i18n.setLang + i18n.apply + dispatch plam:langChanged,
+      // но если это не случилось — оставим обработчик для совместимости:
+      document.addEventListener('plam:langChanged', () => {
+        try { if (window.i18n && typeof window.i18n.apply === 'function') window.i18n.apply(document); } catch(_) {}
+      });
+
+    })();
+  </script>
 
   <!-- Основной скрипт страницы колеса -->
   <script src="./fortune.js?v=2" defer></script>
+
   <!-- Небольшой запасной обработчик «Назад», если ещё не добавлен в fortune.js -->
   <script>
     (function(){
