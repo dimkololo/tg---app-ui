@@ -909,7 +909,7 @@ function enableAlphaHit(el, imgURL, { threshold = 10 } = {}) {
 }
 document.addEventListener('DOMContentLoaded', () => {
   enableAlphaHit(document.querySelector('.hotspot--actions'),  './bgicons/plam.png');
-  enableAlphaHit(document.querySelector('.hotspot--wintable'), './bgicons/wintable.png');
+  //enableAlphaHit(document.querySelector('.hotspot--wintable'), './bgicons/wintable.png');
   enableAlphaHit(document.querySelector('.hotspot--stump'),    './bgicons/stump.png');
   enableAlphaHit(document.querySelector('.hotspot--gift'),     './bgicons/gift.png');
   enableAlphaHit(document.querySelector('.hotspot--faq'),      './bgicons/faq.png');
