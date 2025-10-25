@@ -581,7 +581,7 @@ function initUploadPopup(){
     // TODO: отправка на сервер/TG
 
     // успешная отправка
-    window.PLAM.photoCount = getPhotoCount() + 1;
+    setPhotoCount(getPhotoCount() + 1);
 
     try {
       window.Telegram?.WebApp?.showAlert?.('Ваше фото в очереди');
