@@ -1052,7 +1052,7 @@ transition: transform .12s ease;
 
 
 .lang-switch__btn.is-active {
-background: var(--chip-bg); /* лёгкий контраст активного языка */
+background: #FF7300; /* оранжевый активный */
 }
 
 
