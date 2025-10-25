@@ -5,6 +5,7 @@ if (window.Telegram && window.Telegram.WebApp) {
   try { window.Telegram.WebApp.expand(); } catch (e) {}
 }
 
+// --- Для чистого теста без данных, потом удалить ---
 (function resetByQuery(){
   if (/[?&]reset=(1|true)/.test(location.search)) {
     try { localStorage.clear(); sessionStorage.clear(); } catch(_) {}
@@ -14,7 +15,7 @@ if (window.Telegram && window.Telegram.WebApp) {
 })();
 
 
-// --- LS helper ---
+// --- LS helper Весь Local Storage перевести на сервер ---
 const LS = {
   get(k, d = null) {
     try { const v = localStorage.getItem(k); return v === null ? d : v; } catch { return d; }
