@@ -371,9 +371,9 @@ i18n.load('ru', {
   "upload.link_placeholder": "...ссылка на соц.сеть или сайт",
   "upload.desc_placeholder": "...описание",
 
-   "fortune.title": "Крути колесо",
-  "fortune.spin": "Крутить",
-  "fortune.spinning": "Кручение…",
+   "fortune.title": "Колесо фортуны",
+  "fortune.spin": "Вращать",
+  "fortune.spinning": "Вращение…",
   "fortune.stop": "Стоп",
   "fortune.win": "Вы выиграли: {{prize}}",
   "fortune.lose": "В этот раз ничего",
