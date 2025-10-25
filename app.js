@@ -196,9 +196,17 @@ const modalContent = document.querySelector('[data-modal-content]');
 const stackRoot    = document.querySelector('[data-modal-stack]');
 const stackContent = document.querySelector('[data-stack-content]');
 
-// --- i18n safe apply (безопасно, если i18n.js не подключён) ---
+// --- i18n helpers ---
 function i18nApply(scope){
   try { if (window.i18n && typeof window.i18n.apply === 'function') window.i18n.apply(scope || document); } catch(_){}
+}
+function i18nLang(){
+  try { return (window.i18n && typeof window.i18n.getLang === 'function' && window.i18n.getLang()) || document.documentElement.getAttribute('data-lang') || 'ru'; }
+  catch(_) { return 'ru'; }
+}
+function T(key, fallback, vars){
+  try { return (window.i18n && typeof window.i18n.t === 'function' && window.i18n.t(key, vars)) || fallback; }
+  catch(_) { return fallback; }
 }
 
 function openModal(id){
@@ -288,7 +296,7 @@ function openPolicyInfo(){
     const agree = root.querySelector('#policyAgree');
     const acc   = root.querySelector('#policyAccept');
     if (agree) agree.closest('label')?.setAttribute('hidden','');
-    if (acc) { acc.textContent = 'Закрыть'; acc.disabled = false; acc.addEventListener('click', closeModal, { once:true }); }
+    if (acc) { acc.textContent = T('common.close','Закрыть'); acc.disabled = false; acc.addEventListener('click', closeModal, { once:true }); }
   }
 }
 function ensurePolicyAccepted(next){
@@ -296,10 +304,7 @@ function ensurePolicyAccepted(next){
   try { closeStack(); } catch(_){}
   openPolicyRequired(next);
 }
-function initPolicyModal(){
-  // Нужна только логика блокировки кнопки в required-варианте,
-  // она уже настраивается в openPolicyRequired/openPolicyInfo.
-}
+function initPolicyModal(){ /* настройки внутри openPolicyRequired/openPolicyInfo */ }
 
 // --- Делегатор кликов (открыть/закрыть модалки + инфо-кнопка) ---
 document.addEventListener('click', (e) => {
@@ -393,7 +398,17 @@ function initUploadPopup(){
     const total = Math.max(0, Math.floor(ms/1000));
     const mm = String(Math.floor(total/60)).padStart(2,'0');
     const ss = String(total%60).padStart(2,'0');
-    return `${mm}мин. ${ss}сек.`;
+    return `${mm}${T('units.min_short','мин.')} ${ss}${T('units.sec_short','сек')}`;
+  }
+
+  function pluralRu(n, one, few, many){
+    const n10 = n % 10, n100 = n % 100;
+    if (n10 === 1 && n100 !== 11) return one;
+    if (n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14)) return few;
+    return many;
+  }
+  function unitSecond(n){
+    return i18nLang() === 'en' ? (n === 1 ? 'second' : 'seconds') : pluralRu(n, 'секунду', 'секунды', 'секунд');
   }
 
   function updateSubmitState(){ submitBtn.disabled = isCooldownActive() ? false : !hasFile; }
@@ -409,25 +424,20 @@ function initUploadPopup(){
     cdTimerId = setInterval(tick, 1000);
   }
 
-  function plural(n, one, few, many){
-    const n10 = n % 10, n100 = n % 100;
-    if (n10 === 1 && n100 !== 11) return one;
-    if (n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14)) return few;
-    return many;
-  }
   function updateBroadcastSeconds(){
     if (isCooldownActive()) return;
     const base  = isPremium() ? 40 : 20;
     const extra = Number(range?.value || 0);
     const total = base + extra;
-    const word  = plural(total, 'секунду', 'секунды', 'секунд');
-    submitBtn.textContent = `В эфир на ${total} ${word}`;
+    const u = unitSecond(total);
+    const fallback = i18nLang() === 'en' ? `Go live for ${total} ${u}` : `В эфир на ${total} ${u}`;
+    submitBtn.textContent = T('upload.broadcast_btn', fallback, { total, unit: u });
   }
 
   function renderUploadUI(){
     const showCd = isCooldownActive() && getPhotoCount() >= 1;
     if (showCd){
-      submitBtn.textContent = 'Сбросить таймер';
+      submitBtn.textContent = T('upload.reset_timer','Сбросить таймер');
       submitBtn.style.backgroundColor = '#14ae5c';
       submitBtn.style.color = '#fff';
       timerRow.hidden = false;
@@ -510,7 +520,8 @@ function initUploadPopup(){
     const update = () => {
       const v = Number(range.value);
       starsEl.textContent = `${v} PLAMc`;
-      secsEl.textContent  = (v === 0) ? '0 сек' : `+${v} сек`;
+      const secShort = T('units.sec_short','сек');
+      secsEl.textContent  = (v === 0) ? `0 ${secShort}` : `+${v} ${secShort}`;
       if (!isCooldownActive()) updateBroadcastSeconds();
     };
     range.addEventListener('input', update);
@@ -547,13 +558,13 @@ function initUploadPopup(){
       box?.querySelector('[data-coins]').replaceChildren(String(leftMin));
 
       box?.querySelector('[data-reset-now]')?.addEventListener('click', ()=>{
-        if (getBalance() < leftMin){ alert('Недостаточно PLAMc'); return; }
+        if (getBalance() < leftMin){ alert(T('errors.not_enough','Недостаточно PLAMc')); return; }
         addBalance(-leftMin); updatePlusBalanceUI();
 
         clearUploadCooldown();
         renderUploadUI();
 
-        try { window.Telegram?.WebApp?.showAlert?.('Удачно! Скорее отправляй еще фото'); } catch(_) {}
+        try { window.Telegram?.WebApp?.showAlert?.(T('upload.reset_ok','Удачно! Скорее отправляй еще фото')); } catch(_) {}
         if (backdrop) backdrop.style.background = prevBg;
         closeStack();
       }, { once:true });
@@ -571,21 +582,24 @@ function initUploadPopup(){
     }
 
     // обычная отправка
-    if (!hasFile){ try { window.Telegram?.WebApp?.showAlert?.('Прикрепите фото'); } catch(_) {} return; }
+    if (!hasFile){
+      try { window.Telegram?.WebApp?.showAlert?.(T('upload.attach_photo','Прикрепите фото')); } catch(_){ alert(T('upload.attach_photo','Прикрепите фото')); }
+      return;
+    }
     // Показываем попап подписки ТОЛЬКО перед самой первой отправкой
-      if (getPhotoCount() < 1 && !isSubsOk()){
-        openStack('subs-required');
-        return;
-      }
+    if (getPhotoCount() < 1 && !isSubsOk()){
+      openStack('subs-required');
+      return;
+    }
 
     const link = urlInput?.value.trim();
     if (link && !isValidUrlLike(link)){
-      alert('Ссылка должна начинаться с http:// или https:// (поддерживается и https://t.me/...)');
+      alert(T('upload.link_invalid','Ссылка должна начинаться с http:// или https:// (поддерживается и https://t.me/...)'));
       urlInput.focus(); return;
     }
 
     const need = parseInt(range?.value || '0', 10) || 0;
-    if (need > getBalance()){ alert('Недостаточно PLAMc'); return; }
+    if (need > getBalance()){ alert(T('errors.not_enough','Недостаточно PLAMc')); return; }
 
     addBalance(-need); updatePlusBalanceUI();
 
@@ -595,8 +609,8 @@ function initUploadPopup(){
     setPhotoCount(getPhotoCount() + 1);
 
     try {
-      window.Telegram?.WebApp?.showAlert?.('Ваше фото в очереди');
-    } catch(_) { alert('Ваше фото в очереди'); }
+      window.Telegram?.WebApp?.showAlert?.(T('upload.in_queue','Ваше фото в очереди'));
+    } catch(_) { alert(T('upload.in_queue','Ваше фото в очереди')); }
 
     // 1) Кулдаун: 30 мин обычный / 20 мин премиум
     const COOLDOWN_MIN = isPremium() ? 20 : 30;
@@ -608,6 +622,19 @@ function initUploadPopup(){
 
     // 3) переключаем UI
     renderUploadUI();
+  });
+
+  // Обновление текста при смене языка
+  document.addEventListener('plam:langChanged', () => {
+    if (!document.contains(root)) return;
+    // кнопка
+    updateBroadcastSeconds();
+    // подпись к секундам
+    if (range && starsEl && secsEl) {
+      const v = Number(range.value);
+      const secShort = T('units.sec_short','сек');
+      secsEl.textContent  = (v === 0) ? `0 ${secShort}` : `+${v} ${secShort}`;
+    }
   });
 }
 
@@ -624,7 +651,7 @@ function initSubsRequired(){
   const btnCheck = root.querySelector('[data-check-subs]');
   btnCheck?.addEventListener('click', ()=>{
     setSubsOk(true);
-    btnCheck.textContent = 'Спасибо';
+    btnCheck.textContent = T('common.thanks','Спасибо');
     btnCheck.classList.add('is-ok');
     btnCheck.disabled = true;
 
@@ -642,6 +669,16 @@ function initSubsRequired(){
 function initBuyStars(){
   const root = modalRoot.querySelector('.shop-popup');
   if (!root) return;
+
+  function syncShopUnits(){
+    root.querySelectorAll('.shop-item').forEach(btn=>{
+      const amount = Number(btn.dataset.amount || 0);
+      const label = i18nLang()==='en' ? `${amount} stars` : `${amount} звезд`;
+      const textSpan = btn.querySelector('.shop-item__left span:last-child');
+      if (textSpan) textSpan.textContent = label;
+    });
+  }
+
   root.querySelectorAll('.shop-item').forEach(btn=>{
     btn.addEventListener('click', (e)=>{
       e.preventDefault();
@@ -651,6 +688,13 @@ function initBuyStars(){
       try { window.Telegram?.WebApp?.showAlert?.(`+${amount} PLAMc`); } catch(_) {}
     }, { passive:false });
   });
+
+  // начальная синхронизация и при смене языка
+  syncShopUnits();
+  const langHandler = () => { if (document.contains(root)) syncShopUnits(); };
+  document.addEventListener('plam:langChanged', langHandler, { passive:true });
+
+  // при закрытии модалки слушатель нам больше не нужен — удалим его автоматически вместе с DOM (без утечек)
 }
 
 // --- Призы ---
@@ -665,7 +709,7 @@ function initPrizes(){
     if (!grid) return;
 
     if (!list.length){
-      grid.innerHTML = '<div style="opacity:.7;text-align:center;font-weight:800">Пока нет призов</div>';
+      grid.innerHTML = `<div style="opacity:.7;text-align:center;font-weight:800">${T('prizes.none','Пока нет призов')}</div>`;
       if (payBtn) payBtn.disabled = true;
       return;
     }
@@ -735,16 +779,16 @@ function initProfile(){
 
   const baseSecs = isPremium() ? 40 : 20;
   const secs = baseSecs + Math.floor(photos / 100);
-  root.querySelector('[data-show-seconds]').textContent = `${secs} сек`;
+  root.querySelector('[data-show-seconds]').textContent = `${secs} ${T('units.sec_short','сек')}`;
 
   const setBtn = ()=>{
     if (isPremium()){
-      btnPremium.textContent = 'Премиум активен';
+      btnPremium.textContent = T('premium.active','Премиум активен');
       btnPremium.classList.add('is-owned');
       btnPremium.disabled = false;
       avatarEl.classList.add('has-crown');
     } else {
-      btnPremium.textContent = 'Получить премиум';
+      btnPremium.textContent = T('profile.get_premium','Получить премиум');
       btnPremium.classList.remove('is-owned');
       btnPremium.disabled = false;
       avatarEl.classList.remove('has-crown');
@@ -778,16 +822,16 @@ function refreshProfileUI(){
   root.querySelector('[data-photo-count]').textContent = String(photos);
   const baseSecs = isPremium() ? 40 : 20;
   const secs = baseSecs + Math.floor(photos / 100);
-  root.querySelector('[data-show-seconds]').textContent = `${secs} сек`;
+  root.querySelector('[data-show-seconds]').textContent = `${secs} ${T('units.sec_short','сек')}`;
 
   const avatarEl   = root.querySelector('[data-avatar]');
   const btnPremium = root.querySelector('[data-btn-premium]');
   if (isPremium()){
-    btnPremium.textContent = 'Премиум активен';
+    btnPremium.textContent = T('premium.active','Премиум активен');
     btnPremium.classList.add('is-owned');
     avatarEl?.classList.add('has-crown');
   } else {
-    btnPremium.textContent = 'Получить премиум';
+    btnPremium.textContent = T('profile.get_premium','Получить премиум');
     btnPremium.classList.remove('is-owned');
     avatarEl?.classList.remove('has-crown');
   }
@@ -807,12 +851,12 @@ function initPremiumTimer(){
     const minutes = totalMinutes - days*24*60 - hours*60;
     const hh = String(hours).padStart(2, '0');
     const mm = String(minutes).padStart(2, '0');
-    box.textContent = `${days}д. ${hh}ч. ${mm}мин.`;
+    box.textContent = `${days}${T('units.day_short','д. ')} ${hh}${T('units.hour_short','ч. ')} ${mm}${T('units.min_short','мин.')}`;
 
     if (ms <= 0){
       clearInterval(timer);
       setPremiumUntil(0);
-      try { window.Telegram?.WebApp?.showAlert?.('Премиум истёк'); } catch(_) {}
+      try { window.Telegram?.WebApp?.showAlert?.(T('premium.expired','Премиум истёк')); } catch(_) {}
       closeStack();
     }
   };
@@ -856,7 +900,7 @@ function initConfirmPremium(){
 function initPremiumHelp(){ /* закрытие уже есть по [data-dismiss-stack] */ }
 function initFAQ(){ /* оставить как есть */ }
 
-// Таблица лидеров
+// Таблица лидеров (отдельная модалка)
 document.addEventListener('DOMContentLoaded', () => {
   const modal   = document.getElementById('leadersModal');
   const openBtn = document.querySelector('.hotspot--wintable');
@@ -869,6 +913,8 @@ document.addEventListener('DOMContentLoaded', () => {
     modal.setAttribute('aria-hidden','false');
     document.documentElement.style.overflow = 'hidden';
     content && content.classList.add('is-scrollable');
+    // применяем переводы внутри этой модалки
+    i18nApply(modal);
     fillMyRow?.();
   }
 
@@ -892,7 +938,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Esc
   window.addEventListener('keydown', (e) => { if (!modal.hidden && e.key === 'Escape') close(); });
 
-  // Страховка: если вдруг «что-то» перекрыло клики — закрыть при клике мимо диалога
+  // Страховка
   document.addEventListener('click', (e) => {
     if (modal.hidden) return;
     const dlg = modal.querySelector('.modal__dialog');
@@ -986,6 +1032,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.i18n && typeof window.i18n.apply === 'function') {
       try { window.i18n.apply(); } catch(e) {}
     }
+    // уведомим остальной код, чтобы обновить динамические подписи
+    try { document.dispatchEvent(new CustomEvent('plam:langChanged', { detail: { lang: code } })); } catch(_){}
   }
 
   function initLangSwitcher(){
