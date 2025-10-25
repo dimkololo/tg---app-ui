@@ -279,6 +279,10 @@ i18n.load('en', {
   "aria.open_faq": "Open FAQ",
   "aria.open_prizes": "Open prizes popup",
   "aria.open_profile": "Open profile"
+
+  // RESET
+  "reset.title": "Reset {{mins}} minutes for {{coins}} PLAMc",
+  "reset.confirm": "Confirm"
 });
 
 // RU dictionary (чтобы переключение RU↔ENG работало без перезагрузки)
@@ -370,6 +374,9 @@ i18n.load('ru', {
   "aria.open_faq": "Открыть FAQ",
   "aria.open_prizes": "Открыть попап призов",
   "aria.open_profile": "Открыть профиль"
+
+  "reset.title": "Сбросить {{mins}} минут за {{coins}} PLAMc",
+  "reset.confirm": "Подтвердить"
 });
 
 // RU-словарь не обязателен (русский уже в разметке), но можно добавить для симметрии:
