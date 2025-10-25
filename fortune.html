@@ -116,20 +116,6 @@
   <!-- Основной скрипт страницы колеса -->
   <script src="./fortune.js?v=2" defer></script>
 
-  <!-- Небольшой запасной обработчик «Назад», если ещё не добавлен в fortune.js -->
-  <script>
-    (function(){
-      const back = document.getElementById('btnBack');
-      if (back && !back.dataset.bound) {
-        back.dataset.bound = '1';
-        back.addEventListener('click', () => {
-          if (history.length > 1) history.back();
-          else location.href = './index.html';
-        });
-      }
-    })();
-  </script>
-
   <noscript>
     Включите JavaScript, чтобы использовать «Колесо фортуны».
   </noscript>
