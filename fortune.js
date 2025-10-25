@@ -1,5 +1,27 @@
 // ========== fortune.js — LS-единообразие, миграции, тот же UX ==========
 
+// fortune.js (или внутри скрипта на fortune.html)
+function i18nApplyLocal(){
+  try { window.i18n && window.i18n.apply && i18n.apply(document); } catch(_) {}
+}
+
+// начальная инициализация
+document.addEventListener('DOMContentLoaded', () => {
+  i18nApplyLocal();
+});
+
+// слушаем изменения языка, сделанные в других вкладках
+window.addEventListener('storage', (e) => {
+  if (e.key === 'plam_lang') {
+    try { i18n.setLang(e.newValue); } catch(_) {}
+    i18nApplyLocal();
+    // обновляем динамику, если нужно (например, вызвать функцию, которая пересчитывает
+    // подписки/таймеры/тексты)
+    // refreshDynamicUI?.();
+  }
+});
+
+
 (function(){
   // --- LS helper ---
   const LS = {
