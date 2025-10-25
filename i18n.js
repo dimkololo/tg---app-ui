@@ -148,39 +148,6 @@
   }
 })();
 
-// --- Minimal EN dictionary so RU|ENG toggle is visible ---
-i18n.load('en', {
-  // common
-  "common.close": "Close",
-  "common.ok": "OK",
-  "common.cancel": "Cancel",
-  "common.accept": "Accept",
-  "common.yes": "Yes",
-  "common.no": "No",
-
-  // profile popup
-  "profile.get_premium": "Get Premium",
-  "profile.photos_count": "Number of photos:",
-  "profile.photos_hint": "The number of photos increases their show time. 100 photos = +1 second",
-  "profile.show_time": "Photo show time:",
-
-  // premium timer/help (чтобы окно тоже переводилось)
-  "premium.active": "Premium is active",
-  "premium.countdown_note": "Countdown until the subscription ends",
-
-  // shop / prizes / subs (пара ключей для наглядности)
-  "shop.exchange": "Exchange",
-  "shop.choose_amount": "Choose the number of stars",
-  "prizes.take": "Claim",
-  "prizes.note": "By clicking “Claim” you confirm that you have read the rules and the public offer.",
-  "subs.title": "Subscription required",
-  "subs.subtitle": "Subscribe to our channels to send photos.",
-  "subs.youtube": "YouTube channel",
-  "subs.telegram": "Telegram channel",
-  "subs.check": "Check subscriptions",
-  "subs.note": "After a successful check you can close the window and send a photo."
-});
-
 // ===== Dictionaries (EN + RU) =====
 i18n.load('en', {
   // Common
@@ -278,7 +245,7 @@ i18n.load('en', {
   "aria.open_stars": "Open stars popup",
   "aria.open_faq": "Open FAQ",
   "aria.open_prizes": "Open prizes popup",
-  "aria.open_profile": "Open profile"
+  "aria.open_profile": "Open profile",
 
   // RESET
   "reset.title": "Reset {{mins}} minutes for {{coins}} PLAMc",
@@ -373,7 +340,7 @@ i18n.load('ru', {
   "aria.open_stars": "Открыть попап звёзд",
   "aria.open_faq": "Открыть FAQ",
   "aria.open_prizes": "Открыть попап призов",
-  "aria.open_profile": "Открыть профиль"
+  "aria.open_profile": "Открыть профиль",
 
   "reset.title": "Сбросить {{mins}} минут за {{coins}} PLAMc",
   "reset.confirm": "Подтвердить"
