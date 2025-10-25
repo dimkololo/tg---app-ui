@@ -554,6 +554,16 @@ function initUploadPopup(){
       if (backdrop) backdrop.style.background = 'rgba(0,0,0,.5)';
 
       const box = stackRoot.querySelector('.reset-popup');
+
+        // Заголовок с подстановкой чисел
+        const titleEl = box?.querySelector('.reset-title');
+        if (titleEl) {
+          const html = T('reset.title', 'Сбросить {{mins}} минут за {{coins}} PLAMc', {
+            mins: leftMin, coins: leftMin
+          });
+          if (html.indexOf('<') !== -1) titleEl.innerHTML = html; else titleEl.textContent = html;
+        }
+
       box?.querySelector('[data-mins]') ?.replaceChildren(String(leftMin));
       box?.querySelector('[data-coins]').replaceChildren(String(leftMin));
 
