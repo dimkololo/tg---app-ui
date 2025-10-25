@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"
+  >
+  <title>Колесо фортуны</title>
+
+  <!-- Базовые стили проекта (фон, шрифты и т.п.) -->
+  <link rel="stylesheet" href="./style.css?v=51">
+
+  <!-- Стили страницы колеса -->
+  <link rel="stylesheet" href="./fortune.css?v=2">
+</head>
+<body>
+  <!-- Оверлей при горизонтальной ориентации -->
+  <div id="orientationLock" class="orientation-lock" aria-hidden="true"></div>
+  <main class="scene scene--fortune">
+    <header class="fortune-topbar" role="banner">
+  <button class="btn-back" id="btnBack" type="button" aria-label="Назад">
+    <span class="i-back" aria-hidden="true"></span>
+  </button>
+
+  <nav class="fortune-tabs" role="tablist" aria-label="Действия">
+    <button class="fortune-tab is-active" role="tab" aria-selected="true" data-tab="wheel">Колесо фортуны</button>
+    <button class="fortune-tab" role="tab" aria-selected="false" data-tab="tasks">Задания</button>
+  </nav>
+
+  <span class="topbar-spacer" aria-hidden="true"></span>
+</header>
+
+<section class="fortune-body" role="main">
+  <!-- ПАНЕЛЬ: Колесо -->
+  <div class="tab-panel" data-panel="wheel">
+    <div class="wheel-stack" id="wheel">
+      <div class="wheel-rotor" id="wheelRotor">
+        <img class="wheel-img" id="wheelImg" src="./bgicons/wheel.png" alt="Колесо">
+        <div class="wheel__numbers" id="wheelNumbers"></div>
+      </div>
+      <img class="wheel-center" src="./bgicons/earth-item@3x.png" alt="" aria-hidden="true">
+      <img class="wheel-pointer" src="./bgicons/pointer.png" alt="" aria-hidden="true">
+    </div>
+
+    <!-- обёртка для кнопки и таймера -->
+  <div class="wheel-cta">
+    <button class="btn-spin" id="btnSpin" type="button">Вращать</button>
+    <p class="fortune__note" id="fortuneTimer" hidden></p>
+  </div>
+</div>
+  </div>
+
+  <!-- ПАНЕЛЬ: Задания (пока пустая) -->
+  <div class="tab-panel" data-panel="tasks" hidden>
+    <div class="tasks-empty">
+      <p class="tasks-empty__text">Раздел «Задания» скоро будет доступен</p>
+    </div>
+  </div>
+</section>
+
+  </main>
+
+  <!-- Основной скрипт страницы колеса -->
+  <script src="./fortune.js?v=2" defer></script>
+  <!-- Небольшой запасной обработчик «Назад», если ещё не добавлен в fortune.js -->
+  <script>
+    (function(){
+      const back = document.getElementById('btnBack');
+      if (back && !back.dataset.bound) {
+        back.dataset.bound = '1';
+        back.addEventListener('click', () => {
+          if (history.length > 1) history.back();
+          else location.href = './index.html';
+        });
+      }
+    })();
+  </script>
+
+  <noscript>
+    Включите JavaScript, чтобы использовать «Колесо фортуны».
+  </noscript>
+
+</body>
+</html>
