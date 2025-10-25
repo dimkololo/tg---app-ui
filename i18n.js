@@ -138,3 +138,40 @@
     init();
   }
 })();
+
+// --- Minimal EN dictionary so RU|ENG toggle is visible ---
+i18n.load('en', {
+  // common
+  "common.close": "Close",
+  "common.ok": "OK",
+  "common.cancel": "Cancel",
+  "common.accept": "Accept",
+  "common.yes": "Yes",
+  "common.no": "No",
+
+  // profile popup
+  "profile.get_premium": "Get Premium",
+  "profile.photos_count": "Number of photos:",
+  "profile.photos_hint": "The number of photos increases their show time. 100 photos = +1 second",
+  "profile.show_time": "Photo show time:",
+
+  // premium timer/help (чтобы окно тоже переводилось)
+  "premium.active": "Premium is active",
+  "premium.countdown_note": "Countdown until the subscription ends",
+
+  // shop / prizes / subs (пара ключей для наглядности)
+  "shop.exchange": "Exchange",
+  "shop.choose_amount": "Choose the number of stars",
+  "prizes.take": "Claim",
+  "prizes.note": "By clicking “Claim” you confirm that you have read the rules and the public offer.",
+  "subs.title": "Subscription required",
+  "subs.subtitle": "Subscribe to our channels to send photos.",
+  "subs.youtube": "YouTube channel",
+  "subs.telegram": "Telegram channel",
+  "subs.check": "Check subscriptions",
+  "subs.note": "After a successful check you can close the window and send a photo."
+});
+
+// RU-словарь не обязателен (русский уже в разметке), но можно добавить для симметрии:
+// i18n.load('ru', { "profile.get_premium": "Получить премиум" /* ...и т.д. */ });
+
