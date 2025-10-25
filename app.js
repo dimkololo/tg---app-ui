@@ -561,7 +561,11 @@ function initUploadPopup(){
 
     // обычная отправка
     if (!hasFile){ try { window.Telegram?.WebApp?.showAlert?.('Прикрепите фото'); } catch(_) {} return; }
-    if (!window.PLAM.subsOk){ openStack('subs-required'); return; }
+    // Показываем попап подписки ТОЛЬКО перед самой первой отправкой
+      if (getPhotoCount() < 1 && !isSubsOk()){
+        openStack('subs-required');
+        return;
+      }
 
     const link = urlInput?.value.trim();
     if (link && !isValidUrlLike(link)){
