@@ -1025,10 +1025,10 @@ html,body{
 .pc-head{
   font-size:11px; text-transform:uppercase; letter-spacing:.02em;
   opacity:.6; font-weight:800; text-align:center;
+  color:#555;
 }
 .pc-head:first-child{
-  text-align:left; 
-  color:#555;
+  text-align:left;  
 }
 .pc-head.is-premium{
   color:#FF7300;
