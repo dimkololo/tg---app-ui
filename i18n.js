@@ -51,15 +51,24 @@
   }
 
   function translateTextLike(el, key) {
-    const txt = t(key);
-    if (!txt) return; // нет перевода — оставляем исходный контент
-    // если в переводе есть теги — считаем это версткой ключа и кладём innerHTML
-    if (txt.indexOf('<') !== -1) {
-      el.innerHTML = txt;
-    } else {
-      el.textContent = txt;
-    }
+  const raw = t(key);
+  if (!raw) return;
+
+  // если есть HTML — кладём как разметку
+  if (raw.indexOf('<') !== -1) {
+    el.innerHTML = raw;
+    return;
   }
+
+  // иначе это «чистый текст»: декодируем HTML-сущности (&nbsp; и др.)
+  let val = raw;
+  if (/&(?:[a-z]+|#\d+);/i.test(val)) {
+    const ta = document.createElement('textarea');
+    ta.innerHTML = val;
+    val = ta.value;
+  }
+  el.textContent = val;
+}
 
   function translateAttr(el, dataAttr, realAttr) {
     const key = el.getAttribute(dataAttr);
