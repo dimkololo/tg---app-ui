@@ -818,50 +818,43 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!modal || !openBtn) return;
 
   const content = modal.querySelector('.modal__content');
-  function fillMyRow(){
-    const tg = window.Telegram?.WebApp;
-    const u  = tg?.initDataUnsafe?.user || null;
-    const handle = u?.username ? '@' + u.username
-      : ([u?.first_name, u?.last_name].filter(Boolean).join(' ') || '@tg profile');
 
-    const weekPhotos = getPhotoCount();
-    const rank = 1;
-
-    const root = document.querySelector('#leadersModal .leaderboard-popup');
-    if (!root) return;
-    root.querySelector('[data-lb-me-nick]')   ?.replaceChildren(handle);
-    root.querySelector('[data-lb-me-photos]') ?.replaceChildren(String(weekPhotos));
-    root.querySelector('[data-lb-me-rank]')   ?.replaceChildren(String(rank));
-
-    const ava = root.querySelector('[data-lb-me-ava]');
-    if (ava) {
-      if (u?.photo_url) {
-        ava.style.backgroundImage = `url("${u.photo_url}")`;
-        ava.style.backgroundSize  = 'cover';
-        ava.style.backgroundPosition = 'center';
-      } else {
-        ava.style.backgroundImage = '';
-      }
-    }
-  }
   function open() {
     modal.hidden = false;
+    modal.setAttribute('aria-hidden','false');
     document.documentElement.style.overflow = 'hidden';
     content && content.classList.add('is-scrollable');
-    fillMyRow();
+    fillMyRow?.();
   }
+
   function close() {
     modal.hidden = true;
+    modal.setAttribute('aria-hidden','true');
     document.documentElement.style.overflow = '';
+    content && content.classList.remove('is-scrollable');
   }
-  openBtn.addEventListener('click', open);
+
+  // Открываем с захватом (обходит любые другие делегаторы)
+  openBtn.addEventListener('click', (e) => { e.preventDefault(); open(); }, { capture: true });
+
+  // Закрытие по бэкдропу/крестику
   modal.addEventListener('click', (e) => {
     const isBackdrop = e.target.classList.contains('modal__backdrop');
     const isCloseBtn = e.target.closest('[data-close="leadersModal"]');
     if (isBackdrop || isCloseBtn) close();
   });
+
+  // Esc
   window.addEventListener('keydown', (e) => { if (!modal.hidden && e.key === 'Escape') close(); });
+
+  // Страховка: если вдруг «что-то» перекрыло клики — закрыть при клике мимо диалога
+  document.addEventListener('click', (e) => {
+    if (modal.hidden) return;
+    const dlg = modal.querySelector('.modal__dialog');
+    if (dlg && !dlg.contains(e.target)) close();
+  }, true);
 });
+
 
 // «Действия» → сразу на страницу колеса
 document.addEventListener('DOMContentLoaded', () => {
