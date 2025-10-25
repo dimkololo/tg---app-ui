@@ -5,6 +5,15 @@ if (window.Telegram && window.Telegram.WebApp) {
   try { window.Telegram.WebApp.expand(); } catch (e) {}
 }
 
+(function resetByQuery(){
+  if (/[?&]reset=(1|true)/.test(location.search)) {
+    try { localStorage.clear(); sessionStorage.clear(); } catch(_) {}
+    // возвращаем чистый URL без параметров
+    location.replace(location.pathname);
+  }
+})();
+
+
 // --- LS helper ---
 const LS = {
   get(k, d = null) {
