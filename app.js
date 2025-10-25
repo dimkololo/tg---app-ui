@@ -564,8 +564,8 @@ function initUploadPopup(){
           if (html.indexOf('<') !== -1) titleEl.innerHTML = html; else titleEl.textContent = html;
         }
 
-      box?.querySelector('[data-mins]') ?.replaceChildren(String(leftMin));
-      box?.querySelector('[data-coins]').replaceChildren(String(leftMin));
+      box?.querySelector('[data-mins]')?.replaceChildren(String(leftMin));
+      box?.querySelector('[data-coins]')?.replaceChildren(String(leftMin));
 
       // Текст кнопки
         const btnReset = box?.querySelector('[data-reset-now]');
