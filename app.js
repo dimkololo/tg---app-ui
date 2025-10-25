@@ -1,209 +1,85 @@
-// ========== app.js (главная) — LS-единообразие, миграции v1→v2 ==========
+// === i18n helpers (ожидаем глобальный window.i18n из i18n.js) ===
+const LANG_KEY = 'plam_lang';
+function getLang(){ return localStorage.getItem(LANG_KEY) || 'ru'; }
+function setLang(l){
+  try { localStorage.setItem(LANG_KEY, l); } catch(_) {}
+  try { document.documentElement.lang = l; } catch(_) {}
+  try { window.i18n?.setLang?.(l); window.i18n?.apply?.(document); } catch(_) {}
+}
+function applyI18n(root=document){ try { window.i18n?.apply?.(root); } catch(_) {} }
 
-// --- Telegram WebApp ---
+// === Telegram WebApp bootstrap ===
 if (window.Telegram && window.Telegram.WebApp) {
-  try { window.Telegram.WebApp.expand(); } catch (e) {}
+  try { window.Telegram.WebApp.expand(); } catch(e) {}
 }
 
-// --- Для чистого теста без данных, потом удалить ---
-(function resetByQuery(){
-  if (/[?&]reset=(1|true)/.test(location.search)) {
-    try { localStorage.clear(); sessionStorage.clear(); } catch(_) {}
-    // возвращаем чистый URL без параметров
-    location.replace(location.pathname);
-  }
-})();
-
-
-// --- LS helper Весь Local Storage перевести на сервер ---
-const LS = {
-  get(k, d = null) {
-    try { const v = localStorage.getItem(k); return v === null ? d : v; } catch { return d; }
-  },
-  set(k, v) { try { localStorage.setItem(k, v); } catch {} },
-  remove(k) { try { localStorage.removeItem(k); } catch {} },
-  getJSON(k, d = null) {
-    const s = LS.get(k, null); if (s === null) return d;
-    try { return JSON.parse(s); } catch { return d; }
-  },
-  setJSON(k, obj) { LS.set(k, JSON.stringify(obj)); },
-  getNum(k, d = 0) { const n = parseInt(LS.get(k, ''), 10); return Number.isFinite(n) ? n : d; },
-  setNum(k, n) { LS.set(k, String(n)); },
+// === Глобальный state (как был) ===
+window.PLAM = window.PLAM || { 
+  balance: 0, premium: false, photoCount: 0, premiumUntil: null, subsOk: false,
+  cooldownUntil: null
 };
 
-// --- Ключи (v2) ---
-const K = {
-  BALANCE:              'plam_balance_v2',
-  PRIZES:               'plam_prizes_v2',
-  POLICY_OK:            'plam_policy_accepted_v2',
-  PREMIUM_UNTIL:        'plam_premium_until_v2',
-  PHOTO_COUNT:          'plam_photo_count_v2',
-  UPLOAD_CD_UNTIL:      'plam_upload_cd_until_v2',
-  WELCOME_FLAG:         'plam_welcome_coins_given_v2',
-};
+// === Призы пользователя (как было) ===
+const PRIZES_KEY = 'plam_prizes';
+function loadPrizes(){ try { return JSON.parse(localStorage.getItem(PRIZES_KEY) || '[]'); } catch(_) { return []; } }
+function savePrizes(list){ try { localStorage.setItem(PRIZES_KEY, JSON.stringify(list)); } catch(_) {} }
+function addPrize(prize){ const list = loadPrizes(); list.push(prize); savePrizes(list); window.PLAM.prizes = list; }
+window.PLAM.prizes = loadPrizes();
 
-// --- Миграция старых ключей в v2 (без потери данных) ---
-(function migrateToV2(){
-  // balance
-  if (localStorage.getItem('plam_balance') && !localStorage.getItem(K.BALANCE)) {
-    LS.set(K.BALANCE, localStorage.getItem('plam_balance'));
-  }
-  // prizes
-  if (localStorage.getItem('plam_prizes') && !localStorage.getItem(K.PRIZES)) {
-    LS.set(K.PRIZES, localStorage.getItem('plam_prizes'));
-  }
-  // policy accepted
-  if (!localStorage.getItem(K.POLICY_OK)) {
-    if (localStorage.getItem('plam_policy_accepted_v1') === '1' || localStorage.getItem('policy_accept_v1') === '1') {
-      LS.set(K.POLICY_OK, '1');
-    }
-  }
-  // premium until
-  if (localStorage.getItem('plam_premium_until') && !localStorage.getItem(K.PREMIUM_UNTIL)) {
-    LS.set(K.PREMIUM_UNTIL, localStorage.getItem('plam_premium_until'));
-  }
-  // photo count
-  if (localStorage.getItem('plam_photo_count') && !localStorage.getItem(K.PHOTO_COUNT)) {
-    LS.set(K.PHOTO_COUNT, localStorage.getItem('plam_photo_count'));
-  }
-  // upload cooldown (раньше не сохраняли — мигрировать нечего)
-  // welcome flag
-  if (localStorage.getItem('plam_welcome_coins_given_v1') && !localStorage.getItem(K.WELCOME_FLAG)) {
-    LS.set(K.WELCOME_FLAG, '1');
-  }
-})();
-
-// --- API состояния (всё через LS) ---
-function getBalance(){ return LS.getNum(K.BALANCE, 0); }
-function setBalance(v){ LS.setNum(K.BALANCE, v); }
-function addBalance(delta){ setBalance(getBalance() + delta); }
-
-function getPrizes(){ return LS.getJSON(K.PRIZES, []) || []; }
-function setPrizes(list){ LS.setJSON(K.PRIZES, list || []); }
-function addPrize(prize){
-  const list = getPrizes();
-  list.push(prize);
-  setPrizes(list);
-}
-
-function getPolicyAccepted(){ return LS.get(K.POLICY_OK) === '1'; }
-function setPolicyAccepted(){ LS.set(K.POLICY_OK, '1'); }
-
-function getPremiumUntil(){ return LS.getNum(K.PREMIUM_UNTIL, 0); }
-function setPremiumUntil(ts){ LS.setNum(K.PREMIUM_UNTIL, ts); }
-function isPremium(){ const u = getPremiumUntil(); return u && Date.now() < u; }
-
-function getPhotoCount(){ return LS.getNum(K.PHOTO_COUNT, 0); }
-function incPhotoCount(){ LS.setNum(K.PHOTO_COUNT, getPhotoCount() + 1); }
-
-function getUploadCooldownUntil(){ return LS.getNum(K.UPLOAD_CD_UNTIL, 0); }
-function setUploadCooldownUntil(ts){ LS.setNum(K.UPLOAD_CD_UNTIL, ts); }
-function clearUploadCooldown(){ LS.remove(K.UPLOAD_CD_UNTIL); }
-
-// --- Глобальный объект (только для удобного доступа из UI) ---
-window.PLAM = {
-  get balance(){ return getBalance(); },
-  set balance(v){ setBalance(v); },
-  get prizes(){ return getPrizes(); },
-  set prizes(list){ setPrizes(list); },
-  get premium(){ return isPremium(); },
-  set premium(on){ if (!on) setPremiumUntil(0); }, // включение идёт через setPremiumUntil
-  get premiumUntil(){ return getPremiumUntil(); },
-  set premiumUntil(ts){ setPremiumUntil(ts); },
-  get photoCount(){ return getPhotoCount(); },
-  set photoCount(v){ LS.setNum(K.PHOTO_COUNT, v|0); },
-  get cooldownUntil(){ return getUploadCooldownUntil(); },
-  set cooldownUntil(ts){ setUploadCooldownUntil(ts); },
-  subsOk: false
-};
-
-// --- Выдать приветственные монеты один раз (через приз «coins») ---
+// Выдать приветственные 50 PLAMc один раз (как было)
 (function ensureWelcomeCoins(){
-  if (!localStorage.getItem(K.WELCOME_FLAG)) {
-    addPrize({
-      id: 'welcome-coins-50',
-      kind: 'coins',
-      amount: 50,
-      img: './bgicons/plam-50.png',
-      title: 'Приветственный приз: 50 PLAMc'
-    });
-    LS.set(K.WELCOME_FLAG, '1');
+  const FLAG = 'plam_welcome_coins_given_v1';
+  if (!localStorage.getItem(FLAG)) {
+    addPrize({ id:'welcome-coins-50', kind:'coins', amount:50, img:'./bgicons/plam-50.png', title:'Приветственный приз: 50 PLAMc' });
+    localStorage.setItem(FLAG, '1');
   }
 })();
 
-// --- Индикатор на плюс-облаке ---
-function updatePlusBalanceUI(){
-  const el = document.getElementById('plusValue');
-  if (el) el.textContent = String(getBalance());
-}
+// === Баланс (как было) ===
+const BALANCE_KEY = 'plam_balance';
+function getBalanceLS(){ return parseInt(localStorage.getItem(BALANCE_KEY) || '0', 10); }
+function setBalanceLS(v){ localStorage.setItem(BALANCE_KEY, String(v)); }
+function persistBalance(){ setBalanceLS(window.PLAM.balance || 0); }
+function syncBalanceFromLS(){ window.PLAM.balance = getBalanceLS(); updatePlusBalanceUI(); }
+window.addEventListener('DOMContentLoaded', syncBalanceFromLS);
+window.addEventListener('pageshow',        syncBalanceFromLS);
+window.addEventListener('storage', (e) => { if (e.key === BALANCE_KEY) syncBalanceFromLS(); });
 
-// при старте и при возврате со страницы колеса подтягиваем свежие данные
-window.addEventListener('DOMContentLoaded', updatePlusBalanceUI);
-window.addEventListener('pageshow', updatePlusBalanceUI);
-window.addEventListener('DOMContentLoaded', syncPhotoCountFromLS);
-window.addEventListener('pageshow',      syncPhotoCountFromLS);
-
-// если баланс изменился в другой вкладке/странице — обновим облако плюс
-window.addEventListener('storage', (e) => {
-  if (e.key === K.BALANCE) updatePlusBalanceUI();
-});
-
-// --- Подписки: сохраняем "пройдено" в LS ---
-const SUBS_OK_KEY = 'plam_subs_ok_v1';
-function isSubsOk(){ return localStorage.getItem(SUBS_OK_KEY) === '1'; }
-function setSubsOk(v){ if (v) localStorage.setItem(SUBS_OK_KEY, '1'); else localStorage.removeItem(SUBS_OK_KEY); }
-
-// --- Фото: общий счётчик в LS (для условия "первая отправка") ---
-const PHOTO_COUNT_KEY = 'plam_photo_count_v1';
-function getPhotoCount(){ return parseInt(localStorage.getItem(PHOTO_COUNT_KEY) || '0', 10); }
-function setPhotoCount(n){
-  n = Math.max(0, parseInt(n||0,10));
-  localStorage.setItem(PHOTO_COUNT_KEY, String(n));
-  window.PLAM.photoCount = n;
-}
-function syncPhotoCountFromLS(){
-  window.PLAM.photoCount = getPhotoCount();
-}
-
-
-// --- Автозакрытие через 15 минут ---
+// === Автозакрытие (как было) ===
 (function setupAutoClose(){
-  const AUTO_CLOSE_MS = 15 * 60 * 1000;
-  const WARN_MS       = 30 * 1000;
-  const deadline      = Date.now() + AUTO_CLOSE_MS;
-
+  const AUTO_CLOSE_MS = 15 * 60 * 1000, WARN_MS = 30 * 1000;  
+  const deadline = Date.now() + AUTO_CLOSE_MS;
   let warned = false;
   const tick = () => {
     const left = deadline - Date.now();
     if (!warned && left <= WARN_MS && left > 0) {
       warned = true;
-      try { window.Telegram?.WebApp?.showAlert?.('Сессия будет закрыта через 30 секунд для безопасности.'); } catch(_){}
+      try { window.Telegram?.WebApp?.showAlert?.('Сессия будет закрыта через 30 секунд для безопасности.'); } catch(_) {}
     }
     if (left <= 0) {
-      try { window.Telegram?.WebApp?.close?.(); } catch(_){}
-      try { window.close(); } catch(_){}
-      try { location.replace('about:blank'); } catch(_){}
+      try { window.Telegram?.WebApp?.close?.(); } catch(_) {}
+      try { window.close(); } catch(_) {}
+      try { location.replace('about:blank'); } catch(_) {}
       clearInterval(timer);
     }
   };
-  tick();
-  const timer = setInterval(tick, 1000);
+  tick(); const timer = setInterval(tick, 1000);
 })();
 
-// --- Модалки (универсальная + стек) ---
-const modalRoot    = document.querySelector('[data-modal-root]');
+// === Модалка (как было) ===
+const modalRoot = document.querySelector('[data-modal-root]');
 const modalContent = document.querySelector('[data-modal-content]');
-const stackRoot    = document.querySelector('[data-modal-stack]');
-const stackContent = document.querySelector('[data-stack-content]');
-
 function openModal(id){
   const tpl = document.getElementById(`tpl-${id}`);
   if (!tpl) return;
   modalContent.innerHTML = '';
   modalContent.appendChild(tpl.content.cloneNode(true));
   modalRoot.hidden = false;
-  modalRoot.setAttribute('aria-hidden', 'false');
+  modalRoot.setAttribute('aria-hidden','false');
   document.documentElement.style.overflow = 'hidden';
+
+  // применим i18n к вставленному фрагменту
+  applyI18n(modalRoot);
 
   if (id === 'upload-popup') initUploadPopup();
   if (id === 'buy-stars')    initBuyStars();
@@ -211,14 +87,10 @@ function openModal(id){
   if (id === 'profile')      initProfile();
   if (id === 'premium-timer') initPremiumTimer();
   if (id === 'faq') initFAQ();
-  if (id === 'policy' || id === 'policy-required' || id === 'policy-info') initPolicyModal();
+  if (id === 'policy-required') initPolicyModal();
 }
-function closeModal(){
-  modalRoot.hidden = true;
-  modalRoot.setAttribute('aria-hidden','true');
-  modalContent.innerHTML = '';
-  document.documentElement.style.overflow = '';
-}
+const stackRoot    = document.querySelector('[data-modal-stack]');
+const stackContent = document.querySelector('[data-stack-content]');
 function openStack(id){
   const tpl = document.getElementById(`tpl-${id}`);
   if (!tpl) return;
@@ -227,93 +99,58 @@ function openStack(id){
   stackRoot.hidden = false;
   stackRoot.setAttribute('aria-hidden','false');
 
+  applyI18n(stackRoot);
+
   if (id === 'premium-timer')   initPremiumTimer();
   if (id === 'confirm-premium') initConfirmPremium();
   if (id === 'subs-required')   initSubsRequired();
   if (id === 'premium-help')    initPremiumHelp();
-  if (id === 'actions-tasks')   initTasksPopup?.();
 }
-function closeStack(){
-  stackRoot.hidden = true;
-  stackRoot.setAttribute('aria-hidden','true');
-  stackContent.innerHTML = '';
-}
+function closeStack(){ stackRoot.hidden = true; stackRoot.setAttribute('aria-hidden','true'); stackContent.innerHTML = ''; }
+function closeModal(){ modalRoot.hidden = true; modalRoot.setAttribute('aria-hidden','true'); modalContent.innerHTML = ''; document.documentElement.style.overflow = ''; }
 
-// --- Политика: required/info (с фолбэками на единый tpl-policy) ---
-const POLICY_FLAG = K.POLICY_OK;
-
+// === Политика (одноразово + инфо) ===
+const POLICY_FLAG = 'plam_policy_accepted_v1';
 function openPolicyRequired(onAccepted){
-  const tplReq = document.getElementById('tpl-policy-required') || document.getElementById('tpl-policy');
-  if (!tplReq) return;
-  openModal(tplReq.id.replace('tpl-',''));
-  const root = modalRoot.querySelector('.policy-popup');
-  if (!root) return;
-
-  const agree  = root.querySelector('#policyAgree');
+  openModal('policy-required');
+  const root = modalRoot.querySelector('.policy-popup'); if (!root) return;
+  const agree = root.querySelector('#policyAgree');
   const accept = root.querySelector('#policyAccept');
+  accept.disabled = true;
+  agree?.addEventListener('change', () => { accept.disabled = !agree.checked; });
+  accept?.addEventListener('click', () => { localStorage.setItem(POLICY_FLAG, '1'); closeModal(); onAccepted?.(); }, { once:true });
+}
+function openPolicyInfo(){ openModal('policy-info'); }
 
-  if (agree && accept) {
-    accept.disabled = true;
-    agree.addEventListener('change', ()=>{ accept.disabled = !agree.checked; });
-    accept.addEventListener('click', ()=>{
-      LS.set(POLICY_FLAG, '1');
-      closeModal();
-      onAccepted?.();
-    }, { once:true });
-  } else {
-    // если шаблон без чекбокса — просто считаем принятым
-    LS.set(POLICY_FLAG, '1');
-    closeModal();
-    onAccepted?.();
-  }
-}
-function openPolicyInfo(){
-  const tplInfo = document.getElementById('tpl-policy-info') || document.getElementById('tpl-policy');
-  if (!tplInfo) return;
-  openModal(tplInfo.id.replace('tpl-',''));
-  // если попали в общий шаблон — дизейблим/прячем чекбокс-часть
-  const root = modalRoot.querySelector('.policy-popup');
-  if (root) {
-    const agree = root.querySelector('#policyAgree');
-    const acc   = root.querySelector('#policyAccept');
-    if (agree) agree.closest('label')?.setAttribute('hidden','');
-    if (acc) { acc.textContent = 'Закрыть'; acc.disabled = false; acc.addEventListener('click', closeModal, { once:true }); }
-  }
-}
-function ensurePolicyAccepted(next){
-  if (LS.get(POLICY_FLAG) === '1') { next?.(); return; }
-  try { closeStack(); } catch(_){}
-  openPolicyRequired(next);
-}
-function initPolicyModal(){
-  // Нужна только логика блокировки кнопки в required-варианте,
-  // она уже настраивается в openPolicyRequired/openPolicyInfo.
-}
-
-// --- Делегатор кликов (открыть/закрыть модалки + инфо-кнопка) ---
+// Перехват первой загрузки — сначала правила
 document.addEventListener('click', (e) => {
-  // перехват открытия загрузки: сначала политика
-  const openUploadBtn = e.target.closest('[data-open-modal="upload-popup"]');
-  if (openUploadBtn) {
-    e.preventDefault();
-    e.stopPropagation();
-    ensurePolicyAccepted(() => openModal('upload-popup'));
-    return;
-  }
+  const btn = e.target.closest('[data-open-modal="upload-popup"]');
+  if (!btn) return;
+  e.preventDefault();
+  e.stopPropagation();
+  e.stopImmediatePropagation();
+  if (localStorage.getItem(POLICY_FLAG) === '1') { openModal('upload-popup'); }
+  else { openPolicyRequired(() => openModal('upload-popup')); }
+}, true);
 
-  // обычное открытие по data-open-modal
-  const opener = e.target.closest('[data-open-modal]');
-  if (opener) { openModal(opener.getAttribute('data-open-modal')); return; }
-
-  // инфо по правилам (кнопка "!")
+// Делегатор модалок (как было) + кнопка «!»
+document.addEventListener('click', (e) => {
+  const opener = e.target.closest('[data-open-modal]'); if (opener){ openModal(opener.getAttribute('data-open-modal')); return; }
   if (e.target.closest('[data-open-policy]')) { openPolicyInfo(); return; }
-
-  // закрыть стек
   if (e.target.matches('[data-dismiss-stack]') || e.target.closest('[data-dismiss-stack]')) { closeStack(); return; }
-
-  // закрыть модалку
   if (e.target.matches('[data-dismiss]') || e.target.closest('[data-dismiss]')) { closeModal(); return; }
 });
+
+// Переключение языка (RU/EN) — общий делегатор
+document.addEventListener('click', (e)=>{
+  const langBtn = e.target.closest('[data-set-lang]');
+  if (!langBtn) return;
+  const lang = langBtn.getAttribute('data-set-lang');
+  setLang(lang);
+  // Активное состояние в группе (если нужно)
+  document.querySelectorAll('[data-set-lang]').forEach(b => b.classList.toggle('is-active', b.getAttribute('data-set-lang')===lang));
+});
+
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     if (!stackRoot.hidden) { closeStack(); return; }
@@ -321,21 +158,10 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// --- Оверлей ориентации ---
-(function setupOrientationOverlay(){
-  const lock = document.getElementById('orientationLock');
-  if (!lock) return;
-  const mq = window.matchMedia('(orientation: portrait)');
-  const update = () => {
-    const isPortrait = mq.matches || window.innerHeight >= window.innerWidth;
-    lock.classList.toggle('is-active', !isPortrait);
-    document.documentElement.style.overflow = !isPortrait ? 'hidden' : '';
-  };
-  update();
-  try { mq.addEventListener('change', update); } catch(_) {}
-  window.addEventListener('orientationchange', update);
-  window.addEventListener('resize', update);
-})();
+// === Плюс-облако ===
+function updatePlusBalanceUI(){ const el = document.getElementById('plusValue'); if (el) el.textContent = String(window.PLAM.balance || 0); }
+updatePlusBalanceUI();
+syncBalanceFromLS();
 
 // --- Попап 1: загрузка фото ---
 function initUploadPopup(){
@@ -944,6 +770,13 @@ document.addEventListener('DOMContentLoaded', () => {
   enableAlphaHit(document.querySelector('.hotspot--plus'),     './bgicons/cloud-plus.png');
 });
 
+  // Инициализация i18n при загрузке
+document.addEventListener('DOMContentLoaded', ()=>{
+  try { window.i18n?.init?.({ lang: getLang() }); } catch(_) {}
+  applyI18n(document);
+  document.documentElement.lang = getLang();
+});
+  
 // Debug хот-спотов
 (function debugHotspots(){
   const on = /[?&]debug=1/.test(location.search);
