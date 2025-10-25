@@ -149,7 +149,7 @@
 })();
 
 // ===== Dictionaries (EN + RU) =====
-i18n.load('en', {
+i18n.load('en', { 
   // Common
   "title.app": "Plam — WebApp",
   "common.close": "Close",
@@ -254,6 +254,25 @@ i18n.load('en', {
   //placeholder
   "upload.link_placeholder": "...link to social or website",
   "upload.desc_placeholder": "...description",
+
+  
+  //fortune
+   "fortune.title": "Spin the Wheel",
+  "fortune.spin": "Spin",
+  "fortune.spinning": "Spinning…",
+  "fortune.stop": "Stop",
+  "fortune.win": "You won: {{prize}}",
+  "fortune.lose": "No prize this time",
+  "fortune.try_again": "Try again",
+  "fortune.balance": "Balance: {{amount}} PLAMc",
+  "fortune.get_more": "Get more PLAMc",
+  "fortune.claim": "Claim prize",
+  "fortune.not_enough": "Not enough PLAMc",
+  "fortune.auto_spin": "Auto spin",
+  "fortune.results_title": "Results",
+  "fortune.close": "Close",
+  "fortune.error": "Something went wrong",
+  "fortune.rules": "Rules",
 });
 
 // RU dictionary (чтобы переключение RU↔ENG работало без перезагрузки)
@@ -351,6 +370,24 @@ i18n.load('ru', {
 
   "upload.link_placeholder": "...ссылка на соц.сеть или сайт",
   "upload.desc_placeholder": "...описание",
+
+   "fortune.title": "Крути колесо",
+  "fortune.spin": "Крутить",
+  "fortune.spinning": "Кручение…",
+  "fortune.stop": "Стоп",
+  "fortune.win": "Вы выиграли: {{prize}}",
+  "fortune.lose": "В этот раз ничего",
+  "fortune.try_again": "Попробовать снова",
+  "fortune.balance": "Баланс: {{amount}} PLAMc",
+  "fortune.get_more": "Пополнить PLAMc",
+  "fortune.claim": "Забрать приз",
+  "fortune.not_enough": "Недостаточно PLAMc",
+  "fortune.auto_spin": "Автокрут",
+  "fortune.results_title": "Результаты",
+  "fortune.close": "Закрыть",
+  "fortune.error": "Что-то пошло не так",
+  "fortune.rules": "Правила",
+    
 });
 
 // RU-словарь не обязателен (русский уже в разметке), но можно добавить для симметрии:
