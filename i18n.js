@@ -171,7 +171,7 @@ i18n.load('en', {
   "upload.rules_title": "Rules",
   "upload.no_photo": "No photo selected",
   "upload.remove_photo": "Remove photo",
-  "upload.increase_time": "Increase airtime",
+  "upload.increase_time": "Increase live time",
   "upload.broadcast_btn": "Go live for {{total}} {{unit}}",
   "upload.reset_timer": "Reset timer",
   "upload.attach_photo": "Attach a photo",
@@ -203,9 +203,9 @@ i18n.load('en', {
 
   // Profile
   "profile.get_premium": "Get Premium",
-  "profile.photos_count": "Number of photos:",
-  "profile.photos_hint": "The number of photos increases their show time. 100 photos = +1 second",
-  "profile.show_time": "Photo show time:",
+  "profile.photos_count": "Photos sent:",
+  "profile.photos_hint": "The number of sent photos increases your live time. 100 photos = +1 second",
+  "profile.show_time": "Live time:",
 
   // Premium timer/help
   "premium.active": "Premium is active",
@@ -220,10 +220,10 @@ i18n.load('en', {
   "premium.rule_showtime": "Live time photo showing",
   "premium.showtime_basic": "20\u00A0sec",
   "premium.showtime_premium": "40\u00A0sec",
-  "premium.rule_gifts": "Priority payout of gifts",
+  "premium.rule_gifts": "Gifts payout priority",
   "premium.gifts_basic": "—",
   "premium.gifts_premium": "✓",
-  "premium.rule_top": "Chance to get into the top list",
+  "premium.rule_top": "Chance to get into the leaderboard",
   "premium.top_basic": "regular",
   "premium.top_premium": "high",
   "premium.note": "More submissions and longer showtime mean more chances for prizes and the leaderboard.",
