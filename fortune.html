@@ -1,85 +1,51 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-app-lang>
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"
-  >
-  <title>Колесо фортуны</title>
-
-  <!-- Базовые стили проекта (фон, шрифты и т.п.) -->
-  <link rel="stylesheet" href="./style.css?v=51">
-
-  <!-- Стили страницы колеса -->
-  <link rel="stylesheet" href="./fortune.css?v=2">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Plam — Fortune</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <!-- i18n -->
+  <script src="./i18n.js"></script>
+  <link rel="stylesheet" href="./fortune.css?v=31" />
 </head>
 <body>
-  <!-- Оверлей при горизонтальной ориентации -->
-  <div id="orientationLock" class="orientation-lock" aria-hidden="true"></div>
-  <main class="scene scene--fortune">
-    <header class="fortune-topbar" role="banner">
-  <button class="btn-back" id="btnBack" type="button" aria-label="Назад">
-    <span class="i-back" aria-hidden="true"></span>
-  </button>
+  <header class="topbar">
+    <button class="topbar__back" data-back aria-label="Назад"></button>
+    <nav class="tabs">
+      <button class="tab is-active" data-tab="wheel" data-i18n="fortune.wheel">Колесо фортуны</button>
+      <button class="tab" data-tab="tasks" data-i18n="fortune.tasks">Задания</button>
+    </nav>
+    <!-- Небольшой переключатель языка на этой странице тоже можно держать -->
+    <div class="lang-mini">
+      <button class="lang-btn" type="button" data-set-lang="ru">RU</button>
+      <button class="lang-btn" type="button" data-set-lang="en">EN</button>
+    </div>
+  </header>
 
-  <nav class="fortune-tabs" role="tablist" aria-label="Действия">
-    <button class="fortune-tab is-active" role="tab" aria-selected="true" data-tab="wheel">Колесо фортуны</button>
-    <button class="fortune-tab" role="tab" aria-selected="false" data-tab="tasks">Задания</button>
-  </nav>
-
-  <span class="topbar-spacer" aria-hidden="true"></span>
-</header>
-
-<section class="fortune-body" role="main">
-  <!-- ПАНЕЛЬ: Колесо -->
-  <div class="tab-panel" data-panel="wheel">
-    <div class="wheel-stack" id="wheel">
-      <div class="wheel-rotor" id="wheelRotor">
-        <img class="wheel-img" id="wheelImg" src="./bgicons/wheel.png" alt="Колесо">
+  <main class="page">
+    <!-- Вкладка «Колесо» -->
+    <section class="tab-panel" data-panel="wheel">
+      <div class="wheel">
+        <div class="wheel-rotor" id="wheelRotor"></div>
+        <div class="wheel-pointer"></div>
         <div class="wheel__numbers" id="wheelNumbers"></div>
       </div>
-      <img class="wheel-center" src="./bgicons/earth-item@3x.png" alt="" aria-hidden="true">
-      <img class="wheel-pointer" src="./bgicons/pointer.png" alt="" aria-hidden="true">
-    </div>
 
-    <!-- обёртка для кнопки и таймера -->
-  <div class="wheel-cta">
-    <button class="btn-spin" id="btnSpin" type="button">Вращать</button>
-    <p class="fortune__note" id="fortuneTimer" hidden></p>
-  </div>
-</div>
-  </div>
+      <div class="wheel-cta">
+        <button id="btnSpin" class="btn-spin" data-i18n="fortune.spin">Вращать</button>
+        <div id="fortuneTimer" hidden>00:00</div>
+      </div>
+    </section>
 
-  <!-- ПАНЕЛЬ: Задания (пока пустая) -->
-  <div class="tab-panel" data-panel="tasks" hidden>
-    <div class="tasks-empty">
-      <p class="tasks-empty__text">Раздел «Задания» скоро будет доступен</p>
-    </div>
-  </div>
-</section>
-
+    <!-- Вкладка «Задания» -->
+    <section class="tab-panel" data-panel="tasks" hidden>
+      <div class="tasks-empty" data-i18n="fortune.tasks_empty">Скоро тут появятся задания.</div>
+    </section>
   </main>
 
-  <!-- Основной скрипт страницы колеса -->
-  <script src="./fortune.js?v=2" defer></script>
-  <!-- Небольшой запасной обработчик «Назад», если ещё не добавлен в fortune.js -->
-  <script>
-    (function(){
-      const back = document.getElementById('btnBack');
-      if (back && !back.dataset.bound) {
-        back.dataset.bound = '1';
-        back.addEventListener('click', () => {
-          if (history.length > 1) history.back();
-          else location.href = './index.html';
-        });
-      }
-    })();
-  </script>
+  <div id="orientationLock" class="orientation-lock" aria-hidden="true"></div>
 
-  <noscript>
-    Включите JavaScript, чтобы использовать «Колесо фортуны».
-  </noscript>
-
+  <script src="./fortune.js?v=31"></script>
 </body>
 </html>
