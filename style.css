@@ -1773,6 +1773,11 @@ html,body{
   }
 }
 
+/* Прятать крестик только в попапе "Преимущества премиум-подписки" */
+.modal:has(.premium-compare) .modal__close,
+.modal--stack:has(.premium-compare) .modal__close{
+  display: none !important;
+}
 
 
 /* Если у стека нет глобального затемнения — оставь как есть (у тебя JS ставит 50%) */
