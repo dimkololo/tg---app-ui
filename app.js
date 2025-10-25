@@ -654,8 +654,8 @@ try {
 }
 
 
-    // 1) запускаем кулдаун (10 мин обычный / 5 мин премиум)
-    const COOLDOWN_MIN = window.PLAM.premium ? 5 : 10;
+    // 1) запускаем кулдаун (30 мин обычный / 20 мин премиум)
+    const COOLDOWN_MIN = window.PLAM.premium ? 20 : 30;
     window.PLAM.cooldownUntil = Date.now() + COOLDOWN_MIN*60*1000;
 
     // 2) очищаем форму (попап НЕ закрываем)
