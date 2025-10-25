@@ -217,7 +217,7 @@ i18n.load('en', {
   "premium.rule_cooldown": "Photo sending cooldown",
   "premium.cooldown_basic": "30\u00A0min",
   "premium.cooldown_premium": "20\u00A0min",
-  "premium.rule_showtime": "Photo showtime on air",
+  "premium.rule_showtime": "Live photo showing",
   "premium.showtime_basic": "20\u00A0sec",
   "premium.showtime_premium": "40\u00A0sec",
   "premium.rule_gifts": "Priority payout of gifts",
