@@ -1083,6 +1083,31 @@ document.addEventListener('DOMContentLoaded', () => {
   window.plamLang = { set: setLang };
 })();
 
+// Обновления при смене языка — привязываем единый обработчик
+document.addEventListener('plam:langChanged', () => {
+  // Применяем переводы ко всему документу и открытым модалкам
+  try { i18nApply(document); } catch(_) {}
+  try { i18nApply(modalRoot); } catch(_) {}
+  try { i18nApply(stackRoot); } catch(_) {}
+
+  // Обновляем динамические тексты (профиль, upload popup и т.д.)
+  try { refreshProfileUI(); } catch(_) {}
+
+  // Если upload-popup открыт — попросим его обновить свои строки
+  try {
+    const uploadRoot = modalRoot.querySelector('.upload-popup');
+    if (uploadRoot) {
+      // у initUploadPopup есть слушатель plam:langChanged,
+      // но на всякий вызовем ререндер селектов/текста кнопки через событие
+      document.dispatchEvent(new CustomEvent('plam:langChanged:upload'));
+    }
+  } catch(_) {}
+
+  // Синхронизируем магазин (initBuyStars слушает plam:langChanged)
+  // и остальные хуки, которые зависят от языка.
+});
+
+
 // Debug хот-спотов
 (function debugHotspots(){
   const on = /[?&]debug=1/.test(location.search);
