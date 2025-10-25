@@ -234,6 +234,32 @@
 
   btnSpin.addEventListener('click', spinOnce);
 
+  // --- Tabs: wheel / tasks ---
+document.addEventListener('DOMContentLoaded', () => {
+  const tabBtns = document.querySelectorAll('[data-tab]');
+  const panes   = document.querySelectorAll('[data-pane]');
+  if (!tabBtns.length || !panes.length) return;
+
+  function activate(name){
+    tabBtns.forEach(b => b.classList.toggle('is-active', b.dataset.tab === name));
+    panes.forEach(p => p.hidden = p.dataset.pane !== name);
+  }
+
+  // Инициализация из URL (?tab=wheel|tasks)
+  const q = new URLSearchParams(location.search);
+  activate(q.get('tab') || 'wheel');
+
+  // Переключение по клику
+  tabBtns.forEach(b => b.addEventListener('click', (e) => {
+    e.preventDefault();
+    const name = b.dataset.tab;
+    activate(name);
+    const qs = new URLSearchParams(location.search); qs.set('tab', name);
+    history.replaceState(null, '', location.pathname + '?' + qs.toString());
+  }));
+});
+
+
   // --- «Назад» ---
   if (btnBack) {
     btnBack.addEventListener('click', () => {
