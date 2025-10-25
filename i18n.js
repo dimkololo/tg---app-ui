@@ -272,6 +272,9 @@ i18n.load('en', {
   "fortune.close": "Close",
   "fortune.error": "Something went wrong",
   "fortune.rules": "Rules",
+  "fortune.return_in": "Return in: {{time}}",
+  "fortune.tasks_tab": "Tasks",
+  "fortune.tasks_empty": "The \"Tasks\" section will be available soon",
 });
 
 // RU dictionary (чтобы переключение RU↔ENG работало без перезагрузки)
@@ -386,6 +389,9 @@ i18n.load('ru', {
   "fortune.close": "Закрыть",
   "fortune.error": "Что-то пошло не так",
   "fortune.rules": "Правила",
+  "fortune.return_in": "Возвращайся через: {{time}}",
+  "fortune.tasks_tab": "Задания",
+  "fortune.tasks_empty": "Раздел «Задания» скоро будет доступен",
     
 });
 
