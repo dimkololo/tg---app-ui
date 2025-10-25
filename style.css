@@ -1026,8 +1026,14 @@ html,body{
   font-size:11px; text-transform:uppercase; letter-spacing:.02em;
   opacity:.6; font-weight:800; text-align:center;
 }
-.pc-head:first-child{ text-align:left; }
-.pc-head.is-premium{ color:#FF7300; opacity:1; }
+.pc-head:first-child{
+  text-align:left; 
+  color:#555;
+}
+.pc-head.is-premium{
+  color:#FF7300;
+  opacity:1;
+}
 
 .pc-row{ display:contents; } /* чтобы строки заносили ячейки напрямую в grid */
 
