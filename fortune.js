@@ -1,5 +1,9 @@
 // ========== fortune.js — LS-единообразие, миграции, тот же UX ==========
 
+// === i18n helpers ===
+function applyI18n(root=document){ try { window.i18n?.apply?.(root); } catch(_) {} }
+function getLang(){ try { return localStorage.getItem('plam_lang') || 'ru'; } catch(_) { return 'ru'; } }
+
 (function(){
   // --- LS helper ---
   const LS = {
@@ -257,6 +261,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const qs = new URLSearchParams(location.search); qs.set('tab', name);
     history.replaceState(null, '', location.pathname + '?' + qs.toString());
   }));
+   // применим i18n вдруг тексты подгрузились
+    applyI18n(document);
 });
 
 
@@ -267,5 +273,9 @@ document.addEventListener('DOMContentLoaded', () => {
       else location.href = './index.html';
     });
   }
-
+ // Инициализация i18n при загрузке fortune-страницы
+  document.addEventListener('DOMContentLoaded', ()=>{
+    try { window.i18n?.init?.({ lang: getLang() }); } catch(_) {}
+    applyI18n(document);
+  });
 })();
