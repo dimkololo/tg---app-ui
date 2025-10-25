@@ -140,6 +140,8 @@ function updatePlusBalanceUI(){
 // при старте и при возврате со страницы колеса подтягиваем свежие данные
 window.addEventListener('DOMContentLoaded', updatePlusBalanceUI);
 window.addEventListener('pageshow', updatePlusBalanceUI);
+window.addEventListener('DOMContentLoaded', syncPhotoCountFromLS);
+window.addEventListener('pageshow',      syncPhotoCountFromLS);
 
 // если баланс изменился в другой вкладке/странице — обновим облако плюс
 window.addEventListener('storage', (e) => {
