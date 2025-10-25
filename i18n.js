@@ -1,4 +1,3 @@
-// i18n.js — минимальный безопасный слой перевода для PLAM
 // Ничего не перезаписывает, если перевода по ключу нет.
 // Поддерживает: data-i18n, data-i18n-placeholder, data-i18n-title, data-i18n-aria-label.
 // Синхронизируется с localStorage('plam_lang') и <html data-lang>.
