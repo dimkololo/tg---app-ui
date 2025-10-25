@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Plam — WebApp</title>
+  <title data-i18n="title.app">Plam — WebApp</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link rel="stylesheet" href="./style.css?v=51" />
 </head>
@@ -14,13 +14,13 @@
     <div class="decal decal--plane" aria-hidden="true"></div>
       
       <!-- Кликабельная зона «Действия» -->
-    <button class="hotspot hotspot--actions" type="button" aria-label="Открыть меню действий"></button>
+    <button class="hotspot hotspot--actions" type="button" aria-label="Открыть меню действий" data-i18n-aria-label="aria.open_actions"></button>
 
 
       
 <!-- Кликабельная зона по листочку на телевизоре в якоре -->
 <div class="anchor anchor--tv">
-  <button class="hotspot hotspot--wintable" aria-label="Лидеры"></button>
+  <button class="hotspot hotspot--wintable" aria-label="Лидеры" data-i18n-aria-label="aria.leaders"></button>
 </div>
 
 
@@ -31,6 +31,7 @@
         type="button"
         data-open-modal="upload-popup"
         aria-label="Открыть попап загрузки"
+        data-i18n-aria-label="aria.open_upload"
       ></button>
       <!-- декоративные наклейки поверх фона -->
       <div class="decal decal--photohereru" aria-hidden="true"></div>
@@ -42,6 +43,7 @@
         type="button"
         data-open-modal="buy-stars"
         aria-label="Открыть попап звёзд"
+        data-i18n-aria-label="aria.open_stars"
       >
         <span class="plus-ui" aria-hidden="true">
           <span id="plusValue" class="plus-value">0</span>
@@ -57,6 +59,7 @@
         type="button"
         data-open-modal="faq"
         aria-label="Открыть FAQ"
+        data-i18n-aria-label="aria.open_faq"
       ></button>
 
 
@@ -65,6 +68,7 @@
         type="button"
         data-open-modal="prizes"
         aria-label="Открыть попап призов"
+        data-i18n-aria-label="aria.open_prizes"
       ></button>
 
       <button
@@ -72,6 +76,7 @@
         type="button"
         data-open-modal="profile"
         aria-label="Открыть профиль"
+        data-i18n-aria-label="aria.open_profile"
       ></button>
     </div>
   </main>
@@ -84,7 +89,7 @@
   <div class="modal" data-modal-root hidden aria-hidden="true">
     <div class="modal__backdrop" data-dismiss></div>
     <div class="modal__dialog" role="dialog" aria-modal="true">
-      <button class="modal__close" type="button" aria-label="Закрыть" data-dismiss>×</button>
+      <button class="modal__close" type="button" aria-label="Закрыть" data-dismiss data-i18n-aria-label="common.close">×</button>
       <div class="modal__content" data-modal-content></div>
     </div>
   </div>
@@ -93,7 +98,7 @@
 <div class="modal modal--stack" data-modal-stack hidden aria-hidden="true">
   <div class="modal__backdrop" data-dismiss-stack></div>
   <div class="modal__dialog" role="dialog" aria-modal="true">
-    <button class="modal__close" type="button" aria-label="Закрыть" data-dismiss-stack>×</button>
+    <button class="modal__close" type="button" aria-label="Закрыть" data-dismiss-stack data-i18n-aria-label="common.close">×</button>
     <div class="modal__content" data-stack-content></div>
   </div>
 </div>
@@ -105,8 +110,8 @@
     <div class="u-center">
   <div class="pick-wrap">
     <div class="pick-row">
-      <button class="btn-pick" type="button">Выбрать фото</button>
-      <button class="btn-info" type="button" data-open-policy title="Правила">!</button>
+      <button class="btn-pick" type="button" data-i18n="upload.pick">Выбрать фото</button>
+      <button class="btn-info" type="button" data-open-policy title="Правила" data-i18n-title="upload.rules_title">!</button>
 
       <!-- overlay должен лежать В ЭТОМ ЖЕ блоке, но перекрывать ТОЛЬКО левую кнопку -->
       <input id="file-input"
@@ -119,15 +124,15 @@
 
     <!-- ПРЕДПРОСМОТР (между кнопкой и слайдером) -->
     <div class="picked-box" data-picked>
-      <div class="picked-empty">Фото не выбрано</div>
+      <div class="picked-empty" data-i18n="upload.no_photo">Фото не выбрано</div>
       <figure class="picked-item" hidden>
         <img data-picked-img alt="">
-        <button type="button" class="picked-remove" aria-label="Убрать фото" data-remove-photo>×</button>
+        <button type="button" class="picked-remove" aria-label="Убрать фото" data-remove-photo data-i18n-aria-label="upload.remove_photo">×</button>
       </figure>
     </div>
 
     <div class="card slider-card">
-      <div class="slider-title">Увеличить эфирное время</div>
+      <div class="slider-title" data-i18n="upload.increase_time">Увеличить эфирное время</div>
       <div class="slider-row">
         <span class="label" data-stars>0 PLAMc</span>
         <input class="range" type="range" min="0" max="20" step="1" value="0" />
@@ -143,6 +148,7 @@
       type="url"
       name="social"
       placeholder="...ссылка на соц.сеть или сайт"
+      data-i18n-placeholder="upload.placeholder_link"
       maxlength="255"
       inputmode="url"
       enterkeyhint="next" 
@@ -157,6 +163,7 @@
       name="desc"
       rows="3"
       placeholder="...описание"
+      data-i18n-placeholder="upload.placeholder_desc"
       maxlength="220"
       enterkeyhint="done" 
       data-counter="desc"
@@ -169,7 +176,7 @@
   </div>
 
       <div class="u-center">
-    <button type="submit" data-submit class="btn btn-accent btn-submit" disabled>
+    <button type="submit" data-submit class="btn btn-accent btn-submit">
       В эфир на 20 секунд
     </button>
   </div>
@@ -184,7 +191,7 @@
       Сбросить <span data-mins>0</span> минут за <span data-coins>0</span> PLAMc
     </p>
     <div class="u-center">
-      <button class="btn-pay btn-pay--green" type="button" data-reset-now>
+      <button class="btn-pay btn-pay--green" type="button" data-reset-now data-i18n="common.confirm">
         Подтвердить
       </button>
     </div>
@@ -194,22 +201,22 @@
   <!-- Правила: обязательное согласие (первый раз) -->
 <template id="tpl-policy-required">
   <section class="popup policy-popup">
-    <h3 class="modal__title">Правила отправки фото</h3>
+    <h3 class="modal__title" data-i18n="rules.title">Правила отправки фото</h3>
 
     <div class="policy-body is-scrollable">
-      <p><strong>Запрещено:</strong> обнажёнка/эротика; алкоголь/табак/наркотики; насилие и опасные действия; дискриминация/экстремизм; реклама, QR-коды, ссылки и контакты; личные/конфиденциальные данные; чужие фото без согласия; попытки обхода модерации.</p>
-      <p><strong>Требования:</strong> безопасный сюжет, без водяных знаков и крупных надписей, приличное качество.</p>
-      <p>Отправляя фото, вы подтверждаете, что вам 13+ и у вас есть права на изображение. Мы можем удалять материалы и ограничивать доступ при нарушениях.</p>
+      <p data-i18n="rules.forbidden"><strong>Запрещено:</strong> обнажёнка/эротика; алкоголь/табак/наркотики; насилие и опасные действия; дискриминация/экстремизм; реклама, QR-коды, ссылки и контакты; личные/конфиденциальные данные; чужие фото без согласия; попытки обхода модерации.</p>
+      <p data-i18n="rules.requirements"><strong>Требования:</strong> безопасный сюжет, без водяных знаков и крупных надписей, приличное качество.</p>
+      <p data-i18n="rules.confirmation">Отправляя фото, вы подтверждаете, что вам 13+ и у вас есть права на изображение. Мы можем удалять материалы и ограничивать доступ при нарушениях.</p>
     </div>
 
     <label class="policy-check">
       <input type="checkbox" id="policyAgree">
-      <span>Мне 13+ и я согласен с правилами</span>
+      <span data-i18n="rules.agree">Мне 13+ и я согласен с правилами</span>
     </label>
 
     <div class="modal__actions">
-      <button class="btn" data-dismiss>Отмена</button>
-      <button class="btn btn-primary" id="policyAccept" disabled>Принять</button>
+      <button class="btn" data-dismiss data-i18n="common.cancel">Отмена</button>
+      <button class="btn btn-primary" id="policyAccept" disabled data-i18n="common.accept">Принять</button>
     </div>
   </section>
 </template>
@@ -217,16 +224,16 @@
 <!-- Правила: справка (по клику на «!») -->
 <template id="tpl-policy-info">
   <section class="popup policy-popup">
-    <h3 class="modal__title">Правила отправки фото</h3>
+    <h3 class="modal__title" data-i18n="rules.title">Правила отправки фото</h3>
 
     <div class="policy-body is-scrollable">
-      <p><strong>Запрещено:</strong> обнажёнка/эротика; алкоголь/табак/наркотики; насилие и опасные действия; дискриминация/экстремизм; реклама, QR-коды, ссылки и контакты; личные/конфиденциальные данные; чужие фото без согласия; попытки обхода модерации.</p>
-      <p><strong>Требования:</strong> безопасный сюжет, без водяных знаков и крупных надписей, приличное качество.</p>
-      <p>Отправляя фото, вы подтверждаете, что вам 13+ и у вас есть права на изображение. Мы можем удалять материалы и ограничивать доступ при нарушениях.</p>
+      <p data-i18n="rules.forbidden"><strong>Запрещено:</strong> обнажёнка/эротика; алкоголь/табак/наркотики; насилие и опасные действия; дискриминация/экстремизм; реклама, QR-коды, ссылки и контакты; личные/конфиденциальные данные; чужие фото без согласия; попытки обхода модерации.</p>
+      <p data-i18n="rules.requirements"><strong>Требования:</strong> безопасный сюжет, без водяных знаков и крупных надписей, приличное качество.</p>
+      <p data-i18n="rules.confirmation">Отправляя фото, вы подтверждаете, что вам 13+ и у вас есть права на изображение. Мы можем удалять материалы и ограничивать доступ при нарушениях.</p>
     </div>
 
     <div class="modal__actions">
-      <button class="btn btn-primary" data-dismiss>Понятно</button>
+      <button class="btn btn-primary" data-dismiss data-i18n="common.ok">Понятно</button>
     </div>
   </section>
 </template>
@@ -244,8 +251,8 @@
           srcset="./bgicons/star-header.png 1x, ./bgicons/star-header@2x.png 2x"
           alt=""
         />
-        <h3 class="shop-title">Обменять</h3>
-        <p class="shop-subtitle">Выберите количество звезд</p>
+        <h3 class="shop-title" data-i18n="shop.exchange">Обменять</h3>
+        <p class="shop-subtitle" data-i18n="shop.choose_amount">Выберите количество звезд</p>
       </div>
 
       <div class="shop-list">
@@ -359,7 +366,7 @@
       </div>
 
       <div class="u-center">
-        <button class="btn-close-timer" type="button" data-dismiss>Закрыть</button>
+        <button class="btn-close-timer" type="button" data-dismiss data-i18n="common.close">Закрыть</button>
       </div>
     </div>
   </section>
@@ -371,8 +378,8 @@
     <section class="popup prizes-popup">
       <!-- Список призов (динамически) -->
       <div class="prize-grid" data-prize-grid></div>
-       <div class="u-center"><button class="btn-pay" type="button" disabled>Забрать</button></div>
-      <p class="pay-note">Нажимая кнопку «Забрать» вы подтверждаете, что ознакомлены с правилами и публичной офертой.</p>
+       <div class="u-center"><button class="btn-pay" type="button" disabled data-i18n="prizes.take">Забрать</button></div>
+      <p class="pay-note" data-i18n="prizes.note">Нажимая кнопку «Забрать» вы подтверждаете, что ознакомлены с правилами и публичной офертой.</p>
     </section>
   </template>
 
@@ -382,20 +389,20 @@
       <div class="chip profile-header">
         <div class="avatar" data-avatar></div>
         <div class="profile-id" data-username>@tg profile</div>
-        <button class="btn-premium" type="button" data-btn-premium>Получить премиум</button>
+        <button class="btn-premium" type="button" data-btn-premium data-i18n="profile.get_premium">Получить премиум</button>
       </div>
 
       <div class="chip profile-card">
         <div class="row">
-          <div class="label-left">Количество фото:</div>
+          <div class="label-left" data-i18n="profile.photos_count">Количество фото:</div>
           <div class="pill pill-orange" data-photo-count>0</div>
         </div>
-        <div class="hint">Количество фото влияет на время их отображения. 100 фото = +1 секунда</div>
+        <div class="hint" data-i18n="profile.photos_hint">Количество фото влияет на время их отображения. 100 фото = +1 секунда</div>
       </div>
 
       <div class="chip profile-card">
         <div class="row">
-          <div class="label-left">Время показа фото:</div>
+          <div class="label-left" data-i18n="profile.show_time">Время показа фото:</div>
           <div class="val-right" data-show-seconds>20 сек</div>
         </div>
       </div>
@@ -424,10 +431,10 @@
   <template id="tpl-premium-timer">
     <section class="popup timer-popup">
       <div class="chip timer-card">
-        <h3 class="timer-title">Премиум активен</h3>
+        <h3 class="timer-title" data-i18n="premium.active">Премиум активен</h3>
         <div class="timer-remaining" data-remaining>30д. 0ч. 0мин.</div>
-        <p class="timer-note">Обратный отсчёт до окончания подписки</p>
-        <div class="u-center"><button class="btn-close-timer" type="button" data-dismiss-stack>Ок</button>
+        <p class="timer-note" data-i18n="premium.countdown_note">Обратный отсчёт до окончания подписки</p>
+        <div class="u-center"><button class="btn-close-timer" type="button" data-dismiss-stack data-i18n="common.ok">Ок</button>
 </div>
       </div>
     </section>
@@ -437,44 +444,44 @@
 <template id="tpl-premium-help">
   <section class="popup help-popup">
     <div class="chip premium-compare">
-      <h3 class="pc-title">Преимущества премиум-подписки</h3>
+      <h3 class="pc-title" data-i18n="premium.benefits_title">Преимущества премиум-подписки</h3>
 
       <div class="pc-table">
         <div class="pc-head"></div>
-        <div class="pc-head">Обычный</div>
-        <div class="pc-head is-premium">Премиум</div>
+        <div class="pc-head" data-i18n="premium.basic">Обычный</div>
+        <div class="pc-head is-premium" data-i18n="premium.premium">Премиум</div>
 
         <div class="pc-row">
-          <div class="pc-name">Таймер отправки фото</div>
-          <div class="pc-val">30&nbsp;мин</div>
-          <div class="pc-val is-premium">20&nbsp;мин</div>
+          <div class="pc-name" data-i18n="premium.rule_cooldown">Таймер отправки фото</div>
+          <div class="pc-val" data-i18n="premium.cooldown_basic">30&nbsp;мин</div>
+          <div class="pc-val is-premium" data-i18n="premium.cooldown_premium">20&nbsp;мин</div>
         </div>
 
         <div class="pc-row">
-          <div class="pc-name">Время показа фото в эфире</div>
-          <div class="pc-val">20&nbsp;сек</div>
-          <div class="pc-val is-premium">40&nbsp;сек</div>
+          <div class="pc-name" data-i18n="premium.rule_showtime">Время показа фото в эфире</div>
+          <div class="pc-val" data-i18n="premium.showtime_basic">20&nbsp;сек</div>
+          <div class="pc-val is-premium" data-i18n="premium.showtime_premium">40&nbsp;сек</div>
         </div>
 
         <div class="pc-row">
-          <div class="pc-name">Приоритетный вывод подарков</div>
-          <div class="pc-val">—</div>
-          <div class="pc-val is-premium pc-badge">✓</div>
+          <div class="pc-name" data-i18n="premium.rule_gifts">Приоритетный вывод подарков</div>
+          <div class="pc-val" data-i18n="premium.gifts_basic">—</div>
+          <div class="pc-val is-premium pc-badge" data-i18n="premium.gifts_premium">✓</div>
         </div>
 
         <div class="pc-row">
-          <div class="pc-name">Шансы попасть в топ-лист</div>
-          <div class="pc-val">обычные</div>
-          <div class="pc-val is-premium">высокие</div>
+          <div class="pc-name" data-i18n="premium.rule_top">Шансы попасть в топ-лист</div>
+          <div class="pc-val" data-i18n="premium.top_basic">обычные</div>
+          <div class="pc-val is-premium" data-i18n="premium.top_premium">высокие</div>
         </div>
       </div>
 
-      <p class="pc-note">
+      <p class="pc-note" data-i18n="premium.note">
         Больше отправок и дольше показ — больше шансов на призы и попадание в таблицу лидеров.
       </p>
 
       <div class="u-center">
-        <button class="btn-close-timer" type="button" data-dismiss-stack>Понятно</button>
+        <button class="btn-close-timer" type="button" data-dismiss-stack data-i18n="common.ok">Понятно</button>
       </div>
     </div>
   </section>
@@ -486,23 +493,23 @@
 <template id="tpl-subs-required">
   <section class="popup subs-popup">
     <div class="chip subs-card">
-      <h3 class="subs-title">Подписка обязательна</h3>
-      <p class="subs-sub">Подпишитесь на наши каналы, чтобы отправлять фото.</p>
+      <h3 class="subs-title" data-i18n="subs.title">Подписка обязательна</h3>
+      <p class="subs-sub" data-i18n="subs.subtitle">Подпишитесь на наши каналы, чтобы отправлять фото.</p>
 
       <div class="subs-links">
-        <a class="btn-link" href="https://youtube.com/@p.l.a.m?si=eYNmdfzUSjF8qwPk" target="_blank" rel="noopener" data-sub-yt>
+        <a class="btn-link" href="https://youtube.com/@p.l.a.m?si=eYNmdfzUSjF8qwPk" target="_blank" rel="noopener" data-sub-yt data-i18n="subs.youtube">
           Youtube канал
         </a>
-        <a class="btn-link" href="https://t.me/ninaiart" target="_blank" rel="noopener" data-sub-tg>
+        <a class="btn-link" href="https://t.me/ninaiart" target="_blank" rel="noopener" data-sub-tg data-i18n="subs.telegram">
           Telegram канал
         </a>
       </div>
 
       <div class="u-center">
-        <button class="btn-check" type="button" data-check-subs>Проверить подписки</button>
+        <button class="btn-check" type="button" data-check-subs data-i18n="subs.check">Проверить подписки</button>
       </div>
 
-      <p class="subs-note">После успешной проверки можно закрыть окно и отправить фото.</p>
+      <p class="subs-note" data-i18n="subs.note">После успешной проверки можно закрыть окно и отправить фото.</p>
     </div>
   </section>
 </template>
@@ -514,9 +521,9 @@
     <div class="chip confirm-card">
       <p class="confirm-text">Получить премиум на 7 дней за 350 PLAMc?</p>
       <div class="confirm-actions">
-        <button class="btn-confirm yes" type="button" data-confirm-yes>Да</button>
+        <button class="btn-confirm yes" type="button" data-confirm-yes data-i18n="common.yes">Да</button>
         <!-- было data-dismiss, нужно закрывать только стек -->
-        <button class="btn-confirm no" type="button" data-dismiss-stack>Нет</button>
+        <button class="btn-confirm no" type="button" data-dismiss-stack data-i18n="common.no">Нет</button>
       </div>
     </div>
   </section>
@@ -527,7 +534,7 @@
   <div class="modal__backdrop" data-close="leadersModal"></div>
   <div class="modal__dialog">
     <!-- крестик прячем через CSS для этого попапа -->
-    <button class="modal__close" data-close="leadersModal" aria-label="Закрыть">×</button>
+    <button class="modal__close" data-close="leadersModal" aria-label="Закрыть" data-i18n-aria-label="common.close">×</button>
 
     <div class="modal__content is-scrollable">
       <div class="leaderboard-popup">
@@ -541,11 +548,11 @@
                 <div class="lb-slot lb-slot--3" aria-hidden="true"></div>
               
                 <!-- картинка пьедестала -->
-                <div class="lb-podium-img" role="img" aria-label="Пьедестал"></div>
+                <div class="lb-podium-img" role="img" aria-label="Пьедестал" data-i18n-aria-label="leaders.podium_aria"></div>
               </div>
               
-              <h3 class="lb-title">Еженедельные подарки</h3>
-              <div class="lb-sub">Таблица лидеров</div>
+              <h3 class="lb-title" data-i18n="leaders.weekly_gifts">Еженедельные подарки</h3>
+              <div class="lb-sub" data-i18n="leaders.title">Таблица лидеров</div>
 
         </div>
 
@@ -556,27 +563,27 @@
             <span class="lb-ava"></span>
             <div class="lb-text">
               <div class="lb-nick">@nickname</div>
-              <div class="lb-photos">0 фото</div>
+              <div class="lb-photos" data-i18n="leaders.photos_count">0 фото</div>
             </div>
-            <div class="lb-rank lb-rank--medal" aria-label="1 место"></div>
+            <div class="lb-rank lb-rank--medal" aria-label="1 место" data-i18n-aria-label="leaders.rank1"></div>
           </li>
 
           <li class="lb-item">
             <span class="lb-ava"></span>
             <div class="lb-text">
               <div class="lb-nick">@nickname</div>
-              <div class="lb-photos">0 фото</div>
+              <div class="lb-photos" data-i18n="leaders.photos_count">0 фото</div>
             </div>
-            <div class="lb-rank lb-rank--medal" aria-label="2 место"></div>
+            <div class="lb-rank lb-rank--medal" aria-label="2 место" data-i18n-aria-label="leaders.rank2"></div>
           </li>
 
           <li class="lb-item">
             <span class="lb-ava"></span>
             <div class="lb-text">
               <div class="lb-nick">@nickname</div>
-              <div class="lb-photos">0 фото</div>
+              <div class="lb-photos" data-i18n="leaders.photos_count">0 фото</div>
             </div>
-            <div class="lb-rank lb-rank--medal" aria-label="3 место"></div>
+            <div class="lb-rank lb-rank--medal" aria-label="3 место" data-i18n-aria-label="leaders.rank3"></div>
           </li>
 
           <!-- 4–10: просто цифры -->
@@ -584,21 +591,21 @@
             <span class="lb-ava"></span>
             <div class="lb-text">
               <div class="lb-nick">@nickname</div>
-              <div class="lb-photos">0 фото</div>
+              <div class="lb-photos" data-i18n="leaders.photos_count">0 фото</div>
             </div>
             <div class="lb-rank">4</div>
           </li>
-          <li class="lb-item"><span class="lb-ava"></span><div class="lb-text"><div class="lb-nick">@nickname</div><div class="lb-photos">0 фото</div></div><div class="lb-rank">5</div></li>
-          <li class="lb-item"><span class="lb-ava"></span><div class="lb-text"><div class="lb-nick">@nickname</div><div class="lb-photos">0 фото</div></div><div class="lb-rank">6</div></li>
-          <li class="lb-item"><span class="lb-ava"></span><div class="lb-text"><div class="lb-nick">@nickname</div><div class="lb-photos">0 фото</div></div><div class="lb-rank">7</div></li>
-          <li class="lb-item"><span class="lb-ava"></span><div class="lb-text"><div class="lb-nick">@nickname</div><div class="lb-photos">0 фото</div></div><div class="lb-rank">8</div></li>
-          <li class="lb-item"><span class="lb-ava"></span><div class="lb-text"><div class="lb-nick">@nickname</div><div class="lb-photos">0 фото</div></div><div class="lb-rank">9</div></li>
-          <li class="lb-item"><span class="lb-ava"></span><div class="lb-text"><div class="lb-nick">@nickname</div><div class="lb-photos">0 фото</div></div><div class="lb-rank">10</div></li>
+          <li class="lb-item"><span class="lb-ava"></span><div class="lb-text"><div class="lb-nick">@nickname</div><div class="lb-photos" data-i18n="leaders.photos_count">0 фото</div></div><div class="lb-rank">5</div></li>
+          <li class="lb-item"><span class="lb-ava"></span><div class="lb-text"><div class="lb-nick">@nickname</div><div class="lb-photos" data-i18n="leaders.photos_count">0 фото</div></div><div class="lb-rank">6</div></li>
+          <li class="lb-item"><span class="lb-ava"></span><div class="lb-text"><div class="lb-nick">@nickname</div><div class="lb-photos" data-i18n="leaders.photos_count">0 фото</div></div><div class="lb-rank">7</div></li>
+          <li class="lb-item"><span class="lb-ava"></span><div class="lb-text"><div class="lb-nick">@nickname</div><div class="lb-photos" data-i18n="leaders.photos_count">0 фото</div></div><div class="lb-rank">8</div></li>
+          <li class="lb-item"><span class="lb-ava"></span><div class="lb-text"><div class="lb-nick">@nickname</div><div class="lb-photos" data-i18n="leaders.photos_count">0 фото</div></div><div class="lb-rank">9</div></li>
+          <li class="lb-item"><span class="lb-ava"></span><div class="lb-text"><div class="lb-nick">@nickname</div><div class="lb-photos" data-i18n="leaders.photos_count">0 фото</div></div><div class="lb-rank">10</div></li>
           <li class="lb-item lb-item--me">
             <span class="lb-ava" data-lb-me-ava></span>
             <div class="lb-text">
               <div class="lb-nick" data-lb-me-nick>@tg profile</div>
-              <div class="lb-photos"><b data-lb-me-photos>0</b>&nbsp;фото</div>
+              <div class="lb-photos"><b data-lb-me-photos>0</b>&nbsp;<span data-i18n="leaders.photos">фото</span></div>
             </div>
             <div class="lb-rank" data-lb-me-rank>1</div>
           </li>
@@ -606,14 +613,15 @@
 
         <!-- КНОПКА НИЖЕ (фикс/липкая) -->
         <div class="lb-footer">
-          <button class="btn-close-timer" data-close="leadersModal">Закрыть</button>
+          <button class="btn-close-timer" data-close="leadersModal" data-i18n="common.close">Закрыть</button>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-
+  <!-- Подключаем i18n перед app.js -->
+  <script src="./i18n.js?v=1"></script>
   <script src="./app.js?v=51"></script>
 </body>
 </html>
