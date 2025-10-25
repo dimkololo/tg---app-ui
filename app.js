@@ -612,7 +612,7 @@ function initSubsRequired(){
 
   const btnCheck = root.querySelector('[data-check-subs]');
   btnCheck?.addEventListener('click', ()=>{
-    window.PLAM.subsOk = true;
+    setSubsOk(true);
     btnCheck.textContent = 'Спасибо';
     btnCheck.classList.add('is-ok');
     btnCheck.disabled = true;
