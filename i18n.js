@@ -172,6 +172,197 @@ i18n.load('en', {
   "subs.note": "After a successful check you can close the window and send a photo."
 });
 
+// ===== Dictionaries (EN + RU) =====
+i18n.load('en', {
+  // Common
+  "title.app": "Plam — WebApp",
+  "common.close": "Close",
+  "common.ok": "OK",
+  "common.cancel": "Cancel",
+  "common.accept": "Accept",
+  "common.yes": "Yes",
+  "common.no": "No",
+  "common.thanks": "Thanks",
+
+  // Units / short
+  "units.sec_short": "sec",
+  "units.min_short": "min.",
+  "units.hour_short": "h.",
+  "units.day_short": "d.",
+
+  // Upload popup
+  "upload.pick": "Choose photo",
+  "upload.rules_title": "Rules",
+  "upload.no_photo": "No photo selected",
+  "upload.remove_photo": "Remove photo",
+  "upload.increase_time": "Increase airtime",
+  "upload.broadcast_btn": "Go live for {{total}} {{unit}}",
+  "upload.reset_timer": "Reset timer",
+  "upload.attach_photo": "Attach a photo",
+  "upload.in_queue": "Your photo is queued",
+  "upload.link_invalid": "The link must start with http:// or https:// (https://t.me/ is also supported)",
+  "upload.reset_ok": "Done! Send another photo",
+
+  // Rules
+  "rules.title": "Photo submission rules",
+  "rules.forbidden": "<strong>Forbidden:</strong> nudity/erotica; alcohol/tobacco/drugs; violence and dangerous activities; discrimination/extremism; ads, QR-codes, links and contacts; personal/confidential data; third-party photos without consent; attempts to bypass moderation.",
+  "rules.requirements": "<strong>Requirements:</strong> safe content, no watermarks or large captions, decent quality.",
+  "rules.confirmation": "By submitting a photo you confirm that you are 13+ and own the rights to the image. We may remove content and limit access in case of violations.",
+  "rules.agree": "I am 13+ and I agree with the rules",
+
+  // Shop / Prizes
+  "shop.exchange": "Exchange",
+  "shop.choose_amount": "Choose the number of stars",
+  "prizes.take": "Claim",
+  "prizes.note": "By clicking “Claim” you confirm that you have read the rules and the public offer.",
+  "prizes.none": "No prizes yet",
+
+  // Subs
+  "subs.title": "Subscription required",
+  "subs.subtitle": "Subscribe to our channels to send photos.",
+  "subs.youtube": "YouTube channel",
+  "subs.telegram": "Telegram channel",
+  "subs.check": "Check subscriptions",
+  "subs.note": "After a successful check you can close the window and send a photo.",
+
+  // Profile
+  "profile.get_premium": "Get Premium",
+  "profile.photos_count": "Number of photos:",
+  "profile.photos_hint": "The number of photos increases their show time. 100 photos = +1 second",
+  "profile.show_time": "Photo show time:",
+
+  // Premium timer/help
+  "premium.active": "Premium is active",
+  "premium.countdown_note": "Countdown until the subscription ends",
+  "premium.expired": "Premium expired",
+  "premium.benefits_title": "Premium subscription benefits",
+  "premium.basic": "Basic",
+  "premium.premium": "Premium",
+  "premium.rule_cooldown": "Photo sending cooldown",
+  "premium.cooldown_basic": "30&nbsp;min",
+  "premium.cooldown_premium": "20&nbsp;min",
+  "premium.rule_showtime": "Photo showtime on air",
+  "premium.showtime_basic": "20&nbsp;sec",
+  "premium.showtime_premium": "40&nbsp;sec",
+  "premium.rule_gifts": "Priority payout of gifts",
+  "premium.gifts_basic": "—",
+  "premium.gifts_premium": "✓",
+  "premium.rule_top": "Chance to get into the top list",
+  "premium.top_basic": "regular",
+  "premium.top_premium": "high",
+  "premium.note": "More submissions and longer showtime mean more chances for prizes and the leaderboard.",
+
+  // Leaders modal
+  "leaders.weekly_gifts": "Weekly gifts",
+  "leaders.title": "Leaderboard",
+  "leaders.podium_aria": "Podium",
+  "leaders.rank1": "1st place",
+  "leaders.rank2": "2nd place",
+  "leaders.rank3": "3rd place",
+  "leaders.photos_count": "0 photos",
+  "leaders.photos": "photos",
+
+  // ARIA
+  "aria.open_actions": "Open actions menu",
+  "aria.leaders": "Leaders",
+  "aria.open_upload": "Open upload popup",
+  "aria.open_stars": "Open stars popup",
+  "aria.open_faq": "Open FAQ",
+  "aria.open_prizes": "Open prizes popup",
+  "aria.open_profile": "Open profile"
+});
+
+// RU dictionary (чтобы переключение RU↔ENG работало без перезагрузки)
+i18n.load('ru', {
+  "title.app": "Plam — WebApp",
+  "common.close": "Закрыть",
+  "common.ok": "Ок",
+  "common.cancel": "Отмена",
+  "common.accept": "Принять",
+  "common.yes": "Да",
+  "common.no": "Нет",
+  "common.thanks": "Спасибо",
+
+  "units.sec_short": "сек",
+  "units.min_short": "мин.",
+  "units.hour_short": "ч.",
+  "units.day_short": "д.",
+
+  "upload.pick": "Выбрать фото",
+  "upload.rules_title": "Правила",
+  "upload.no_photo": "Фото не выбрано",
+  "upload.remove_photo": "Убрать фото",
+  "upload.increase_time": "Увеличить эфирное время",
+  "upload.broadcast_btn": "В эфир на {{total}} {{unit}}",
+  "upload.reset_timer": "Сбросить таймер",
+  "upload.attach_photo": "Прикрепите фото",
+  "upload.in_queue": "Ваше фото в очереди",
+  "upload.link_invalid": "Ссылка должна начинаться с http:// или https:// (поддерживается и https://t.me/...)",
+  "upload.reset_ok": "Удачно! Скорее отправляй еще фото",
+
+  "rules.title": "Правила отправки фото",
+  "rules.forbidden": "<strong>Запрещено:</strong> обнажёнка/эротика; алкоголь/табак/наркотики; насилие и опасные действия; дискриминация/экстремизм; реклама, QR-коды, ссылки и контакты; личные/конфиденциальные данные; чужие фото без согласия; попытки обхода модерации.",
+  "rules.requirements": "<strong>Требования:</strong> безопасный сюжет, без водяных знаков и крупных надписей, приличное качество.",
+  "rules.confirmation": "Отправляя фото, вы подтверждаете, что вам 13+ и у вас есть права на изображение. Мы можем удалять материалы и ограничивать доступ при нарушениях.",
+  "rules.agree": "Мне 13+ и я согласен с правилами",
+
+  "shop.exchange": "Обменять",
+  "shop.choose_amount": "Выберите количество звезд",
+
+  "prizes.take": "Забрать",
+  "prizes.note": "Нажимая кнопку «Забрать» вы подтверждаете, что ознакомлены с правилами и публичной офертой.",
+  "prizes.none": "Пока нет призов",
+
+  "subs.title": "Подписка обязательна",
+  "subs.subtitle": "Подпишитесь на наши каналы, чтобы отправлять фото.",
+  "subs.youtube": "Youtube канал",
+  "subs.telegram": "Telegram канал",
+  "subs.check": "Проверить подписки",
+  "subs.note": "После успешной проверки можно закрыть окно и отправить фото.",
+
+  "profile.get_premium": "Получить премиум",
+  "profile.photos_count": "Количество фото:",
+  "profile.photos_hint": "Количество фото влияет на время их отображения. 100 фото = +1 секунда",
+  "profile.show_time": "Время показа фото:",
+
+  "premium.active": "Премиум активен",
+  "premium.countdown_note": "Обратный отсчёт до окончания подписки",
+  "premium.expired": "Премиум истёк",
+  "premium.benefits_title": "Преимущества премиум-подписки",
+  "premium.basic": "Обычный",
+  "premium.premium": "Премиум",
+  "premium.rule_cooldown": "Таймер отправки фото",
+  "premium.cooldown_basic": "30&nbsp;мин",
+  "premium.cooldown_premium": "20&nbsp;мин",
+  "premium.rule_showtime": "Время показа фото в эфире",
+  "premium.showtime_basic": "20&nbsp;сек",
+  "premium.showtime_premium": "40&nbsp;сек",
+  "premium.rule_gifts": "Приоритетный вывод подарков",
+  "premium.gifts_basic": "—",
+  "premium.gifts_premium": "✓",
+  "premium.rule_top": "Шансы попасть в топ-лист",
+  "premium.top_basic": "обычные",
+  "premium.top_premium": "высокие",
+  "premium.note": "Больше отправок и дольше показ — больше шансов на призы и попадание в таблицу лидеров.",
+
+  "leaders.weekly_gifts": "Еженедельные подарки",
+  "leaders.title": "Таблица лидеров",
+  "leaders.podium_aria": "Пьедестал",
+  "leaders.rank1": "1 место",
+  "leaders.rank2": "2 место",
+  "leaders.rank3": "3 место",
+  "leaders.photos_count": "0 фото",
+  "leaders.photos": "фото",
+
+  "aria.open_actions": "Открыть меню действий",
+  "aria.leaders": "Лидеры",
+  "aria.open_upload": "Открыть попап загрузки",
+  "aria.open_stars": "Открыть попап звёзд",
+  "aria.open_faq": "Открыть FAQ",
+  "aria.open_prizes": "Открыть попап призов",
+  "aria.open_profile": "Открыть профиль"
+});
+
 // RU-словарь не обязателен (русский уже в разметке), но можно добавить для симметрии:
 // i18n.load('ru', { "profile.get_premium": "Получить премиум" /* ...и т.д. */ });
 
