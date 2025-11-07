@@ -1780,7 +1780,6 @@ background: #FF7300; /* оранжевый активный */
 .policy-popup .btn-primary{
   background: #FF7300;
   color: #fff;
-  box-shadow: 0 6px 14px rgba(255,115,0,.25);
 }
 
 /* disabled — серая и некликабельна */
