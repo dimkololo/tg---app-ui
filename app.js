@@ -106,9 +106,13 @@ function addPrize(prize){
 function getPolicyAccepted(){ return LS.get(K.POLICY_OK) === '1'; }
 function setPolicyAccepted(){ LS.set(K.POLICY_OK, '1'); }
 
-function getPremiumUntil(){ return LS.getNum(K.PREMIUM_UNTIL, 0); }
+function getPremiumUntil(){
+  const ts = LS.getNum(K.PREMIUM_UNTIL, 0);
+  return (ts > 0 && ts < 1e12) ? ts * 1000 : ts; // сек → мс (страховка)
+}
 function setPremiumUntil(ts){ LS.setNum(K.PREMIUM_UNTIL, ts); }
-function isPremium(){ const u = getPremiumUntil(); return u && Date.now() < u; }
+function isPremium(){ const u = getPremiumUntil(); return u > Date.now(); }
+
 
 function getPhotoCount(){ return LS.getNum(K.PHOTO_COUNT, 0); }
 function incPhotoCount(){ LS.setNum(K.PHOTO_COUNT, getPhotoCount() + 1); }
