@@ -1902,6 +1902,7 @@ background: #FF7300; /* оранжевый активный */
   -webkit-overflow-scrolling: touch;
   /* чтобы контент не лип к краям */
   padding: 16px;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom));
   box-sizing: border-box;
 }
 
@@ -1915,26 +1916,23 @@ background: #FF7300; /* оранжевый активный */
 /* Прокручиваемая часть правил */
 .policy-popup .policy-body,
 .policy-popup .is-scrollable {
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
-  /* запас под кнопку/безопасную зону */
-  padding-bottom: max(16px, env(safe-area-inset-bottom));
+  overflow: visible; /* отключаем вложенный скролл, чтобы не было двух полос */
+  padding-bottom: 0;
 }
 
 /* Блок кнопок — всегда виден, не «уезжает» под край */
 .policy-popup .modal__actions {
-  position: sticky;
-  bottom: 0;
+  position: static;
   display: flex;
   gap: 12px;
   justify-content: flex-end;
   margin: 0;                 /* убираем внезапные внешние отступы */
-  padding: 12px 0 calc(12px + env(safe-area-inset-bottom));
-  background: inherit;       /* чтобы не резалось, можно поставить сплошной фон */
+  margin-top: 16px;
+  padding: 0;
+  background: transparent;       /* чтобы не резалось, можно поставить сплошной фон */
   /* если фон прозрачный и нужно «подложить» цвет, раскомментируй:
      background: rgba(255,255,255,.92);
   */
-  z-index: 1;
 }
 
 /* На очень узких экранах кнопки могут сильно ужиматься — пусть переносятся */
