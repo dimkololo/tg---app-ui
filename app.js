@@ -287,13 +287,14 @@ function openPolicyRequired(onAccepted){
   const tplReq = document.getElementById('tpl-policy-required') || document.getElementById('tpl-policy');
   if (!tplReq) return;
 
-  // открываем ВО ВТОРОМ СЛОЕ
   openStack(tplReq.id.replace('tpl-',''));
+  // помечаем стек как "policy"
+  stackRoot.classList.add('stack--policy');
 
   const root = stackRoot.querySelector('.policy-popup');
   if (!root) return;
 
-  // любые кнопки, помеченные data-dismiss, перенаправим на закрытие стека
+  // Любые data-dismiss превращаем в закрытие стека
   root.querySelectorAll('[data-dismiss]').forEach(btn => btn.setAttribute('data-dismiss-stack',''));
 
   const agree  = root.querySelector('#policyAgree');
@@ -308,7 +309,7 @@ function openPolicyRequired(onAccepted){
       onAccepted?.();
     }, { once:true });
   } else {
-    // если шаблон без чекбокса — просто считаем принятым
+    // Если шаблон без чекбокса — просто считаем принятым
     LS.set(POLICY_FLAG, '1');
     closeStack();
     onAccepted?.();
@@ -319,15 +320,16 @@ function openPolicyInfo(){
   const tplInfo = document.getElementById('tpl-policy-info') || document.getElementById('tpl-policy');
   if (!tplInfo) return;
 
-  // открываем ВО ВТОРОМ СЛОЕ
   openStack(tplInfo.id.replace('tpl-',''));
+  // помечаем стек как "policy"
+  stackRoot.classList.add('stack--policy');
 
   const root = stackRoot.querySelector('.policy-popup');
   if (root) {
-    // любые кнопки, помеченные data-dismiss, перенаправим на закрытие стека
+    // Любые data-dismiss превращаем в закрытие стека
     root.querySelectorAll('[data-dismiss]').forEach(btn => btn.setAttribute('data-dismiss-stack',''));
 
-    // если попали в общий шаблон — скрываем чекбокс и даём кнопку «Закрыть» для стека
+    // Если общий шаблон — скрываем чекбокс и делаем кнопку "Понятно"/Close
     const agree = root.querySelector('#policyAgree');
     const acc   = root.querySelector('#policyAccept');
     if (agree) agree.closest('label')?.setAttribute('hidden','');
@@ -338,6 +340,7 @@ function openPolicyInfo(){
     }
   }
 }
+
 
 function ensurePolicyAccepted(next){
   if (LS.get(POLICY_FLAG) === '1') { next?.(); return; }
