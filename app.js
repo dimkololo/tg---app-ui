@@ -42,6 +42,23 @@ const K = {
   WELCOME_FLAG:         'plam_welcome_coins_given_v2',
 };
 
+// --- Premium timestamp normalization & compatibility ---
+(function normalizePremiumKey(){
+  // читаем v2 и старый v1-ключ
+  const v2 = LS.getNum(K.PREMIUM_UNTIL, 0);
+  const v1 = parseInt(localStorage.getItem('plam_premium_until') || '0', 10) || 0;
+
+  // берём самое «свежее» значение
+  let best = Math.max(v2 || 0, v1 || 0);
+
+  // если это секунды (10 знаков) — переведём в миллисекунды
+  if (best > 0 && best < 1e12) best = best * 1000;
+
+  // записываем обратно в v2, если отличается
+  if (best && best !== v2) LS.setNum(K.PREMIUM_UNTIL, best);
+})();
+
+
 // --- Миграция старых ключей в v2 (без потери данных) ---
 (function migrateToV2(){
   // balance
