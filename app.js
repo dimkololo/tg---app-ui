@@ -938,7 +938,7 @@ function initConfirmPremium(){
 function initPremiumHelp(){ /* закрытие уже есть по [data-dismiss-stack] */ }
 function initFAQ(){ /* оставить как есть */ }
 
-// Таблица лидеров (отдельная модалка)
+// Таблица лидеров (отдельная модалка) — ДИНАМИКА
 document.addEventListener('DOMContentLoaded', () => {
   const modal   = document.getElementById('leadersModal');
   const openBtn = document.querySelector('.hotspot--wintable');
@@ -946,14 +946,131 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const content = modal.querySelector('.modal__content');
 
+  // --- helpers ---
+  const tg  = window.Telegram?.WebApp;
+  const usr = tg?.initDataUnsafe?.user || null;
+
+  function displayName(u) {
+    if (u?.username) return '@' + u.username;
+    const firstLast = [u?.first_name, u?.last_name].filter(Boolean).join(' ');
+    return firstLast || '@tg profile';
+  }
+
+  function photosLabel(n) {
+    const unit = T('leaders.photos', 'фото');
+    return `${n} ${unit}`;
+  }
+
+  function getMeEntry() {
+    return {
+      id: String(usr?.id || 'me'),
+      username: usr?.username || '',
+      first_name: usr?.first_name || '',
+      last_name: usr?.last_name || '',
+      photo_url: usr?.photo_url || '',
+      photos: getPhotoCount() | 0, // ваш локальный счётчик отправок
+    };
+  }
+
+  function readExternalLeaders() {
+    // Если захотите подмешивать «чужих» лидеров — положите массив сюда:
+    // [{id, username, first_name, last_name, photo_url, photos}, ...]
+    const list = LS.getJSON('plam_leaders_v1', null);
+    return Array.isArray(list) ? list : [];
+  }
+
+  function buildLeaders() {
+    const external = readExternalLeaders();
+    const me = getMeEntry();
+
+    // слить: если наш id уже есть — обновим фото-число при необходимости
+    const idx = external.findIndex(x => String(x.id) === me.id);
+    if (idx >= 0) {
+      external[idx].username   = external[idx].username   || me.username;
+      external[idx].first_name = external[idx].first_name || me.first_name;
+      external[idx].last_name  = external[idx].last_name  || me.last_name;
+      external[idx].photo_url  = external[idx].photo_url  || me.photo_url;
+      // максимум по фото (локально всегда свежее для себя)
+      external[idx].photos = Math.max(Number(external[idx].photos)||0, me.photos);
+    } else {
+      external.push(me);
+    }
+
+    // сортировка по фото (desc), стабильная
+    external.sort((a, b) => (Number(b.photos)||0) - (Number(a.photos)||0));
+
+    // вычислим место каждого
+    external.forEach((x, i) => x._rank = i + 1);
+
+    return { all: external, meId: me.id };
+  }
+
+  function medalFor(rank) {
+    if (rank === 1) return { cls: 'gold',  url: './bgicons/gold.png',   aria: T('leaders.rank1', '1 место') };
+    if (rank === 2) return { cls: 'silver',url: './bgicons/silver.png', aria: T('leaders.rank2', '2 место') };
+    if (rank === 3) return { cls: 'bronze',url: './bgicons/bronze.png', aria: T('leaders.rank3', '3 место') };
+    return null;
+  }
+
+  function avatarStyle(url) {
+    return url ? ` style="background-image:url('${url.replace(/"/g,'&quot;')}')"` : '';
+  }
+
+  function renderList() {
+    const listBox = modal.querySelector('.lb-list');
+    if (!listBox) return;
+
+    const { all, meId } = buildLeaders();
+    const top = all.slice(0, 10);
+    const me  = all.find(x => String(x.id) === meId);
+
+    // Сборка топ-10
+    const itemsHTML = top.map((x) => {
+      const name = displayName(x);
+      const ph   = photosLabel(Number(x.photos)||0);
+      const rank = x._rank;
+      const medal = medalFor(rank);
+      const rankHTML = medal
+        ? `<div class="lb-rank lb-rank--medal" role="img" aria-label="${medal.aria}" title="${medal.aria}"
+               style="background-image:url('${medal.url}')"></div>`
+        : `<div class="lb-rank">${rank}</div>`;
+      return `
+        <li class="lb-item">
+          <span class="lb-ava"${avatarStyle(x.photo_url)}></span>
+          <div class="lb-text">
+            <div class="lb-nick">${name}</div>
+            <div class="lb-photos">${ph}</div>
+          </div>
+          ${rankHTML}
+        </li>
+      `;
+    }).join('');
+
+    // Зелёная строка «Я» — всегда внизу
+    const meName = displayName(me);
+    const mePh   = photosLabel(Number(me.photos)||0);
+    const meHTML = `
+      <li class="lb-item lb-item--me">
+        <span class="lb-ava"${avatarStyle(me.photo_url)}></span>
+        <div class="lb-text">
+          <div class="lb-nick">${meName}</div>
+          <div class="lb-photos">${mePh}</div>
+        </div>
+        <div class="lb-rank">${me._rank}</div>
+      </li>
+    `;
+
+    listBox.innerHTML = itemsHTML + meHTML;
+  }
+
   function open() {
     modal.hidden = false;
     modal.setAttribute('aria-hidden','false');
     document.documentElement.style.overflow = 'hidden';
     content && content.classList.add('is-scrollable');
-    // применяем переводы внутри этой модалки
+    // применим i18n в пределах модалки и нарисуем список
     i18nApply(modal);
-    fillMyRow?.();
+    renderList();
   }
 
   function close() {
@@ -963,7 +1080,7 @@ document.addEventListener('DOMContentLoaded', () => {
     content && content.classList.remove('is-scrollable');
   }
 
-  // Открываем с захватом (обходит любые другие делегаторы)
+  // Открытие с захватом (обходит любые другие делегаторы)
   openBtn.addEventListener('click', (e) => { e.preventDefault(); open(); }, { capture: true });
 
   // Закрытие по бэкдропу/крестику
@@ -982,7 +1099,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const dlg = modal.querySelector('.modal__dialog');
     if (dlg && !dlg.contains(e.target)) close();
   }, true);
+
+  // Обновление при смене языка/данных
+  document.addEventListener('plam:langChanged', () => { if (!modal.hidden) renderList(); });
+  window.addEventListener('storage', (e) => {
+    // если в другой вкладке обновили язык или внешних лидеров
+    if (!modal.hidden && (e.key === 'plam_lang' || e.key === 'plam_leaders_v1' || e.key === 'plam_photo_count_v1')) {
+      renderList();
+    }
+  });
 });
+
 
 
 // «Действия» → сразу на страницу колеса
