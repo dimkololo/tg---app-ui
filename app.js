@@ -282,12 +282,19 @@ function closeStack(){
 // --- Политика: required/info (с фолбэками на единый tpl-policy) ---
 const POLICY_FLAG = K.POLICY_OK;
 
+// --- Политика: required/info в СТЕКЕ поверх текущего попапа ---
 function openPolicyRequired(onAccepted){
   const tplReq = document.getElementById('tpl-policy-required') || document.getElementById('tpl-policy');
   if (!tplReq) return;
-  openModal(tplReq.id.replace('tpl-',''));
-  const root = modalRoot.querySelector('.policy-popup');
+
+  // открываем ВО ВТОРОМ СЛОЕ
+  openStack(tplReq.id.replace('tpl-',''));
+
+  const root = stackRoot.querySelector('.policy-popup');
   if (!root) return;
+
+  // любые кнопки, помеченные data-dismiss, перенаправим на закрытие стека
+  root.querySelectorAll('[data-dismiss]').forEach(btn => btn.setAttribute('data-dismiss-stack',''));
 
   const agree  = root.querySelector('#policyAgree');
   const accept = root.querySelector('#policyAccept');
@@ -297,29 +304,41 @@ function openPolicyRequired(onAccepted){
     agree.addEventListener('change', ()=>{ accept.disabled = !agree.checked; });
     accept.addEventListener('click', ()=>{
       LS.set(POLICY_FLAG, '1');
-      closeModal();
+      closeStack();
       onAccepted?.();
     }, { once:true });
   } else {
     // если шаблон без чекбокса — просто считаем принятым
     LS.set(POLICY_FLAG, '1');
-    closeModal();
+    closeStack();
     onAccepted?.();
   }
 }
+
 function openPolicyInfo(){
   const tplInfo = document.getElementById('tpl-policy-info') || document.getElementById('tpl-policy');
   if (!tplInfo) return;
-  openModal(tplInfo.id.replace('tpl-',''));
-  // если попали в общий шаблон — дизейблим/прячем чекбокс-часть
-  const root = modalRoot.querySelector('.policy-popup');
+
+  // открываем ВО ВТОРОМ СЛОЕ
+  openStack(tplInfo.id.replace('tpl-',''));
+
+  const root = stackRoot.querySelector('.policy-popup');
   if (root) {
+    // любые кнопки, помеченные data-dismiss, перенаправим на закрытие стека
+    root.querySelectorAll('[data-dismiss]').forEach(btn => btn.setAttribute('data-dismiss-stack',''));
+
+    // если попали в общий шаблон — скрываем чекбокс и даём кнопку «Закрыть» для стека
     const agree = root.querySelector('#policyAgree');
     const acc   = root.querySelector('#policyAccept');
     if (agree) agree.closest('label')?.setAttribute('hidden','');
-    if (acc) { acc.textContent = T('common.close','Закрыть'); acc.disabled = false; acc.addEventListener('click', closeModal, { once:true }); }
+    if (acc) {
+      acc.textContent = T('common.close','Закрыть');
+      acc.disabled = false;
+      acc.addEventListener('click', closeStack, { once:true });
+    }
   }
 }
+
 function ensurePolicyAccepted(next){
   if (LS.get(POLICY_FLAG) === '1') { next?.(); return; }
   try { closeStack(); } catch(_){}
