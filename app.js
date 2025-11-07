@@ -1031,9 +1031,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const rank = x._rank;
       const medal = medalFor(rank);
       const rankHTML = medal
-        ? `<div class="lb-rank lb-rank--medal" role="img" aria-label="${medal.aria}" title="${medal.aria}"
-               style="background-image:url('${medal.url}')"></div>`
-        : `<div class="lb-rank">${rank}</div>`;
+  ? `<div class="lb-rank lb-rank--emoji" role="img" aria-label="${medal.aria}" title="${medal.aria}">${medal.emoji}</div>`
+  : `<div class="lb-rank">${rank}</div>`;
       return `
         <li class="lb-item">
           <span class="lb-ava"${avatarStyle(x.photo_url)}></span>
