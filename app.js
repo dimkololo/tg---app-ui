@@ -1006,11 +1006,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function medalFor(rank) {
-    if (rank === 1) return { cls: 'gold',  url: './bgicons/gold.png',   aria: T('leaders.rank1', '1 место') };
-    if (rank === 2) return { cls: 'silver',url: './bgicons/silver.png', aria: T('leaders.rank2', '2 место') };
-    if (rank === 3) return { cls: 'bronze',url: './bgicons/bronze.png', aria: T('leaders.rank3', '3 место') };
-    return null;
-  }
+  if (rank === 1) return { emoji: '🥇', aria: T('leaders.rank1', '1 место') };
+  if (rank === 2) return { emoji: '🥈', aria: T('leaders.rank2', '2 место') };
+  if (rank === 3) return { emoji: '🥉', aria: T('leaders.rank3', '3 место') };
+  return null;
+}
 
   function avatarStyle(url) {
     return url ? ` style="background-image:url('${url.replace(/"/g,'&quot;')}')"` : '';
