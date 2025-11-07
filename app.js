@@ -274,6 +274,7 @@ function openStack(id){
   if (id === 'actions-tasks')   initTasksPopup?.();
 }
 function closeStack(){
+  stackRoot.classList.remove('stack--policy');
   stackRoot.hidden = true;
   stackRoot.setAttribute('aria-hidden','true');
   stackContent.innerHTML = '';
