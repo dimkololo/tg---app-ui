@@ -1866,6 +1866,10 @@ background: #FF7300; /* оранжевый активный */
 .modal--stack:has(.premium-compare) .modal__close{
   display: none !important;
 }
+/* Правила в стек-модалке: без крестика */
+.modal.modal--stack.stack--policy .modal__close {
+  display: none;
+}
 
 
 /* Правила: чёрный текст внутри попапа */
