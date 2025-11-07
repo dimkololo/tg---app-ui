@@ -235,7 +235,7 @@ i18n.load('en', {
   "leaders.rank2": "2nd place",
   "leaders.rank3": "3rd place",
   "leaders.photos_count": "0 photos",
-  "leaders.photos": "photos",
+  "leaders.photos": "photo",
 
   // ARIA
   "aria.open_actions": "Open actions menu",
