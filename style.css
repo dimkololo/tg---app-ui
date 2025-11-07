@@ -1588,6 +1588,41 @@ background: #FF7300; /* оранжевый активный */
   padding-bottom: 8px;           /* было 12px */
 }
 
+/* Лидеры: аватар внутри кружка */
+.leaderboard-popup .lb-item .lb-ava,
+.leaderboard-popup .lb-item--me .lb-ava {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  border-radius: 50%;
+  background-size: cover;          /* заполняет круг, центрирует, слегка обрезает по краям */
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* если нужно вписывать БЕЗ обрезки — замените cover на contain */
+/* background-size: contain; */
+
+/* Лидеры: ячейка ранга по центру */
+.leaderboard-popup .lb-rank {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Медальки топ-3 вместо цифры */
+.leaderboard-popup .lb-rank.lb-rank--medal {
+  width: 24px;        /* подгоните под ваш дизайн */
+  height: 24px;
+  flex: 0 0 24px;
+  background-size: contain;        /* для иконок — без обрезки */
+  background-position: center;
+  background-repeat: no-repeat;
+  font-size: 0;                     /* чтобы цифра/текст не просвечивал */
+  line-height: 0;
+}
+
+
 
 
 /* диалог — непрозрачный, скролл включён (у тебя это уже есть для .modal--opaque) */
