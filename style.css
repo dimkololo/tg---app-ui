@@ -1867,6 +1867,15 @@ background: #FF7300; /* оранжевый активный */
   display: none !important;
 }
 
+/* Правила в стек-модалке: без крестика, чёрная подложка */
+.modal.modal--stack.stack--policy .modal__close {
+  display: none;
+}
+
+.modal.modal--stack.stack--policy .modal__backdrop {
+  background: #000; /* сплошная чёрная заливка */
+}
+
 
 /* Если у стека нет глобального затемнения — оставь как есть (у тебя JS ставит 50%) */
 /* Но базово можно так, если вдруг понадобится общий стиль:
