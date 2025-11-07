@@ -1603,23 +1603,20 @@ background: #FF7300; /* оранжевый активный */
 /* если нужно вписывать БЕЗ обрезки — замените cover на contain */
 /* background-size: contain; */
 
-/* Лидеры: ячейка ранга по центру */
+/* Базовая ячейка ранга */
 .leaderboard-popup .lb-rank {
+  min-width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* Медальки топ-3 вместо цифры */
-.leaderboard-popup .lb-rank.lb-rank--medal {
-  width: 24px;        /* подгоните под ваш дизайн */
-  height: 24px;
-  flex: 0 0 24px;
-  background-size: contain;        /* для иконок — без обрезки */
-  background-position: center;
-  background-repeat: no-repeat;
-  font-size: 0;                     /* чтобы цифра/текст не просвечивал */
-  line-height: 0;
+/* Медаль-эмодзи */
+.leaderboard-popup .lb-rank.lb-rank--emoji {
+  font-size: 22px;             /* при необходимости подстройте */
+  line-height: 1;
 }
 
 
