@@ -1887,6 +1887,70 @@ background: #FF7300; /* оранжевый активный */
   text-decoration: underline;
 }
 
+/* === Стек с правилами: безопасная высота + прокрутка + отступы снизу === */
+.modal.modal--stack.stack--policy .modal__dialog {
+  /* компактная ширина и безопасная высота */
+  width: min(560px, calc(100% - 24px));
+  max-height: min(680px, 92dvh); /* dvh фиксит мобильные браузеры */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Контейнер контента в стеке — скроллим именно его */
+.modal.modal--stack.stack--policy .modal__content {
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  /* чтобы контент не лип к краям */
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+/* Сам попап правил — вертикальная колонка */
+.policy-popup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Прокручиваемая часть правил */
+.policy-popup .policy-body,
+.policy-popup .is-scrollable {
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  /* запас под кнопку/безопасную зону */
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+}
+
+/* Блок кнопок — всегда виден, не «уезжает» под край */
+.policy-popup .modal__actions {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin: 0;                 /* убираем внезапные внешние отступы */
+  padding: 12px 0 calc(12px + env(safe-area-inset-bottom));
+  background: inherit;       /* чтобы не резалось, можно поставить сплошной фон */
+  /* если фон прозрачный и нужно «подложить» цвет, раскомментируй:
+     background: rgba(255,255,255,.92);
+  */
+  z-index: 1;
+}
+
+/* На очень узких экранах кнопки могут сильно ужиматься — пусть переносятся */
+@media (max-width: 360px) {
+  .policy-popup .modal__actions {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+}
+
+/* Небольшой внутренний отступ у заголовка и чекбокса, чтобы ничего не прилипало к краям */
+.policy-popup .modal__title { margin: 0; }
+.policy-popup .policy-check { padding: 4px 0; }
+
+
 /* Если у стека нет глобального затемнения — оставь как есть (у тебя JS ставит 50%) */
 /* Но базово можно так, если вдруг понадобится общий стиль:
 [data-modal-stack]:not([aria-hidden="true"]) .modal__backdrop{
