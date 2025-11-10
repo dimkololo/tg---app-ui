@@ -50,6 +50,8 @@
     if (hidden) return; hidden = true;
     const left = Math.max(0, MIN_SHOW_MS - (Date.now() - started));
     setTimeout(() => {
+      // показать основной UI
+      document.documentElement.classList.remove('plam-preload');
       // сразу «погасим» даже без CSS
       splash.classList.add('is-hidden');
       splash.style.opacity = '0';
