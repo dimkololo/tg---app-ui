@@ -1,6 +1,26 @@
 <!DOCTYPE html>
 <html lang="ru" data-lang="ru">
 <head>
+  <!-- сразу помечаем документ как "в прелоаде" -->
+<script>document.documentElement.classList.add('plam-preload');</script>
+
+<style>
+  /* пока сплэш активен — главный интерфейс не мерцает */
+  html.plam-preload body { overflow: hidden; }
+  html.plam-preload .scene,
+  html.plam-preload [data-modal-root],
+  html.plam-preload [data-modal-stack],
+  html.plam-preload #leadersModal {
+    visibility: hidden !important;
+  }
+
+  /* на случай, если CSS со сплэшем не успел подключиться */
+  #appLoading {
+    position: fixed; inset: 0; z-index: 2147483647;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #appLoading.is-hidden { opacity: 0; pointer-events: none; transition: opacity .28s; }
+</style>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title data-i18n="title.app">Plam — WebApp</title>
