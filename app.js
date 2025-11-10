@@ -514,13 +514,21 @@ function initUploadPopup(){
   if (window.visualViewport) window.visualViewport.addEventListener('resize', normalizeAfterKeyboard);
 
   function bindCounter(el){
-    if (!el) return;
-    const id  = el.getAttribute('data-counter');
-    const box = root.querySelector(`[data-counter-for="${id}"]`);
-    const max = Number(el.getAttribute('maxlength')) || 0;
-    const update = ()=>{ const len = el.value.length; if (box) box.textContent = `${len} / ${max}`; };
-    el.addEventListener('input', update); update();
-  }
+  if (!el) return;
+  const id  = el.getAttribute('data-counter');           // "link"
+  const box = root.querySelector(`[data-counter-for="${id}"]`);
+  const max = Number(el.getAttribute('maxlength')) || 0;
+
+  const update = () => {
+    const len = (el.value || '').length;
+    if (box) box.textContent = `${len} / ${max}`;
+  };
+
+  // некоторые клавиатуры/автозаполнение не всегда шлют 'input'
+  ['input','change','keyup','paste'].forEach(ev => el.addEventListener(ev, update));
+  update(); // первичное заполнение "0 / 255" → актуальное
+}
+
   bindCounter(root.querySelector('[data-counter="link"]'));
   bindCounter(root.querySelector('[data-counter="desc"]'));
 
