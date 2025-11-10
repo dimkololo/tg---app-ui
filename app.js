@@ -19,6 +19,8 @@ if (window.Telegram && window.Telegram.WebApp) {
   // Список реально критичных картинок главного экрана (включая фоновые из CSS).
   const criticalImages = [
     './bgicons/bg-master.png',
+    './bgicons/plam.png',
+    './bgicons/photohereru.png',
     './bgicons/tv.png',
     './bgicons/wintable.png'
     './bgicons/plane.gif',
