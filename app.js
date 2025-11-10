@@ -26,9 +26,8 @@
     './bgicons/cloud-plus.png'
   ];
 
-  const MIN_SHOW_MS = 600;
-  const HARD_TIMEOUT_MS = 8000;
-  const PRELOAD_BUDGET_MS = 2500;
+  const MIN_SHOW_MS = 6000;
+  const HARD_TIMEOUT_MS = 60000; // аварийный максимум (60 c), можно убрать, но лучше оставить
   const started = Date.now();
 
   const onDOM = new Promise(r => {
@@ -44,10 +43,7 @@
       img.src = src;
     });
   }
-  const preload = Promise.race([
-    Promise.allSettled(criticalImages.map(preloadOne)),
-    new Promise(r => setTimeout(r, PRELOAD_BUDGET_MS))
-  ]);
+  const preload = Promise.allSettled(criticalImages.map(preloadOne));
 
   let hidden = false;
   function hideNow(){
