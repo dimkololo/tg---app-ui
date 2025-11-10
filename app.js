@@ -5,6 +5,85 @@ if (window.Telegram && window.Telegram.WebApp) {
   try { window.Telegram.WebApp.expand(); } catch (e) {}
 }
 
+// --- Splash (заставка) -------------------------------------------------------
+(function setupLoadingSplash(){
+  const splash = document.getElementById('appLoading');
+  if (!splash) return;
+
+  const MIN_SHOWN_MS   = 600;   // минимальное время показа, чтобы не мигало
+  const HARD_TIMEOUT_MS = 10000; // аварийный таймаут на случай подвисания
+  const startAt = Date.now();
+
+  // Список «критичных» картинок, которые хотим прогреть.
+  // Добавляй сюда свои bg small/medium/large, если нужно.
+  const criticalImages = [
+    './bgicons/loading.png',
+    './bgicons/earth-item.png',
+    './bgicons/earth-item@2x.png',
+    './bgicons/star-header.png',
+    './bgicons/star-item.png',
+    './bgicons/plam.png',
+    './bgicons/stump.png',
+    './bgicons/gift.png',
+    './bgicons/faq.png',
+    './bgicons/notebook.png',
+    './bgicons/cloud-plus.png'
+  ];
+
+  function preloadImages(urls){
+    return Promise.all(urls.map(src => new Promise(res => {
+      const img = new Image();
+      img.onload = img.onerror = () => res();
+      img.src = src;
+    })));
+  }
+
+  function readyPromise(){
+    const tasks = [];
+
+    // 1) DOM готов
+    tasks.push(new Promise(r => {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', r, { once:true });
+      } else { r(); }
+    }));
+
+    // 2) Шрифты
+    if (document.fonts && typeof document.fonts.ready?.then === 'function') {
+      tasks.push(document.fonts.ready.catch(()=>{}));
+    }
+
+    // 3) Картинки
+    tasks.push(preloadImages(criticalImages));
+
+    // 4) Небольшой кадр, чтобы браузер успокоился
+    tasks.push(new Promise(r => requestAnimationFrame(()=>r())));
+
+    return Promise.all(tasks);
+  }
+
+  function hideSplash(){
+    const left = Math.max(0, MIN_SHOWN_MS - (Date.now() - startAt));
+    setTimeout(() => {
+      splash.classList.add('is-hidden');
+      // уведомим Telegram, что UI готов
+      try { window.Telegram?.WebApp?.ready?.(); } catch(_) {}
+      // уберём из DOM чуть позже
+      setTimeout(() => splash.remove(), 300);
+    }, left);
+  }
+
+  // Защита от вечного сплэша
+  const failsafe = setTimeout(hideSplash, HARD_TIMEOUT_MS);
+
+  // Основной путь
+  readyPromise().then(() => {
+    clearTimeout(failsafe);
+    hideSplash();
+  });
+})();
+
+
 // --- Для чистого теста без данных, потом удалить ---
 (function resetByQuery(){
   if (/[?&]reset=(1|true)/.test(location.search)) {
