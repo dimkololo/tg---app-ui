@@ -1948,6 +1948,20 @@ background: #FF7300; /* оранжевый активный */
 .policy-popup .modal__title { margin: 0; }
 .policy-popup .policy-check { padding: 4px 0; }
 
+/* чтобы абсолютное позиционирование работало в рамках поля */
+.upload-popup .form-card .field-wrap { position: relative; }
+
+/* только для счётчика поля ССЫЛКИ → вправо-вниз */
+.upload-popup [data-counter-for="link"] {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  text-align: right;
+  font-size: 12px;     /* подстрой при желании */
+  opacity: .7;         /* как у счётчика описания */
+}
+
+
 
 /* Если у стека нет глобального затемнения — оставь как есть (у тебя JS ставит 50%) */
 /* Но базово можно так, если вдруг понадобится общий стиль:
