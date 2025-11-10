@@ -1,19 +1,18 @@
 
 // ========== app.js (главная) — LS-единообразие, миграции v1→v2 ==========
 
-// ==== SPLASH MANAGER v2 – безопасное скрытие заставки ====
-// Можно располагать в самом верху app.js — код автономный.
+// ==== SPLASH v2.2 — гарантированное скрытие заставки ====
 (function setupSplash() {
-  const splash = document.getElementById('appLoading');
+  const splash = document.getElementById('appLoading') 
+              || document.querySelector('.splash,[data-splash]');
   if (!splash) return;
 
-  // 1) Список критичных картинок страницы (НЕ включаем сюда loading.png!)
- const criticalImages = [
+  // НЕ включаем сюда саму loading.png
+  const criticalImages = [
     './bgicons/bg-master.png',
-    './bgicons/plam.png',
     './bgicons/photohereru.png',
     './bgicons/tv.png',
-    './bgicons/wintable.png'
+    './bgicons/wintable.png',
     './bgicons/plane.gif',
     './bgicons/earth-item.png',
     './bgicons/earth-item@2x.png',
@@ -27,60 +26,62 @@
     './bgicons/cloud-plus.png'
   ];
 
-  // 2) Настройки ожидания
-  const MIN_SHOW_MS   = 600;   // минимум показа сплэша (мягкий)
-  const HARD_TIMEOUT  = 7000;  // жёсткий «рубильник» (никогда не висим)
-  const PRELOAD_BUDGET_MS = 2500; // если картинки грузятся дольше — идём дальше
+  const MIN_SHOW_MS = 600;
+  const HARD_TIMEOUT_MS = 8000;
+  const PRELOAD_BUDGET_MS = 2500;
+  const started = Date.now();
 
-  const started = performance.now();
-
-  // 3) Утилиты ожидания
-  const onDOMReady = new Promise((resolve) => {
-    if (document.readyState === 'interactive' || document.readyState === 'complete') resolve();
-    else document.addEventListener('DOMContentLoaded', resolve, { once: true });
+  const onDOM = new Promise(r => {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', r, { once: true });
+    } else r();
   });
 
-  function preloadOne(src) {
-    return new Promise((resolve) => {
+  function preloadOne(src){
+    return new Promise(res => {
       const img = new Image();
-      const done = () => resolve({ src });
-      img.onload = done;
-      img.onerror = done; // ошибка не блокирует
+      img.onload = img.onerror = () => res({ src });
       img.src = src;
     });
   }
-
-  const preloadAll = Promise.race([
+  const preload = Promise.race([
     Promise.allSettled(criticalImages.map(preloadOne)),
-    new Promise((r) => setTimeout(r, PRELOAD_BUDGET_MS))
+    new Promise(r => setTimeout(r, PRELOAD_BUDGET_MS))
   ]);
 
-  // 4) Основное ожидание (DOM + прелоад), ограниченное жёстким таймером
-  const mainWait = Promise.all([onDOMReady, preloadAll]);
-
-  Promise.race([
-    mainWait,                         // нормальный путь
-    new Promise((r) => setTimeout(r, HARD_TIMEOUT)) // рубильник
-  ]).then(() => {
-    const elapsed = performance.now() - started;
-    const left = Math.max(0, MIN_SHOW_MS - elapsed);
+  let hidden = false;
+  function hideNow(){
+    if (hidden) return; hidden = true;
+    const left = Math.max(0, MIN_SHOW_MS - (Date.now() - started));
     setTimeout(() => {
-      // плавно скрыть
+      // сразу «погасим» даже без CSS
       splash.classList.add('is-hidden');
+      splash.style.opacity = '0';
+      splash.style.pointerEvents = 'none';
       splash.setAttribute('aria-busy', 'false');
-      splash.addEventListener('transitionend', () => {
-        // полностью убрать из DOM после анимации
-        try { splash.remove(); } catch (_) {}
-      }, { once: true });
+
+      // Телеграму сказать «готовы»
+      try { window.Telegram?.WebApp?.ready?.(); } catch(_) {}
+
+      // убрать из DOM даже если transitionend не придёт
+      setTimeout(() => { try { splash.remove(); } catch(_) {} }, 400);
     }, left);
+  }
+
+  // Жёсткая страховка
+  const hard = setTimeout(hideNow, HARD_TIMEOUT_MS);
+
+  // Нормальный путь
+  Promise.all([onDOM, preload]).then(() => {
+    clearTimeout(hard);
+    hideNow();
+  }).catch(() => {
+    // На всякий случай — даже при исключении
+    hideNow();
   });
 
-  // на всякий: ручной «рубильник» из консоли/других модулей
-  window.__plamHideSplash = () => {
-    splash.classList.add('is-hidden');
-    splash.setAttribute('aria-busy', 'false');
-    try { splash.remove(); } catch(_) {}
-  };
+  // Ручной рубильник для отладки
+  window.__plamHideSplash = hideNow;
 })();
 
 
