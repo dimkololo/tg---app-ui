@@ -11,15 +11,17 @@ if (window.Telegram && window.Telegram.WebApp) {
   const splash = document.getElementById('appLoading');
   if (!splash) return;
 
-  const MIN_SHOWN_MS   = 600;   // минимальное время показа, чтобы не мигало
-  const HARD_TIMEOUT_MS = 10000; // аварийный таймаут на случай подвисания
+  const MIN_SHOWN_MS    = 600;   // чтобы не мигало
+  const HARD_TIMEOUT_MS = 15000; // аварийный таймаут
   const startAt = Date.now();
 
-  // Список «критичных» картинок, которые хотим прогреть.
-  // Добавляй сюда свои bg small/medium/large, если нужно.
+  // ВАЖНО: тут НЕ нужно 'loading.png' — он уже грузится в <img class="splash__img">
+  // Список реально критичных картинок главного экрана (включая фоновые из CSS).
   const criticalImages = [
     './bgicons/bg-master.png',
-    './bgicons/loading.png',
+    './bgicons/tv.png',
+    './bgicons/wintable.png'
+    './bgicons/plane.gif',
     './bgicons/earth-item.png',
     './bgicons/earth-item@2x.png',
     './bgicons/star-header.png',
@@ -32,57 +34,66 @@ if (window.Telegram && window.Telegram.WebApp) {
     './bgicons/cloud-plus.png'
   ];
 
-  function preloadImages(urls){
-    return Promise.all(urls.map(src => new Promise(res => {
+  function preloadAndDecode(urls){
+    return Promise.all(urls.map(src => new Promise((resolve) => {
       const img = new Image();
-      img.onload = img.onerror = () => res();
+      img.onload = () => {
+        // дождёмся декодирования в память — картинка готова к немедленному показу
+        if (img.decode) {
+          img.decode().then(resolve).catch(resolve);
+        } else {
+          resolve();
+        }
+      };
+      img.onerror = () => resolve(); // не блокируем готовность если картинка не загрузилась
       img.src = src;
     })));
   }
 
-  function readyPromise(){
-    const tasks = [];
+  // Ждём разные “ступени готовности”
+  const waitDOMReady = new Promise(r => {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', r, { once:true });
+    } else { r(); }
+  });
 
-    // 1) DOM готов
-    tasks.push(new Promise(r => {
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', r, { once:true });
-      } else { r(); }
-    }));
+  const waitWindowLoad = new Promise(r => {
+    if (document.readyState === 'complete') r();
+    else window.addEventListener('load', r, { once:true });
+  });
 
-    // 2) Шрифты
-    if (document.fonts && typeof document.fonts.ready?.then === 'function') {
-      tasks.push(document.fonts.ready.catch(()=>{}));
-    }
+  const waitFonts = (document.fonts && document.fonts.ready) ? document.fonts.ready.catch(()=>{}) : Promise.resolve();
 
-    // 3) Картинки
-    tasks.push(preloadImages(criticalImages));
+  const waitImages = preloadAndDecode(criticalImages);
 
-    // 4) Небольшой кадр, чтобы браузер успокоился
-    tasks.push(new Promise(r => requestAnimationFrame(()=>r())));
-
-    return Promise.all(tasks);
+  // Небольшой “стабилизатор” рендеринга: два кадра + idle
+  function settleFrames(){
+    return new Promise(r => {
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(() => r(), { timeout: 200 });
+        } else {
+          setTimeout(r, 50);
+        }
+      }));
+    });
   }
 
   function hideSplash(){
     const left = Math.max(0, MIN_SHOWN_MS - (Date.now() - startAt));
     setTimeout(() => {
       splash.classList.add('is-hidden');
-      // уведомим Telegram, что UI готов
       try { window.Telegram?.WebApp?.ready?.(); } catch(_) {}
-      // уберём из DOM чуть позже
       setTimeout(() => splash.remove(), 300);
     }, left);
   }
 
-  // Защита от вечного сплэша
   const failsafe = setTimeout(hideSplash, HARD_TIMEOUT_MS);
 
-  // Основной путь
-  readyPromise().then(() => {
-    clearTimeout(failsafe);
-    hideSplash();
-  });
+  // Готовность = DOM + window.load + шрифты + критичные картинки + стабилизация кадров
+  Promise.all([waitDOMReady, waitWindowLoad, waitFonts, waitImages])
+    .then(settleFrames)
+    .then(() => { clearTimeout(failsafe); hideSplash(); });
 })();
 
 
