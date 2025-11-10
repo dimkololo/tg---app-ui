@@ -258,7 +258,6 @@ i18n.load('en', {
   //fortune
    "fortune.title": "Spin the Wheel",
   "fortune.spin": "Spin",
-  "fortune.spinning": "Spinning…",
   "fortune.stop": "Stop",
   "fortune.win": "You won: {{prize}}",
   "fortune.lose": "No prize this time",
@@ -375,7 +374,6 @@ i18n.load('ru', {
 
    "fortune.title": "Колесо фортуны",
   "fortune.spin": "Вращать",
-  "fortune.spinning": "Вращение…",
   "fortune.stop": "Стоп",
   "fortune.win": "Вы выиграли: {{prize}}",
   "fortune.lose": "В этот раз ничего",
