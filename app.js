@@ -26,7 +26,7 @@
     './bgicons/cloud-plus.png'
   ];
 
-  const MIN_SHOW_MS = 6000;
+  const MIN_SHOW_MS = 4000;
   const HARD_TIMEOUT_MS = 60000; // аварийный максимум (60 c), можно убрать, но лучше оставить
   const started = Date.now();
 
