@@ -513,24 +513,32 @@ function initUploadPopup(){
   }
   if (window.visualViewport) window.visualViewport.addEventListener('resize', normalizeAfterKeyboard);
 
-  function bindCounter(el){
+  // ===== Live-счётчики для всех полей с [data-counter] через делегирование =====
+function updateCounter(el){
   if (!el) return;
-  const id  = el.getAttribute('data-counter');           // "link"
+  const id  = el.getAttribute('data-counter');
+  if (!id) return;
   const box = root.querySelector(`[data-counter-for="${id}"]`);
   const max = Number(el.getAttribute('maxlength')) || 0;
-
-  const update = () => {
-    const len = (el.value || '').length;
-    if (box) box.textContent = `${len} / ${max}`;
-  };
-
-  // некоторые клавиатуры/автозаполнение не всегда шлют 'input'
-  ['input','change','keyup','paste'].forEach(ev => el.addEventListener(ev, update));
-  update(); // первичное заполнение "0 / 255" → актуальное
+  const len = (el.value || '').length;
+  if (box) box.textContent = `${len} / ${max}`;
 }
 
-  bindCounter(root.querySelector('[data-counter="link"]'));
-  bindCounter(root.querySelector('[data-counter="desc"]'));
+// первичная инициализация — заполнить значения сразу
+root.querySelectorAll('[data-counter]').forEach(updateCounter);
+
+// делегированный обработчик: ловим ввод и обновляем соответствующий счётчик
+const counterHandler = (ev) => {
+  const el = ev.target && ev.target.closest && ev.target.closest('[data-counter]');
+  if (!el || !root.contains(el)) return;
+  updateCounter(el);
+};
+
+// разные типы событий — чтобы накрыть автозамены, IME и т.д.
+['input','keyup','change','paste','compositionend','beforeinput'].forEach(type=>{
+  root.addEventListener(type, counterHandler);
+});
+
 
   const pickedEmpty = root.querySelector('.picked-empty');
   const pickedItem  = root.querySelector('.picked-item');
