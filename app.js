@@ -1,23 +1,14 @@
 
 // ========== app.js (главная) — LS-единообразие, миграции v1→v2 ==========
 
-// --- Telegram WebApp ---
-if (window.Telegram && window.Telegram.WebApp) {
-  try { window.Telegram.WebApp.expand(); } catch (e) {}
-}
-
-// --- Splash (заставка) -------------------------------------------------------
-(function setupLoadingSplash(){
+// ==== SPLASH MANAGER v2 – безопасное скрытие заставки ====
+// Можно располагать в самом верху app.js — код автономный.
+(function setupSplash() {
   const splash = document.getElementById('appLoading');
   if (!splash) return;
 
-  const MIN_SHOWN_MS    = 600;   // чтобы не мигало
-  const HARD_TIMEOUT_MS = 15000; // аварийный таймаут
-  const startAt = Date.now();
-
-  // ВАЖНО: тут НЕ нужно 'loading.png' — он уже грузится в <img class="splash__img">
-  // Список реально критичных картинок главного экрана (включая фоновые из CSS).
-  const criticalImages = [
+  // 1) Список критичных картинок страницы (НЕ включаем сюда loading.png!)
+ const criticalImages = [
     './bgicons/bg-master.png',
     './bgicons/plam.png',
     './bgicons/photohereru.png',
@@ -36,68 +27,67 @@ if (window.Telegram && window.Telegram.WebApp) {
     './bgicons/cloud-plus.png'
   ];
 
-  function preloadAndDecode(urls){
-    return Promise.all(urls.map(src => new Promise((resolve) => {
+  // 2) Настройки ожидания
+  const MIN_SHOW_MS   = 600;   // минимум показа сплэша (мягкий)
+  const HARD_TIMEOUT  = 7000;  // жёсткий «рубильник» (никогда не висим)
+  const PRELOAD_BUDGET_MS = 2500; // если картинки грузятся дольше — идём дальше
+
+  const started = performance.now();
+
+  // 3) Утилиты ожидания
+  const onDOMReady = new Promise((resolve) => {
+    if (document.readyState === 'interactive' || document.readyState === 'complete') resolve();
+    else document.addEventListener('DOMContentLoaded', resolve, { once: true });
+  });
+
+  function preloadOne(src) {
+    return new Promise((resolve) => {
       const img = new Image();
-      img.onload = () => {
-        // дождёмся декодирования в память — картинка готова к немедленному показу
-        if (img.decode) {
-          img.decode().then(resolve).catch(resolve);
-        } else {
-          resolve();
-        }
-      };
-      img.onerror = () => resolve(); // не блокируем готовность если картинка не загрузилась
+      const done = () => resolve({ src });
+      img.onload = done;
+      img.onerror = done; // ошибка не блокирует
       img.src = src;
-    })));
-  }
-
-  // Ждём разные “ступени готовности”
-  const waitDOMReady = new Promise(r => {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', r, { once:true });
-    } else { r(); }
-  });
-
-  const waitWindowLoad = new Promise(r => {
-    if (document.readyState === 'complete') r();
-    else window.addEventListener('load', r, { once:true });
-  });
-
-  const waitFonts = (document.fonts && document.fonts.ready) ? document.fonts.ready.catch(()=>{}) : Promise.resolve();
-
-  const waitImages = preloadAndDecode(criticalImages);
-
-  // Небольшой “стабилизатор” рендеринга: два кадра + idle
-  function settleFrames(){
-    return new Promise(r => {
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        if ('requestIdleCallback' in window) {
-          requestIdleCallback(() => r(), { timeout: 200 });
-        } else {
-          setTimeout(r, 50);
-        }
-      }));
     });
   }
 
-  function hideSplash(){
-    const left = Math.max(0, MIN_SHOWN_MS - (Date.now() - startAt));
+  const preloadAll = Promise.race([
+    Promise.allSettled(criticalImages.map(preloadOne)),
+    new Promise((r) => setTimeout(r, PRELOAD_BUDGET_MS))
+  ]);
+
+  // 4) Основное ожидание (DOM + прелоад), ограниченное жёстким таймером
+  const mainWait = Promise.all([onDOMReady, preloadAll]);
+
+  Promise.race([
+    mainWait,                         // нормальный путь
+    new Promise((r) => setTimeout(r, HARD_TIMEOUT)) // рубильник
+  ]).then(() => {
+    const elapsed = performance.now() - started;
+    const left = Math.max(0, MIN_SHOW_MS - elapsed);
     setTimeout(() => {
+      // плавно скрыть
       splash.classList.add('is-hidden');
-      try { window.Telegram?.WebApp?.ready?.(); } catch(_) {}
-      setTimeout(() => splash.remove(), 300);
+      splash.setAttribute('aria-busy', 'false');
+      splash.addEventListener('transitionend', () => {
+        // полностью убрать из DOM после анимации
+        try { splash.remove(); } catch (_) {}
+      }, { once: true });
     }, left);
-  }
+  });
 
-  const failsafe = setTimeout(hideSplash, HARD_TIMEOUT_MS);
-
-  // Готовность = DOM + window.load + шрифты + критичные картинки + стабилизация кадров
-  Promise.all([waitDOMReady, waitWindowLoad, waitFonts, waitImages])
-    .then(settleFrames)
-    .then(() => { clearTimeout(failsafe); hideSplash(); });
+  // на всякий: ручной «рубильник» из консоли/других модулей
+  window.__plamHideSplash = () => {
+    splash.classList.add('is-hidden');
+    splash.setAttribute('aria-busy', 'false');
+    try { splash.remove(); } catch(_) {}
+  };
 })();
 
+
+// --- Telegram WebApp ---
+if (window.Telegram && window.Telegram.WebApp) {
+  try { window.Telegram.WebApp.expand(); } catch (e) {}
+}
 
 // --- Для чистого теста без данных, потом удалить ---
 (function resetByQuery(){
