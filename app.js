@@ -411,6 +411,26 @@ function initUploadPopup(){
   const urlInput  = root.querySelector('input[name="social"]');
   const infoBtn   = root.querySelector('.btn-info'); // «!» в ряду с кнопкой
 
+  // ===== Счётчик длины ДЛЯ ПОЛЯ ССЫЛКИ (прямая привязка) =====
+const linkEl  = urlInput; // то же поле
+const linkBox = root.querySelector('[data-counter-for="link"]');
+
+function syncLinkCounter(){
+  if (!linkEl || !linkBox) return;
+  const max = Number(linkEl.getAttribute('maxlength')) || 255;
+  const len = (linkEl.value || '').length;
+  linkBox.textContent = `${len} / ${max}`;
+}
+
+// События, которые точно поймают ввод/вставку/автозамены/IME
+['input','keyup','change','paste','compositionend','beforeinput'].forEach(ev=>{
+  linkEl?.addEventListener(ev, syncLinkCounter);
+});
+
+// Первичное заполнение — если значение уже подставлено автозаполнением/кешем
+syncLinkCounter();
+
+
   // "!" — просто инфо
   infoBtn?.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); openPolicyInfo(); });
 
