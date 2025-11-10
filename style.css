@@ -1948,6 +1948,48 @@ background: #FF7300; /* оранжевый активный */
 .policy-popup .modal__title { margin: 0; }
 .policy-popup .policy-check { padding: 4px 0; }
 
+/* === Splash (APNG, full-bleed cover) === */
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;           /* поверх всего */
+  display: block;           /* на случай, если раньше стоял grid/inline */
+  overflow: hidden;         /* обрезаем лишнее по краям */
+  background: #fff;         /* подложка — можно поменять */
+}
+
+/* Картинка покрывает весь экран как background-size: cover */
+.splash__img {
+  width: 100%;
+  height: 100vh;            /* базовая высота экрана */
+  max-width: none;
+  max-height: none;
+  display: block;
+  object-fit: cover;        /* «cover» по обеим осям */
+  object-position: center;  /* фокус по центру; можно 'center bottom' и т.п. */
+  image-rendering: auto;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Точный вьюпорт на мобильных (исправляет 100vh) */
+@supports (height: 100dvh) {
+  .splash__img { height: 100dvh; }
+}
+
+/* Мягкое скрытие заставки */
+.splash.is-hidden {
+  opacity: 0;
+  transition: opacity .25s ease-out;
+  pointer-events: none;
+}
+
+/* Опционально: уважать настройки «уменьшить анимацию» */
+@media (prefers-reduced-motion: reduce) {
+  .splash.is-hidden { transition: none; }
+}
+
+
 
 /* Если у стека нет глобального затемнения — оставь как есть (у тебя JS ставит 50%) */
 /* Но базово можно так, если вдруг понадобится общий стиль:
