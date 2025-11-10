@@ -17,9 +17,7 @@ if (window.Telegram && window.Telegram.WebApp) {
   // Список «критичных» картинок, которые хотим прогреть.
   // Добавляй сюда свои bg small/medium/large, если нужно.
   const criticalImages = [
-    './bgicons/bg-large.png',
-    './bgicons/bg-medium.png',
-    './bgicons/bg-small.png',
+    './bgicons/bg-master.png',
     './bgicons/loading.png',
     './bgicons/earth-item.png',
     './bgicons/earth-item@2x.png',
