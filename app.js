@@ -88,16 +88,6 @@ if (window.Telegram && window.Telegram.WebApp) {
   try { window.Telegram.WebApp.expand(); } catch (e) {}
 }
 
-// --- Для чистого теста без данных, потом удалить ---
-(function resetByQuery(){
-  if (/[?&]reset=(1|true)/.test(location.search)) {
-    try { localStorage.clear(); sessionStorage.clear(); } catch(_) {}
-    // возвращаем чистый URL без параметров
-    location.replace(location.pathname);
-  }
-})();
-
-
 // --- LS helper Весь Local Storage перевести на сервер ---
 const LS = {
   get(k, d = null) {
