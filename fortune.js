@@ -71,6 +71,14 @@ window.addEventListener('storage', (e) => {
     } catch {}
   })();
 
+  // --- DEV: при TEST_MODE мгновенно очищаем любые старые кулдауны (v1 и v2) ---
+  try {
+    if (typeof TEST_MODE !== 'undefined' && TEST_MODE) {
+      try { localStorage.removeItem('fortune_cd_until'); } catch(_) {}
+      try { localStorage.removeItem(K.WHEEL_CD_UNTIL); } catch(_) {}
+    }
+  } catch(_) {}
+
   // --- Состояние/утилиты ---
   function getBalance(){ return LS.getNum(K.BALANCE, 0); }
   function setBalance(v){ LS.setNum(K.BALANCE, v); }
@@ -188,6 +196,7 @@ window.addEventListener('storage', (e) => {
     cdTimerId = setInterval(tick, 1000);
   }
   function isSpun(){
+    if (typeof TEST_MODE !== 'undefined' && TEST_MODE) return false;
     const until = getCooldownUntil();
     if (!until) return false;
     if (Date.now() >= until) { clearCooldown(); return false; }
