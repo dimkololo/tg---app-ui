@@ -1,11 +1,13 @@
-// ========== fortune.js — LS-единообразие, миграции, тот же UX ==========
+
+// ========== fortune.js — TEST no-cooldown build (fortune-build-2025-11-14T23:59Z-noCD-v3) ==========
+console.info('[fortune] BUILD', 'fortune-build-2025-11-14T23:59Z-noCD-v3');
 
 // fortune.js (или внутри скрипта на fortune.html)
 function i18nApplyLocal(){
   try { window.i18n && window.i18n.apply && i18n.apply(document); } catch(_) {}
 }
 
-// локальный T-хелпер: использует i18n.t, а если перевода нет — подставляет vars в fallback
+// локальный T-хелпер
 function Tlocal(key, fallback, vars){
   try {
     if (window.i18n && typeof window.i18n.t === 'function') {
@@ -18,23 +20,17 @@ function Tlocal(key, fallback, vars){
   return String(fallback).replace(/\{\{(\w+)\}\}/g, (_, k) => (k in vars ? String(vars[k]) : ''));
 }
 
-
-// начальная инициализация
 document.addEventListener('DOMContentLoaded', () => {
+  try { window.Telegram?.WebApp?.ready(); } catch(_) {}
   i18nApplyLocal();
 });
 
-// слушаем изменения языка, сделанные в других вкладках
 window.addEventListener('storage', (e) => {
   if (e.key === 'plam_lang') {
     try { i18n.setLang(e.newValue); } catch(_) {}
     i18nApplyLocal();
-    // обновляем динамику, если нужно (например, вызвать функцию, которая пересчитывает
-    // подписки/таймеры/тексты)
-    // refreshDynamicUI?.();
   }
 });
-
 
 (function(){
   // --- LS helper ---
@@ -51,52 +47,44 @@ window.addEventListener('storage', (e) => {
   // --- Ключи (v2) ---
   const K = {
     BALANCE:           'plam_balance_v2',
-    WHEEL_CD_UNTIL:    'fortune_cd_until_v2',       // 24h кулдаун колеса
-    WHEEL_ORDER:       'fortune_wheel_order_v2',    // порядок чисел
+    WHEEL_CD_UNTIL:    'fortune_cd_until_v2',
+    WHEEL_ORDER:       'fortune_wheel_order_v2',
   };
 
-  // --- Миграция из v1 ---
-  (function migrate(){
-    if (localStorage.getItem('plam_balance') && !localStorage.getItem(K.BALANCE)) {
-      LS.set(K.BALANCE, localStorage.getItem('plam_balance'));
-    }
-    if (localStorage.getItem('fortune_cd_until') && !localStorage.getItem(K.WHEEL_CD_UNTIL)) {
-      LS.set(K.WHEEL_CD_UNTIL, localStorage.getItem('fortune_cd_until'));
-    }
-    // порядок ранее был в sessionStorage — теперь стабилен меж перезагрузок
-    // если есть прежний session ключ — перенесём как стартовую инициализацию
-    try {
-      const sess = sessionStorage.getItem('fortune_wheel_order_session');
-      if (sess && !localStorage.getItem(K.WHEEL_ORDER)) localStorage.setItem(K.WHEEL_ORDER, sess);
-    } catch {}
-  })();
+  // --- КОНСТАНТЫ КОЛЕСА ---
+  const VALUES    = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20];
+  const SECTORS   = VALUES.length;
+  const STEP      = 360 / SECTORS;    // 36°
+  const SPIN_MS   = 7000;             // 7 секунд
+  const ANGLE_OFFSET = 0;
+  const TEST_MODE = true; // принудительный тест-режим
+  const COOLDOWN_MS  = 0;
 
-  // --- DEV: при TEST_MODE мгновенно очищаем любые старые кулдауны (v1 и v2) ---
+  // --- Миграция порядка ---
   try {
-    if (typeof TEST_MODE !== 'undefined' && TEST_MODE) {
-      try { localStorage.removeItem('fortune_cd_until'); } catch(_) {}
-      try { localStorage.removeItem(K.WHEEL_CD_UNTIL); } catch(_) {}
-    }
-  } catch(_) {}
+    const sess = sessionStorage.getItem('fortune_wheel_order_session');
+    if (sess && !localStorage.getItem(K.WHEEL_ORDER)) localStorage.setItem(K.WHEEL_ORDER, sess);
+  } catch {}
+
+  // --- Полный сброс кулдауна на старте (и на всякий случай) ---
+  try { localStorage.removeItem('fortune_cd_until'); } catch(_){}
+  try { localStorage.removeItem(K.WHEEL_CD_UNTIL); } catch(_){}
 
   // --- Состояние/утилиты ---
   function getBalance(){ return LS.getNum(K.BALANCE, 0); }
   function setBalance(v){ LS.setNum(K.BALANCE, v); }
   function addToBalance(delta){ const next = getBalance() + delta; setBalance(next); return next; }
 
-  function getCooldownUntil(){ return LS.getNum(K.WHEEL_CD_UNTIL, 0); }
-  function setCooldownUntil(ts){ LS.setNum(K.WHEEL_CD_UNTIL, ts); }
-  function clearCooldown(){ LS.remove(K.WHEEL_CD_UNTIL); }
+  function getCooldownUntil(){ return 0; } // тест: никогда нет кулдауна
+  function setCooldownUntil(ts){ /* тест: игнор */ }
+  function clearCooldown(){ try { localStorage.removeItem(K.WHEEL_CD_UNTIL); } catch(_) {} }
 
   function fmtLeft(ms){
     const s = Math.max(0, Math.floor(ms / 1000));
     const h = Math.floor(s / 3600);
     const m = Math.floor((s % 3600) / 60);
     const ss = s % 60;
-    const hh = String(h).padStart(2,'0');
-    const mm = String(m).padStart(2,'0');
-    const ss2 = String(ss).padStart(2,'0');
-    return `${hh}ч. ${mm}мин. ${ss2}сек.`;
+    return String(h).padStart(2,'0')+'ч. '+String(m).padStart(2,'0')+'мин. '+String(ss).padStart(2,'0')+'сек.';
   }
 
   // --- ЭЛЕМЕНТЫ ---
@@ -136,16 +124,7 @@ window.addEventListener('storage', (e) => {
     window.addEventListener('resize', update);
   })();
 
-  // --- КОНСТАНТЫ КОЛЕСА ---
-  const VALUES    = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20];
-  const SECTORS   = VALUES.length;
-  const STEP      = 360 / SECTORS;    // 36°
-  const SPIN_MS   = 7000;             // 7 секунд
-  const ANGLE_OFFSET = 0;             // стрелка справа (3 часа)
-  const TEST_MODE = true; // <-- set to false for production
-  const COOLDOWN_MS  = TEST_MODE ? 0 : 24 * 60 * 60 * 1000;   // 0ms in test, 24h in prod   // 24 часа
-
-  // --- Порядок чисел (теперь в LS, переживает reload) ---
+  // --- Порядок чисел (LS) ---
   function shuffle(arr){
     const a = arr.slice();
     for (let i=a.length-1;i>0;i--){
@@ -177,77 +156,95 @@ window.addEventListener('storage', (e) => {
   let cdTimerId = null;
   function stopCooldownUI(){ if (cdTimerId){ clearInterval(cdTimerId); cdTimerId = null; } }
   function startCooldownUI(){
-    if (!timerEl) return;
-    timerEl.hidden = false;
+    // тест: таймер не показываем
     stopCooldownUI();
-    const tick = () => {
-      const left = getCooldownUntil() - Date.now();
-      if (left <= 0) {
-        stopCooldownUI();
-        timerEl.hidden = true;
-        clearCooldown();
-        updateUI();
-        return;
-      }
-      timerEl.textContent = Tlocal('fortune.return_in', 'Возвращайся через: {{time}}', { time: fmtLeft(left) });
-
-    };
-    tick();
-    cdTimerId = setInterval(tick, 1000);
+    if (timerEl) timerEl.hidden = true;
   }
-  function isSpun(){
-    if (typeof TEST_MODE !== 'undefined' && TEST_MODE) return false;
-    const until = getCooldownUntil();
-    if (!until) return false;
-    if (Date.now() >= until) { clearCooldown(); return false; }
-    return true;
-  }
-  function markSpun(){ setCooldownUntil(Date.now() + COOLDOWN_MS); }
+  function isSpun(){ return false; } // тест: никогда не "крутили"
+  function markSpun(){ /* тест: не ставим кулдаун */ }
 
   function updateUI(){
-    if (isSpun()) {
-      btnSpin.setAttribute('disabled','true');
-      startCooldownUI();
-    } else {
-      btnSpin.removeAttribute('disabled');
-      stopCooldownUI();
-      if (timerEl) timerEl.hidden = true;
-    }
+    btnSpin.removeAttribute('disabled');
+    stopCooldownUI();
+    if (timerEl) timerEl.hidden = true;
   }
   updateUI();
+
+  // ====== ХАПТИКИ ======
+  const HAPTIC_PROVIDER = (() => {
+    const H = window.Telegram?.WebApp?.HapticFeedback;
+    if (H && typeof H.impactOccurred === 'function') return 'tg';
+    if ('vibrate' in navigator) return 'vibrate';
+    return 'none';
+  })();
+
+  function hapticTick(intensity = 'medium') {
+    if (HAPTIC_PROVIDER === 'tg') {
+      try { window.Telegram.WebApp.HapticFeedback.impactOccurred(intensity); } catch(_){}
+    } else if (HAPTIC_PROVIDER === 'vibrate') {
+      try { navigator.vibrate(15); } catch(_){}
+    }
+  }
+  function hapticFinal(ok = true) {
+    if (HAPTIC_PROVIDER === 'tg') {
+      try { window.Telegram.WebApp.HapticFeedback.notificationOccurred(ok ? 'success' : 'warning'); } catch(_){}
+    } else if (HAPTIC_PROVIDER === 'vibrate') {
+      try { navigator.vibrate([20, 25, 20]); } catch(_){}
+    }
+  }
+
+  // ====== Секторные тики ======
+  const MIN_TICK_GAP_MS = 50;
+  let __hTimers = [];
+  function cancelSectorHaptics(){ __hTimers.forEach(clearTimeout); __hTimers.length = 0; }
+
+  function bezierCubic(t, p0, p1, p2, p3){ const u=1-t; return u*u*u*p0 + 3*u*u*t*p1 + 3*u*t*t*p2 + t*t*t*p3; }
+  function cubicBezierMap(p, x1, y1, x2, y2){ let lo=0,hi=1; for(let i=0;i<20;i++){ const t=(lo+hi)/2; const x=bezierCubic(t,0,x1,x2,1); if(x<p) lo=t; else hi=t; } const t=(lo+hi)/2; return bezierCubic(t,0,y1,y2,1); }
+  function invCubicBezier(yTarget, x1, y1, x2, y2){ let lo=0,hi=1; for(let i=0;i<20;i++){ const mid=(lo+hi)/2; const y=cubicBezierMap(mid,x1,y1,x2,y2); if(y<yTarget) lo=mid; else hi=mid; } return (lo+hi)/2; }
+
+  function scheduleSectorHaptics(startDeg, endDeg, durationMs, intensity='medium', easing={x1:0.12,y1:0.65,x2:0.06,y2:1}) {
+    cancelSectorHaptics();
+    if (endDeg <= startDeg) return;
+    const delta = endDeg - startDeg;
+    let nextBoundary = Math.ceil((startDeg - ANGLE_OFFSET)/STEP)*STEP + ANGLE_OFFSET;
+    const rawTimes = [];
+    while (nextBoundary < endDeg - 0.001) {
+      const y = (nextBoundary - startDeg) / delta;
+      const p = invCubicBezier(y, easing.x1, easing.y1, easing.x2, easing.y2);
+      const t = Math.max(0, Math.min(durationMs, p * durationMs));
+      rawTimes.push(t);
+      nextBoundary += STEP;
+    }
+    const times = [];
+    let last = -1e9;
+    for (const t of rawTimes) { if (t - last >= MIN_TICK_GAP_MS) { times.push(t); last = t; } }
+    for (const t of times) { const h = setTimeout(() => hapticTick(intensity), Math.round(t)); __hTimers.push(h); }
+    const hFinal = setTimeout(() => hapticFinal(true), durationMs + 10);
+    __hTimers.push(hFinal);
+  }
+
+  document.addEventListener('visibilitychange', () => { if (document.hidden) cancelSectorHaptics(); });
 
   // --- Логика вращения ---
   let spinning = false;
   let currentTurns = 0;
 
-  function showToast(text){
-    const el = document.createElement('div');
-    el.className = 'toast';
-    el.textContent = text;
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), 3200); // показываем чуть дольше
-  }
+  function showToast(text){ const el=document.createElement('div'); el.className='toast'; el.textContent=text; document.body.appendChild(el); setTimeout(()=>el.remove(), 3200); }
 
   const spinOnce = () => {
     if (spinning) return;
 
-    const left = getCooldownUntil() - Date.now();
-    if (left > 0) {
-      startCooldownUI();
-      btnSpin.setAttribute('disabled','true');
-      return;
-    }
+    // На случай старого мусора — чистим кулдауны прямо при клике
+    try { localStorage.removeItem('fortune_cd_until'); localStorage.removeItem(K.WHEEL_CD_UNTIL); } catch(_){}
 
     // блокируем сразу
     spinning = true;
     btnSpin.setAttribute('disabled','true');
 
     // анимация стрелки
-    if (pointer) {
-      pointer.classList.remove('wiggle'); void pointer.offsetWidth; pointer.classList.add('wiggle');
-    }
+    if (pointer) { pointer.classList.remove('wiggle'); void pointer.offsetWidth; pointer.classList.add('wiggle'); }
 
-    // ставим кулдаун сразу и показываем таймер
+    // кулдаун (тест: не ставим)
     markSpun(); updateUI();
 
     const targetIndex = Math.floor(Math.random() * SECTORS);
@@ -255,10 +252,17 @@ window.addEventListener('storage', (e) => {
 
     const sectorCenterAngle = ANGLE_OFFSET + targetIndex * STEP;
     const baseRotations = 6;
-    currentTurns += baseRotations * 360 + (360 - (sectorCenterAngle % 360));
+
+    const startDeg = currentTurns;
+    const deltaDeg = baseRotations * 360 + (360 - (sectorCenterAngle % 360));
+    const endDeg   = startDeg + deltaDeg;
+
+    hapticTick('medium');
+    scheduleSectorHaptics(startDeg, endDeg, SPIN_MS, 'medium', {x1:0.12,y1:0.65,x2:0.06,y2:1});
 
     rotor.style.transition = `transform ${SPIN_MS}ms cubic-bezier(0.12, 0.65, 0.06, 1)`;
-    rotor.style.transform  = `rotate(${currentTurns}deg)`;
+    rotor.style.transform  = `rotate(${endDeg}deg)`;
+    currentTurns = endDeg;
 
     const onDone = () => {
       rotor.removeEventListener('transitionend', onDone);
@@ -267,45 +271,33 @@ window.addEventListener('storage', (e) => {
       const newBalance = addToBalance(prizePLAMc);
       spinning = false;
       updateUI();
-
       showToast(`+${prizePLAMc} PLAMc`);
-
       try { sessionStorage.setItem('fortune_last_win', String(prizePLAMc)); } catch(_){}
-      // синхронизируем плюс на главной через storage
       try { localStorage.setItem(K.BALANCE, String(newBalance)); } catch(_){}
     };
 
     rotor.addEventListener('transitionend', onDone, { once: true });
-    const safety = setTimeout(onDone, SPIN_MS + 120);
+    const safety = setTimeout(onDone, SPIN_MS + 200);
   };
 
   btnSpin.addEventListener('click', spinOnce);
 
   // --- Tabs: wheel / tasks ---
-document.addEventListener('DOMContentLoaded', () => {
-  const tabBtns = document.querySelectorAll('[data-tab]');
-  const panels   = document.querySelectorAll('[data-panel]');
-  if (!tabBtns.length || !panels.length) return;
-
-  function activate(name){
-    tabBtns.forEach(b => b.classList.toggle('is-active', b.dataset.tab === name));
-    panels.forEach(p => p.hidden = p.dataset.panel !== name);
-  }
-
-  // Инициализация из URL (?tab=wheel|tasks)
-  const q = new URLSearchParams(location.search);
-  activate(q.get('tab') || 'wheel');
-
-  // Переключение по клику
-  tabBtns.forEach(b => b.addEventListener('click', (e) => {
-    e.preventDefault();
-    const name = b.dataset.tab;
-    activate(name);
-    const qs = new URLSearchParams(location.search); qs.set('tab', name);
-    history.replaceState(null, '', location.pathname + '?' + qs.toString());
-  }));
-});
-
+  document.addEventListener('DOMContentLoaded', () => {
+    const tabBtns = document.querySelectorAll('[data-tab]');
+    const panels   = document.querySelectorAll('[data-panel]');
+    if (!tabBtns.length || !panels.length) return;
+    function activate(name){ tabBtns.forEach(b => b.classList.toggle('is-active', b.dataset.tab === name)); panels.forEach(p => p.hidden = p.dataset.panel !== name); }
+    const q = new URLSearchParams(location.search);
+    activate(q.get('tab') || 'wheel');
+    tabBtns.forEach(b => b.addEventListener('click', (e) => {
+      e.preventDefault();
+      const name = b.dataset.tab;
+      activate(name);
+      const qs = new URLSearchParams(location.search); qs.set('tab', name);
+      history.replaceState(null, '', location.pathname + '?' + qs.toString());
+    }));
+  });
 
   // --- «Назад» ---
   if (btnBack) {
@@ -315,11 +307,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // при смене языка обновляем динамические тексты
-document.addEventListener('plam:langChanged', () => {
-  try { i18nApplyLocal(); } catch(_) {}
-  try { updateUI(); } catch(_) {}
-});
-
+  document.addEventListener('plam:langChanged', () => {
+    try { i18nApplyLocal(); } catch(_) {}
+    try { updateUI(); } catch(_) {}
+  });
 
 })();
