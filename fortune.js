@@ -206,6 +206,94 @@ window.addEventListener('storage', (e) => {
   }
   updateUI();
 
+  // ====== ХАПТИКИ: обёртка (Telegram + vibrate fallback) ======
+  function hapticTick(intensity = 'light') {
+    const H = window.Telegram?.WebApp?.HapticFeedback;
+    if (H && typeof H.impactOccurred === 'function') {
+      H.impactOccurred(intensity);
+    } else if (navigator.vibrate) {
+      navigator.vibrate(8);
+    }
+  }
+  function hapticFinal(ok = true) {
+    const H = window.Telegram?.WebApp?.HapticFeedback;
+    if (H && typeof H.notificationOccurred === 'function') {
+      H.notificationOccurred(ok ? 'success' : 'warning');
+    } else if (navigator.vibrate) {
+      navigator.vibrate([22, 28, 22]);
+    }
+  }
+
+  // ====== ХАПТИКИ: тики ровно на границах секторов (36°), с той же easing ======
+  const MIN_TICK_GAP_MS = 45;  // реже чем ~45мс
+  let __hTimers = [];
+  function cancelSectorHaptics(){ __hTimers.forEach(clearTimeout); __hTimers.length = 0; }
+
+  // кубические Безье как в CSS timing-function
+  function bezierCubic(t, p0, p1, p2, p3){
+    const u = 1 - t;
+    return u*u*u*p0 + 3*u*u*t*p1 + 3*u*t*t*p2 + t*t*t*p3;
+  }
+  // y = f(p) для CSS cubic-bezier(x1,y1,x2,y2)
+  function cubicBezierMap(p, x1, y1, x2, y2){
+    // находим t, при котором x(t) = p
+    let lo = 0, hi = 1;
+    for (let i=0;i<20;i++){
+      const t = (lo+hi)/2;
+      const x = bezierCubic(t, 0, x1, x2, 1);
+      if (x < p) lo = t; else hi = t;
+    }
+    const t = (lo+hi)/2;
+    return bezierCubic(t, 0, y1, y2, 1);
+  }
+  // обратная: дано y -> найти p, чтобы f(p)=y
+  function invCubicBezier(yTarget, x1, y1, x2, y2){
+    let lo = 0, hi = 1;
+    for (let i=0;i<20;i++){
+      const mid = (lo+hi)/2;
+      const y = cubicBezierMap(mid, x1, y1, x2, y2);
+      if (y < yTarget) lo = mid; else hi = mid;
+    }
+    return (lo+hi)/2;
+  }
+
+  function scheduleSectorHaptics(startDeg, endDeg, durationMs, intensity='light', easing={x1:0.12,y1:0.65,x2:0.06,y2:1}) {
+    cancelSectorHaptics();
+    if (endDeg <= startDeg) return;
+
+    const delta = endDeg - startDeg;
+
+    // границы, привязанные к ANGLE_OFFSET (для аккуратной синхронизации с секторами)
+    let nextBoundary = Math.ceil( (startDeg - ANGLE_OFFSET) / STEP ) * STEP + ANGLE_OFFSET;
+
+    const rawTimes = [];
+    while (nextBoundary < endDeg - 0.001) {
+      const y = (nextBoundary - startDeg) / delta;              // доля пути по углу (0..1)
+      const p = invCubicBezier(y, easing.x1, easing.y1, easing.x2, easing.y2); // доля времени (0..1)
+      const t = Math.max(0, Math.min(durationMs, p * durationMs));
+      rawTimes.push(t);
+      nextBoundary += STEP;
+    }
+
+    // прореживаем слишком частые тики
+    const times = [];
+    let last = -1e9;
+    for (const t of rawTimes) {
+      if (t - last >= MIN_TICK_GAP_MS) { times.push(t); last = t; }
+    }
+
+    for (const t of times) {
+      const h = setTimeout(() => hapticTick(intensity), Math.round(t));
+      __hTimers.push(h);
+    }
+    const hFinal = setTimeout(() => hapticFinal(true), durationMs + 10);
+    __hTimers.push(hFinal);
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) cancelSectorHaptics();
+  });
+
   // --- Логика вращения ---
   let spinning = false;
   let currentTurns = 0;
@@ -245,10 +333,19 @@ window.addEventListener('storage', (e) => {
 
     const sectorCenterAngle = ANGLE_OFFSET + targetIndex * STEP;
     const baseRotations = 6;
-    currentTurns += baseRotations * 360 + (360 - (sectorCenterAngle % 360));
 
+    // --- СИНХРОНИЗАЦИЯ УГЛОВ ДЛЯ ХАПТИКОВ ---
+    const startDeg = currentTurns; // где сейчас находимся
+    const deltaDeg = baseRotations * 360 + (360 - (sectorCenterAngle % 360));
+    const endDeg   = startDeg + deltaDeg;
+
+    // Планируем хаптики ещё до старта визуальной анимации
+    scheduleSectorHaptics(startDeg, endDeg, SPIN_MS, 'light', {x1:0.12,y1:0.65,x2:0.06,y2:1});
+
+    // --- Запускаем саму анимацию колеса ---
     rotor.style.transition = `transform ${SPIN_MS}ms cubic-bezier(0.12, 0.65, 0.06, 1)`;
-    rotor.style.transform  = `rotate(${currentTurns}deg)`;
+    rotor.style.transform  = `rotate(${endDeg}deg)`;
+    currentTurns = endDeg;
 
     const onDone = () => {
       rotor.removeEventListener('transitionend', onDone);
@@ -272,29 +369,29 @@ window.addEventListener('storage', (e) => {
   btnSpin.addEventListener('click', spinOnce);
 
   // --- Tabs: wheel / tasks ---
-document.addEventListener('DOMContentLoaded', () => {
-  const tabBtns = document.querySelectorAll('[data-tab]');
-  const panels   = document.querySelectorAll('[data-panel]');
-  if (!tabBtns.length || !panels.length) return;
+  document.addEventListener('DOMContentLoaded', () => {
+    const tabBtns = document.querySelectorAll('[data-tab]');
+    const panels   = document.querySelectorAll('[data-panel]');
+    if (!tabBtns.length || !panels.length) return;
 
-  function activate(name){
-    tabBtns.forEach(b => b.classList.toggle('is-active', b.dataset.tab === name));
-    panels.forEach(p => p.hidden = p.dataset.panel !== name);
-  }
+    function activate(name){
+      tabBtns.forEach(b => b.classList.toggle('is-active', b.dataset.tab === name));
+      panels.forEach(p => p.hidden = p.dataset.panel !== name);
+    }
 
-  // Инициализация из URL (?tab=wheel|tasks)
-  const q = new URLSearchParams(location.search);
-  activate(q.get('tab') || 'wheel');
+    // Инициализация из URL (?tab=wheel|tasks)
+    const q = new URLSearchParams(location.search);
+    activate(q.get('tab') || 'wheel');
 
-  // Переключение по клику
-  tabBtns.forEach(b => b.addEventListener('click', (e) => {
-    e.preventDefault();
-    const name = b.dataset.tab;
-    activate(name);
-    const qs = new URLSearchParams(location.search); qs.set('tab', name);
-    history.replaceState(null, '', location.pathname + '?' + qs.toString());
-  }));
-});
+    // Переключение по клику
+    tabBtns.forEach(b => b.addEventListener('click', (e) => {
+      e.preventDefault();
+      const name = b.dataset.tab;
+      activate(name);
+      const qs = new URLSearchParams(location.search); qs.set('tab', name);
+      history.replaceState(null, '', location.pathname + '?' + qs.toString());
+    }));
+  });
 
 
   // --- «Назад» ---
@@ -306,10 +403,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // при смене языка обновляем динамические тексты
-document.addEventListener('plam:langChanged', () => {
-  try { i18nApplyLocal(); } catch(_) {}
-  try { updateUI(); } catch(_) {}
-});
+  document.addEventListener('plam:langChanged', () => {
+    try { i18nApplyLocal(); } catch(_) {}
+    try { updateUI(); } catch(_) {}
+  });
 
 
 })();
