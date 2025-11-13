@@ -1,6 +1,6 @@
 
-// ========== fortune.js — TEST no-cooldown build (fortune-build-2025-11-14T23:59Z-noCD-v3) ==========
-console.info('[fortune] BUILD', 'fortune-build-2025-11-14T23:59Z-noCD-v3');
+// ========== fortune.js — TEST no-cooldown build (fortune-build-2025-11-14T23:59Z-noCD-v4-haptics) ==========
+console.info('[fortune] BUILD', 'fortune-build-2025-11-14T23:59Z-noCD-v4-haptics');
 
 // fortune.js (или внутри скрипта на fortune.html)
 function i18nApplyLocal(){
@@ -170,31 +170,37 @@ window.addEventListener('storage', (e) => {
   }
   updateUI();
 
-  // ====== ХАПТИКИ ======
-  const HAPTIC_PROVIDER = (() => {
-    const H = window.Telegram?.WebApp?.HapticFeedback;
-    if (H && typeof H.impactOccurred === 'function') return 'tg';
-    if ('vibrate' in navigator) return 'vibrate';
-    return 'none';
-  })();
-
-  function hapticTick(intensity = 'medium') {
-    if (HAPTIC_PROVIDER === 'tg') {
-      try { window.Telegram.WebApp.HapticFeedback.impactOccurred(intensity); } catch(_){}
-    } else if (HAPTIC_PROVIDER === 'vibrate') {
-      try { navigator.vibrate(15); } catch(_){}
+  // ====== ХАПТИКИ (усиленный драйвер) ======
+  const HAPTICS = {
+    provider: 'none',
+    init() {
+      const H = window.Telegram?.WebApp?.HapticFeedback;
+      if (H && typeof H.impactOccurred === 'function') this.provider = 'tg';
+      else if ('vibrate' in navigator) this.provider = 'vibrate';
+      console.info('[haptics] provider=', this.provider, 'platform=', window.Telegram?.WebApp?.platform, 'version=', window.Telegram?.WebApp?.version);
+    },
+    impact(style='medium') {
+      if (this.provider === 'tg') { try { window.Telegram.WebApp.HapticFeedback.impactOccurred(style); } catch(_) {} }
+      else if (this.provider === 'vibrate') { try { navigator.vibrate(20); } catch(_) {} }
+    },
+    selection() {
+      if (this.provider === 'tg') { try { window.Telegram.WebApp.HapticFeedback.selectionChanged(); } catch(_) {} }
+      else if (this.provider === 'vibrate') { try { navigator.vibrate(10); } catch(_) {} }
+    },
+    notify(type='success') {
+      if (this.provider === 'tg') { try { window.Telegram.WebApp.HapticFeedback.notificationOccurred(type); } catch(_) {} }
+      else if (this.provider === 'vibrate') { try { navigator.vibrate([30, 30, 30]); } catch(_) {} }
+    },
+    warmup() { // несколько ударов, чтобы явно почувствовать
+      this.impact('heavy');
+      setTimeout(()=>this.selection(), 60);
+      setTimeout(()=>this.impact('rigid'), 120);
     }
-  }
-  function hapticFinal(ok = true) {
-    if (HAPTIC_PROVIDER === 'tg') {
-      try { window.Telegram.WebApp.HapticFeedback.notificationOccurred(ok ? 'success' : 'warning'); } catch(_){}
-    } else if (HAPTIC_PROVIDER === 'vibrate') {
-      try { navigator.vibrate([20, 25, 20]); } catch(_){}
-    }
-  }
+  };
+  HAPTICS.init();
 
-  // ====== Секторные тики ======
-  const MIN_TICK_GAP_MS = 50;
+  // ====== Секторные тики (с прогресс-зависимой силой) ======
+  const MIN_TICK_GAP_MS = 60;
   let __hTimers = [];
   function cancelSectorHaptics(){ __hTimers.forEach(clearTimeout); __hTimers.length = 0; }
 
@@ -202,24 +208,31 @@ window.addEventListener('storage', (e) => {
   function cubicBezierMap(p, x1, y1, x2, y2){ let lo=0,hi=1; for(let i=0;i<20;i++){ const t=(lo+hi)/2; const x=bezierCubic(t,0,x1,x2,1); if(x<p) lo=t; else hi=t; } const t=(lo+hi)/2; return bezierCubic(t,0,y1,y2,1); }
   function invCubicBezier(yTarget, x1, y1, x2, y2){ let lo=0,hi=1; for(let i=0;i<20;i++){ const mid=(lo+hi)/2; const y=cubicBezierMap(mid,x1,y1,x2,y2); if(y<yTarget) lo=mid; else hi=mid; } return (lo+hi)/2; }
 
-  function scheduleSectorHaptics(startDeg, endDeg, durationMs, intensity='medium', easing={x1:0.12,y1:0.65,x2:0.06,y2:1}) {
+  function scheduleSectorHaptics(startDeg, endDeg, durationMs, easing={x1:0.12,y1:0.65,x2:0.06,y2:1}) {
     cancelSectorHaptics();
     if (endDeg <= startDeg) return;
     const delta = endDeg - startDeg;
     let nextBoundary = Math.ceil((startDeg - ANGLE_OFFSET)/STEP)*STEP + ANGLE_OFFSET;
-    const rawTimes = [];
+    const entries = [];
     while (nextBoundary < endDeg - 0.001) {
       const y = (nextBoundary - startDeg) / delta;
       const p = invCubicBezier(y, easing.x1, easing.y1, easing.x2, easing.y2);
       const t = Math.max(0, Math.min(durationMs, p * durationMs));
-      rawTimes.push(t);
+      entries.push({ t, p });
       nextBoundary += STEP;
     }
-    const times = [];
     let last = -1e9;
-    for (const t of rawTimes) { if (t - last >= MIN_TICK_GAP_MS) { times.push(t); last = t; } }
-    for (const t of times) { const h = setTimeout(() => hapticTick(intensity), Math.round(t)); __hTimers.push(h); }
-    const hFinal = setTimeout(() => hapticFinal(true), durationMs + 10);
+    for (const e of entries) {
+      if (e.t - last < MIN_TICK_GAP_MS) continue;
+      last = e.t;
+      const h = setTimeout(() => {
+        if (e.p < 0.2) HAPTICS.selection();
+        else if (e.p < 0.85) HAPTICS.impact('medium');
+        else HAPTICS.impact('heavy');
+      }, Math.round(e.t));
+      __hTimers.push(h);
+    }
+    const hFinal = setTimeout(() => HAPTICS.notify('success'), durationMs + 10);
     __hTimers.push(hFinal);
   }
 
@@ -244,8 +257,8 @@ window.addEventListener('storage', (e) => {
     // анимация стрелки
     if (pointer) { pointer.classList.remove('wiggle'); void pointer.offsetWidth; pointer.classList.add('wiggle'); }
 
-    // кулдаун (тест: не ставим)
-    markSpun(); updateUI();
+    // стартовые хаптики (явно почувствовать)
+    HAPTICS.warmup();
 
     const targetIndex = Math.floor(Math.random() * SECTORS);
     const prizePLAMc = order[targetIndex];
@@ -257,8 +270,7 @@ window.addEventListener('storage', (e) => {
     const deltaDeg = baseRotations * 360 + (360 - (sectorCenterAngle % 360));
     const endDeg   = startDeg + deltaDeg;
 
-    hapticTick('medium');
-    scheduleSectorHaptics(startDeg, endDeg, SPIN_MS, 'medium', {x1:0.12,y1:0.65,x2:0.06,y2:1});
+    scheduleSectorHaptics(startDeg, endDeg, SPIN_MS, {x1:0.12,y1:0.65,x2:0.06,y2:1});
 
     rotor.style.transition = `transform ${SPIN_MS}ms cubic-bezier(0.12, 0.65, 0.06, 1)`;
     rotor.style.transform  = `rotate(${endDeg}deg)`;
