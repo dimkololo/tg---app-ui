@@ -1,4 +1,3 @@
-
 // ========== fortune.js — TEST no-cooldown build (fortune-build-2025-11-14T23:59Z-noCD-v4-haptics) ==========
 console.info('[fortune] BUILD', 'fortune-build-2025-11-14T23:59Z-noCD-v4-haptics');
 
@@ -232,13 +231,27 @@ window.addEventListener('touchstart', () => {
       nextBoundary += STEP;
     }
     let last = -1e9;
+
+    // === iOS-режим тиков: чаще selection(), в конце — rigid ===
+    const isIOS = (window.Telegram?.WebApp?.platform === 'ios');
+
     for (const e of entries) {
       if (e.t - last < MIN_TICK_GAP_MS) continue;
       last = e.t;
       const h = setTimeout(() => {
-        if (e.p < 0.2) HAPTICS.selection();
-        else if (e.p < 0.85) HAPTICS.impact('medium');
-        else HAPTICS.impact('heavy');
+        // если в момент тика провайдер не готов — попробуем доинициализировать
+        if (HAPTICS.provider === 'none') HAPTICS.init();
+
+        if (isIOS) {
+          // iOS: мягкие частые тики и сильнее в конце
+          if (e.p < 0.85) HAPTICS.selection();
+          else HAPTICS.impact('rigid');
+        } else {
+          // Android/Web: как было
+          if (e.p < 0.2) HAPTICS.selection();
+          else if (e.p < 0.85) HAPTICS.impact('medium');
+          else HAPTICS.impact('heavy');
+        }
       }, Math.round(e.t));
       __hTimers.push(h);
     }
@@ -256,6 +269,13 @@ window.addEventListener('touchstart', () => {
 
   const spinOnce = () => {
     if (spinning) return;
+
+    // >>> iOS safety: убедимся, что хаптики подняты внутри клика и дадим стартовый тик
+    if (HAPTICS.provider === 'none') HAPTICS.init();
+    if (window.Telegram?.WebApp?.platform === 'ios') {
+      try { window.Telegram.WebApp.HapticFeedback.selectionChanged(); } catch(_){}
+    }
+    // <<<
 
     // На случай старого мусора — чистим кулдауны прямо при клике
     try { localStorage.removeItem('fortune_cd_until'); localStorage.removeItem(K.WHEEL_CD_UNTIL); } catch(_){}
