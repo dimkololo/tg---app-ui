@@ -197,7 +197,17 @@ window.addEventListener('storage', (e) => {
       setTimeout(()=>this.impact('rigid'), 120);
     }
   };
-  HAPTICS.init();
+  // инициализируем хаптики только когда Telegram готов
+document.addEventListener('DOMContentLoaded', () => {
+  try { window.Telegram?.WebApp?.ready(); } catch(_) {}
+  // чуть отложим, чтобы iOS точно подцепил WebApp API
+  setTimeout(() => HAPTICS.init(), 0);
+});
+
+// iOS: на первое касание тоже пробуем инициализировать
+window.addEventListener('touchstart', () => {
+  if (HAPTICS.provider === 'none') HAPTICS.init();
+}, { once: true });
 
   // ====== Секторные тики (с прогресс-зависимой силой) ======
   const MIN_TICK_GAP_MS = 60;
