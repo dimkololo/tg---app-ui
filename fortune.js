@@ -239,20 +239,30 @@ window.addEventListener('touchstart', () => {
       if (e.t - last < MIN_TICK_GAP_MS) continue;
       last = e.t;
       const h = setTimeout(() => {
-        // если в момент тика провайдер не готов — попробуем доинициализировать
-        if (HAPTICS.provider === 'none') HAPTICS.init();
+  // если в момент тика провайдер не готов — попробуем доинициализировать
+  if (HAPTICS.provider === 'none') HAPTICS.init();
 
-        if (isIOS) {
-          // iOS: мягкие частые тики и сильнее в конце
-          if (e.p < 0.85) HAPTICS.selection();
-          else HAPTICS.impact('rigid');
-        } else {
-          // Android/Web: как было
-          if (e.p < 0.2) HAPTICS.selection();
-          else if (e.p < 0.85) HAPTICS.impact('medium');
-          else HAPTICS.impact('heavy');
-        }
-      }, Math.round(e.t));
+  if (isIOS && window.Telegram?.WebApp?.HapticFeedback) {
+    // iOS: усиливаем — чаще selection, иногда notification, финиш — rigid
+    try {
+      const HF = window.Telegram.WebApp.HapticFeedback;
+      if (e.p < 0.15) {
+        HF.selectionChanged();
+      } else if (e.p < 0.8) {
+        // через один тик даём impact, через два — notification, чтобы было заметно
+        if (Math.round(e.t / 120) % 3 === 0) HF.notificationOccurred('success');
+        else HF.impactOccurred('medium');
+      } else {
+        HF.impactOccurred('rigid');
+      }
+    } catch(_) {}
+  } else {
+    // Android/Web как было
+    if (e.p < 0.2) HAPTICS.selection();
+    else if (e.p < 0.85) HAPTICS.impact('medium');
+    else HAPTICS.impact('heavy');
+  }
+}, Math.round(e.t));
       __hTimers.push(h);
     }
     const hFinal = setTimeout(() => HAPTICS.notify('success'), durationMs + 10);
@@ -270,12 +280,22 @@ window.addEventListener('touchstart', () => {
   const spinOnce = () => {
     if (spinning) return;
 
-    // >>> iOS safety: убедимся, что хаптики подняты внутри клика и дадим стартовый тик
-    if (HAPTICS.provider === 'none') HAPTICS.init();
-    if (window.Telegram?.WebApp?.platform === 'ios') {
-      try { window.Telegram.WebApp.HapticFeedback.selectionChanged(); } catch(_){}
-    }
-    // <<<
+    // >>> iOS safety: форсируем инициализацию и даём явные сигналы в рамках жеста
+const __isIOS = (window.Telegram?.WebApp?.platform === 'ios');
+if (HAPTICS.provider === 'none') HAPTICS.init();
+
+// быстрый онскрин-диагноз (разово можно оставить, чтобы понять, что видит iOS)
+try { showToast(`[haptics] ${HAPTICS.provider} / ${window.Telegram?.WebApp?.platform || 'unknown'}`); } catch(_){}
+
+if (__isIOS && window.Telegram?.WebApp?.HapticFeedback) {
+  try {
+    const HF = window.Telegram.WebApp.HapticFeedback;
+    HF.selectionChanged();          // лёгкий тик
+    HF.impactOccurred('heavy');     // сильный удар
+    HF.notificationOccurred('success'); // заметный «бзз» уведомления
+  } catch(_) {}
+}
+// <<<
 
     // На случай старого мусора — чистим кулдауны прямо при клике
     try { localStorage.removeItem('fortune_cd_until'); localStorage.removeItem(K.WHEEL_CD_UNTIL); } catch(_){}
