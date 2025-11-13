@@ -284,8 +284,6 @@ window.addEventListener('touchstart', () => {
 const __isIOS = (window.Telegram?.WebApp?.platform === 'ios');
 if (HAPTICS.provider === 'none') HAPTICS.init();
 
-// быстрый онскрин-диагноз (разово можно оставить, чтобы понять, что видит iOS)
-try { showToast(`[haptics] ${HAPTICS.provider} / ${window.Telegram?.WebApp?.platform || 'unknown'}`); } catch(_){}
 
 if (__isIOS && window.Telegram?.WebApp?.HapticFeedback) {
   try {
