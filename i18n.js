@@ -181,8 +181,8 @@ i18n.load('en', {
   "reset.or": "or",
   "reset.share": "Share",
   "reset.shared_ok": "Thanks! The timer has been reset.",
-  "reset.confirm_with_sum": "Reset {{mins}} minutes for {{coins}} PLAMc",
-  "reset.confirm_with_sum_fallback": "Reset 0 minutes for 0 PLAMc",
+  "reset.button": "Reset {{mins}} min for {{coins}} PLAMc",
+  "share.text": "Join PLAM — send photos and win!",
 
   // Rules
   "rules.title": "Photo submission rules",
@@ -314,8 +314,9 @@ i18n.load('ru', {
   "reset.or": "или",
   "reset.share": "Поделиться",
   "reset.shared_ok": "Спасибо! Таймер сброшен.",
-  "reset.confirm_with_sum": "Сбросить {{mins}} минут за {{coins}} PLAMc",
-  "reset.confirm_with_sum_fallback": "Сбросить 0 минут за 0 PLAMc",
+  "reset.button": "Сбросить {{mins}} минут за {{coins}} PLAMc",
+  "share.text": "Заходи в PLAM — отправляй фото и выигрывай!"
+  "reset.confirm": "Подтвердить",
 
   "rules.title": "Правила отправки фото",
   "rules.forbidden": "<strong>Запрещено:</strong> обнажёнка/эротика; алкоголь/табак/наркотики; насилие и опасные действия; дискриминация/экстремизм; реклама, QR-коды, ссылки и контакты; личные/конфиденциальные данные; чужие фото без согласия; попытки обхода модерации.",
@@ -379,9 +380,7 @@ i18n.load('ru', {
   "aria.open_faq": "Открыть FAQ",
   "aria.open_prizes": "Открыть попап призов",
   "aria.open_profile": "Открыть профиль",
-
-  "reset.title": "Сбросить {{mins}} минут за {{coins}} PLAMc",
-  "reset.confirm": "Подтвердить",
+ 
 
   "upload.link_placeholder": "...ссылка на соц.сеть или сайт",
   "upload.desc_placeholder": "...описание",
