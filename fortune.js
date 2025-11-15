@@ -359,6 +359,21 @@ if (__isIOS && window.Telegram?.WebApp?.HapticFeedback) {
     }));
   });
 
+  // 2.1 Флаг при любых уходах со страницы (назад/переход/закрытие)
+window.addEventListener('pagehide', () => {
+  try { sessionStorage.setItem('plam_skip_splash_once', '1'); } catch(_) {}
+});
+
+// 2.2 Если у тебя есть своя кнопка "Назад" — проставим флаг перед действием
+document.addEventListener('DOMContentLoaded', () => {
+  const back = document.getElementById('btnBack');
+  if (!back) return;
+  back.addEventListener('click', () => {
+    try { sessionStorage.setItem('plam_skip_splash_once', '1'); } catch(_) {}
+  }, { capture: true }); // с захватом — чтобы флаг встал до изменения location/history
+});
+
+
   // --- «Назад» ---
   if (btnBack) {
     btnBack.addEventListener('click', () => {
@@ -371,5 +386,7 @@ if (__isIOS && window.Telegram?.WebApp?.HapticFeedback) {
     try { i18nApplyLocal(); } catch(_) {}
     try { updateUI(); } catch(_) {}
   });
+
+  
 
 })();
