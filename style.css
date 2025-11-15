@@ -2049,6 +2049,17 @@ background: #FF7300; /* оранжевый активный */
   cursor: default;
 }
 
+/* Больше отступ сверху в окне сброса таймера, чтобы крестик не налезал */
+.modal.modal--stack .modal__content .reset-popup {
+  padding-top: calc(24px + env(safe-area-inset-top));
+}
+
+/* чуть дыхания первой (зелёной) кнопке, если нужно */
+.reset-popup [data-reset-now] {
+  margin-top: 6px;
+}
+
+
 
 
 
