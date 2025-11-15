@@ -7,6 +7,24 @@
               || document.querySelector('.splash,[data-splash]');
   if (!splash) return;
 
+  // ---- SKIP SPLASH ON SOFT RETURN FROM FORTUNE ----
+try {
+  if (sessionStorage.getItem('plam_skip_splash_once') === '1') {
+    sessionStorage.removeItem('plam_skip_splash_once'); // одноразовый флаг
+
+    // моментально скрываем сплэш, без ожиданий
+    splash.classList.add('is-hidden');
+    splash.setAttribute('aria-busy', 'false');
+    // уведомим Telegram, что UI готов
+    try { window.Telegram?.WebApp?.ready?.(); } catch(_) {}
+
+    // полностью убрать из DOM на ближайшем кадре
+    requestAnimationFrame(() => { try { splash.remove(); } catch(_) { splash.style.display = 'none'; }});
+    return; // не запускаем остальную логику показа сплэша
+  }
+} catch(_) {}
+
+
   // НЕ включаем сюда саму loading.png
   const criticalImages = [
     './bgicons/bg-master.png',
