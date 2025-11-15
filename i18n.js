@@ -178,6 +178,11 @@ i18n.load('en', {
   "upload.link_invalid": "The link must start with http:// or https:// (https://t.me/ is also supported)",
   "upload.reset_ok": "Done! Send another photo",
   "upload.promo": "Win. Promote. Invite.",
+  "reset.or": "or",
+  "reset.share": "Share",
+  "reset.shared_ok": "Thanks! The timer has been reset.",
+  "reset.confirm_with_sum": "Reset {{mins}} minutes for {{coins}} PLAMc",
+  "reset.confirm_with_sum_fallback": "Reset 0 minutes for 0 PLAMc",
 
   // Rules
   "rules.title": "Photo submission rules",
