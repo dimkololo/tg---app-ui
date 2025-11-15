@@ -17,8 +17,8 @@ function __plamFinishSplash() {
               || document.querySelector('.splash,[data-splash]');
   if (!splash) { __plamFinishSplash(); return; }
 
-  const MIN_SHOW_MS = 600;
-  const HARD_TIMEOUT_MS = 8000;
+  const MIN_SHOW_MS = 6000;
+  const HARD_TIMEOUT_MS = 12000;
   const PRELOAD_BUDGET_MS = 2500;
   const t0 = performance.now();
 
