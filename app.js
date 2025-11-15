@@ -789,52 +789,88 @@ if (isCooldownActive()) {
     }, { once:true });
   }
   
-  // Кнопка «Поделиться» — один раз (поддерживаем разметку data-reset-share / data-share-wrap)
+ // --- «Поделиться» с подтверждением через бот inline ---
 const shareBtn  = box?.querySelector('[data-reset-share],[data-share-once]');
 const shareWrap = box?.querySelector('[data-share-wrap]') || shareBtn?.closest('[data-share-wrap]');
 if (shareBtn) {
   const FLAG = 'plam_reset_share_used_v1';
 
-  function markUsed() {
-    try { localStorage.setItem(FLAG, '1'); } catch(_) {}
+  // уже использовано когда-то — отключаем насовсем
+  if (localStorage.getItem(FLAG) === '1') {
     shareBtn.disabled = true;
     shareBtn.classList.add('is-disabled');
     shareBtn.textContent = T('reset.shared_used','Уже использовано');
-    // если нужно скрывать полностью, раскомментируй:
-    // if (shareWrap) shareWrap.style.display = 'none';
-  }
-
-  // уже использовано ранее?
-  if (localStorage.getItem(FLAG) === '1') {
-    markUsed();
   } else {
-    // универсальный опенер «поделяжки»
-    function openShareLink(url, text){
-      const u = `https://t.me/share/url?url=${encodeURIComponent(url)}${text ? '&text='+encodeURIComponent(text) : ''}`;
+    // создаём (или берём) токен этой попытки шаринга
+    const TOKEN_KEY = 'plam_share_token_v1';
+    function genToken(){ return Math.random().toString(36).slice(2) + Date.now().toString(36); }
+    let token = localStorage.getItem(TOKEN_KEY);
+    if (!token) { token = genToken(); localStorage.setItem(TOKEN_KEY, token); }
+
+    // универсальный “открыть шаринг”
+    function openInlineShare(token){
+      const q = `plamshare:${token}`; // ваш префикс
       try {
-        if (window.Telegram?.WebApp?.openTelegramLink) return window.Telegram.WebApp.openTelegramLink(u);
-        if (window.Telegram?.WebApp?.openLink)        return window.Telegram.WebApp.openLink(u, { try_instant_view:false });
-      } catch(_) {}
-      window.open(u, '_blank', 'noopener,noreferrer');
+        // откроет выбор чата с включённым inline вашего бота
+        window.Telegram?.WebApp?.switchInlineQuery?.(q, ['users','groups','channels']);
+      } catch (_) {
+        // fallback: обычная “поделяшка” (без верификации)
+        const url  = 'https://youtube.com/@p.l.a.m?si=BpFdF-Fkx-5Yve1l';
+        const text = T('share.text','Заходи в PLAM — отправляй фото и выигрывай!');
+        const u = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
+        window.Telegram?.WebApp?.openTelegramLink?.(u) || window.open(u, '_blank','noopener,noreferrer');
+      }
     }
 
-    shareBtn.addEventListener('click', (e) => {
+    // опрос бэкенда: подтвержден ли share токена
+    async function checkSharedOnce(token){
+      try {
+        const r = await fetch(`/api/v1/share/status?token=${encodeURIComponent(token)}`, { cache:'no-store' });
+        const js = await r.json();
+        return !!js?.ok;
+      } catch { return false; }
+    }
+
+    // запускаем процесс
+    shareBtn.addEventListener('click', async (e) => {
       e.preventDefault(); e.stopPropagation();
+      openInlineShare(token);
 
-      const url  = 'https://youtube.com/@p.l.a.m?si=BpFdF-Fkx-5Yve1l';
-      const text = T('share.text','Заходи в PLAM — отправляй фото и выигрывай!');
-      openShareLink(url, text);
+      // показываем мягкий “ожидатель” (по желанию)
+      shareBtn.disabled = true;
+      shareBtn.textContent = T('reset.share_wait','Ожидаем отправку…');
 
-      markUsed();                 // фиксируем «один раз»
-      clearUploadCooldown();      // сбрасываем кулдаун
-      renderUploadUI();
+      // до 2 минут ждём chosen_inline_result от бота
+      const DEADLINE = Date.now() + 2*60*1000;
+      let ok = false;
+      while (!ok && Date.now() < DEADLINE) {
+        /* опрашиваем раз в 2 сек */
+        /* eslint-disable no-await-in-loop */
+        await new Promise(r => setTimeout(r, 2000));
+        ok = await checkSharedOnce(token);
+      }
 
-      try { window.Telegram?.WebApp?.showAlert?.(T('reset.shared_ok','Спасибо! Таймер сброшен.')); } catch(_) {}
-      if (backdrop) backdrop.style.background = prevBg;
-      closeStack();
+      if (ok) {
+        // фиксируем “один бесплатный раз” и закрываем окно
+        localStorage.setItem(FLAG, '1');
+        localStorage.removeItem(TOKEN_KEY);
+
+        clearUploadCooldown();
+        renderUploadUI();
+
+        try { window.Telegram?.WebApp?.showAlert?.(T('reset.shared_ok','Спасибо! Таймер сброшен.')); } catch(_) {}
+        if (backdrop) backdrop.style.background = prevBg;
+        closeStack();
+      } else {
+        // не подтвердилось — возвращаем кнопку
+        shareBtn.disabled = false;
+        shareBtn.textContent = T('reset.share','Поделиться');
+        try { window.Telegram?.WebApp?.showAlert?.(T('reset.share_fail','Не увидели отправку. Попробуйте ещё раз')); } catch(_) {}
+      }
     }, { once:true });
   }
 }
+
 
 
   // вернуть фон при закрытии
