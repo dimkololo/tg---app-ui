@@ -1,6 +1,23 @@
 
 // ========== app.js (главная) — LS-единообразие, миграции v1→v2 ==========
 
+// === TEMP: reset LocalStorage on every page load (for testing) УДАЛИТЬ!!!!!!!!!!!!!===
+// ВКЛ/ВЫКЛ: поменяй FORCE_RESET на false, либо добавь ?keep=1 в адресную строку.
+(function autoResetLocalStorage() {
+  const FORCE_RESET = true;                       // ← поставь false, чтобы быстро отключить
+  const keep = /[?&](keep|persist)=(1|true)/i.test(location.search);
+  if (!FORCE_RESET || keep) return;
+
+  try {
+    // ОЧИСТИТЬ ВСЁ (только LocalStorage)
+    localStorage.clear();
+
+    // Если хочешь сохранить язык даже при сбросе — раскомментируй:
+    // localStorage.setItem('plam_lang', 'ru'); // или 'en'
+  } catch (_) {}
+})();
+
+
 // === Common finisher to unfreeze UI ===
 function __plamFinishSplash() {
   try {
