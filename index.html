@@ -549,15 +549,21 @@
 <template id="tpl-confirm-premium">
   <section class="popup confirm-popup">
     <div class="chip confirm-card">
-      <p class="confirm-text">Получить премиум на 7 дней за 350 PLAMc?</p>
+      <!-- заголовок переводится через i18n -->
+      <p class="confirm-text" data-i18n="confirm.premium_title_static">
+        Получить премиум на 7 дней за 350 PLAMc?
+      </p>
+
       <div class="confirm-actions">
-        <button class="btn-confirm yes" type="button" data-confirm-yes data-i18n="common.yes">Да</button>
-        <!-- было data-dismiss, нужно закрывать только стек -->
-        <button class="btn-confirm no" type="button" data-dismiss-stack data-i18n="common.no">Нет</button>
+        <button class="btn-confirm yes" type="button" data-confirm-yes
+                data-i18n="common.yes">Да</button>
+        <button class="btn-confirm no" type="button" data-dismiss-stack
+                data-i18n="common.no">Нет</button>
       </div>
     </div>
   </section>
 </template>
+
 
   <!-- Попап таблицы лидеров -->
 <div class="modal" id="leadersModal"  hidden>
