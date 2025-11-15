@@ -1,22 +1,45 @@
 
 // ========== app.js (главная) — LS-единообразие, миграции v1→v2 ==========
 
+// === Common finisher to unfreeze UI ===
+function __plamFinishSplash() {
+  try {
+    // 1) показать сцену
+    document.documentElement.classList.remove('plam-preload');
+    // 2) сказать Telegram, что всё готово
+    window.Telegram?.WebApp?.ready?.();
+  } catch (_) {}
+}
+
 // ==== SPLASH v2.4 — гарантированное скрытие заставки и безошибочные клики ====
 (function setupSplash() {
-  const splash = document.getElementById('appLoading') || document.querySelector('.splash,[data-splash]');
-  if (!splash) return;
+  const splash = document.getElementById('appLoading') 
+              || document.querySelector('.splash,[data-splash]');
+  if (!splash) { __plamFinishSplash(); return; }
 
-  // ---- SKIP SPLASH ON SOFT RETURN FROM FORTUNE ----
-  try {
-    if (sessionStorage.getItem('plam_skip_splash_once') === '1') {
-      sessionStorage.removeItem('plam_skip_splash_once'); // одноразовый флаг
-      splash.classList.add('is-hidden');
-      splash.setAttribute('aria-busy', 'false');
-      try { window.Telegram?.WebApp?.ready?.(); } catch(_) {}
-      requestAnimationFrame(() => { try { splash.remove(); } catch(_) { splash.style.display = 'none'; }});
-      return;
-    }
-  } catch(_) {}
+  const MIN_SHOW_MS = 600;
+  const HARD_TIMEOUT_MS = 8000;
+  const PRELOAD_BUDGET_MS = 2500;
+  const t0 = performance.now();
+
+ // ---- SKIP SPLASH ON SOFT RETURN FROM FORTUNE ----
+try {
+  if (sessionStorage.getItem('plam_skip_splash_once') === '1') {
+    sessionStorage.removeItem('plam_skip_splash_once'); // одноразовый флаг
+
+    // СНИМАЕМ plam-preload и дергаем Telegram.ready
+    __plamFinishSplash();
+
+    splash.classList.add('is-hidden');
+    splash.setAttribute('aria-busy', 'false');
+
+    requestAnimationFrame(() => {
+      try { splash.remove(); } catch(_) { splash.style.display = 'none'; }
+    });
+    return;
+  }
+} catch(_) {}
+
 
   // --- Картинки, которые «прогреваем». НЕ включаем сюда саму loading.png! ---
   const criticalImages = [
@@ -38,12 +61,6 @@
     './bgicons/cloud-plus@2x.png'
   ];
 
-  // --- Тайминги ---
-  const MIN_SHOW_MS       = 4000;  // минимум показа (чтобы не мигало)
-  const PRELOAD_BUDGET_MS = 2500;  // максимум времени на прогрев картинок
-  const HARD_TIMEOUT_MS   = 8000;  // рубильник: гарантированно спрятать
-  const started = performance.now();
-
   // --- Утилиты ожидания ---
   const onDOMReady = new Promise((resolve) => {
     if (document.readyState === 'interactive' || document.readyState === 'complete') resolve();
@@ -64,37 +81,46 @@
     Promise.allSettled(criticalImages.map(preloadOne)),
     new Promise((r) => setTimeout(r, PRELOAD_BUDGET_MS))
   ]);
+ function hideSplashSoft() {
+    const elapsed = performance.now() - t0;
+    const delay = Math.max(0, MIN_SHOW_MS - elapsed);
 
-  // --- Спрятать сплэш (безопасно) ---
-  let hidden = false;
-  function hideSplash() {
-    if (hidden) return;
-    hidden = true;
-    splash.classList.add('is-hidden');
-    splash.setAttribute('aria-busy', 'false');
-    // чтоб не перекрывал клики, даже если CSS не подгрузился
-    splash.style.pointerEvents = 'none';
-    try { window.Telegram?.WebApp?.ready?.(); } catch(_) {}
-    // убрать из DOM после анимации
-    const fin = () => { try { splash.remove(); } catch(_) { splash.style.display = 'none'; } };
-    splash.addEventListener('transitionend', fin, { once: true });
-    setTimeout(fin, 500); // страховка
+    setTimeout(() => {
+      splash.classList.add('is-hidden');
+      splash.setAttribute('aria-busy', 'false');
+
+      // снять preloader-класс сразу, а удаление ноды — по окончанию анимации
+      __plamFinishSplash();
+
+      splash.addEventListener('transitionend', () => {
+        try { splash.remove(); } catch (_) { splash.style.display = 'none'; }
+      }, { once: true });
+
+      // страховка, если transitionend не придёт
+      setTimeout(() => { try { splash.remove(); } catch(_) {} }, 400);
+    }, delay);
   }
 
-  // --- Основной путь + таймауты ---
-  const mainWait = Promise.all([onDOMReady, preloadAll]);
-  const hardCut  = new Promise((r) => setTimeout(r, HARD_TIMEOUT_MS));
+  // (необязательно, но полезно)
+const fontsReady = (document.fonts && document.fonts.ready) ? document.fonts.ready.catch(()=>{}) : Promise.resolve();
 
-  Promise.race([mainWait, hardCut]).then(() => {
-    const elapsed = performance.now() - started;
-    const left = Math.max(0, MIN_SHOW_MS - elapsed);
-    setTimeout(hideSplash, left);
-  });
+Promise.race([
+  Promise.all([
+    onDOMReady,
+    fontsReady,
+    preloadAll,   // <-- ИСПОЛЬЗУЕМ реальный прелоад картинок с бюджетом
+  ]),
+  new Promise(r => setTimeout(r, HARD_TIMEOUT_MS)) // рубильник
+]).then(hideSplashSoft);
 
-  // Ручной «рубильник» для отладки
-  window.__plamHideSplash = hideSplash;
+  // Глобальный ручной рубильник (используется и fallback-скриптом в index.html)
+  window.__plamHideSplash = function() {
+    splash.classList.add('is-hidden');
+    splash.setAttribute('aria-busy', 'false');
+    __plamFinishSplash();
+    try { splash.remove(); } catch(_) { splash.style.display = 'none'; }
+  };
 })();
-
 
 
 
