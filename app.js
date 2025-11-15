@@ -788,33 +788,54 @@ if (isCooldownActive()) {
       closeStack();
     }, { once:true });
   }
+  
+  // Кнопка «Поделиться» — один раз (поддерживаем разметку data-reset-share / data-share-wrap)
+const shareBtn  = box?.querySelector('[data-reset-share],[data-share-once]');
+const shareWrap = box?.querySelector('[data-share-wrap]') || shareBtn?.closest('[data-share-wrap]');
+if (shareBtn) {
+  const FLAG = 'plam_reset_share_used_v1';
 
-  // «Поделиться» — работать может только один раз
-  const shareBtn = box.querySelector('[data-share-once]');
-  if (shareBtn) {
-    const FLAG = 'plam_reset_share_used_v1';
-    if (localStorage.getItem(FLAG) === '1') {
-      shareBtn.remove(); // скрываем навсегда
-    } else {
-      shareBtn.removeAttribute('data-i18n');
-      shareBtn.addEventListener('click', () => {
-        const url  = 'https://youtube.com/@p.l.a.m?si=BpFdF-Fkx-5Yve1l';
-        const text = T('share.text','Заходи в PLAM — отправляй фото и выигрывай!');
-        try {
-          const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
-          window.Telegram?.WebApp?.openTelegramLink?.(shareUrl);
-        } catch(_) {}
-
-        localStorage.setItem(FLAG, '1'); // зачли единственный бесплатный раз
-        clearUploadCooldown();
-        renderUploadUI();
-
-        try { window.Telegram?.WebApp?.showAlert?.(T('reset.shared_ok','Спасибо! Таймер сброшен.')); } catch(_) {}
-        if (backdrop) backdrop.style.background = prevBg;
-        closeStack();
-      }, { once:true });
-    }
+  function markUsed() {
+    try { localStorage.setItem(FLAG, '1'); } catch(_) {}
+    shareBtn.disabled = true;
+    shareBtn.classList.add('is-disabled');
+    shareBtn.textContent = T('reset.shared_used','Уже использовано');
+    // если нужно скрывать полностью, раскомментируй:
+    // if (shareWrap) shareWrap.style.display = 'none';
   }
+
+  // уже использовано ранее?
+  if (localStorage.getItem(FLAG) === '1') {
+    markUsed();
+  } else {
+    // универсальный опенер «поделяжки»
+    function openShareLink(url, text){
+      const u = `https://t.me/share/url?url=${encodeURIComponent(url)}${text ? '&text='+encodeURIComponent(text) : ''}`;
+      try {
+        if (window.Telegram?.WebApp?.openTelegramLink) return window.Telegram.WebApp.openTelegramLink(u);
+        if (window.Telegram?.WebApp?.openLink)        return window.Telegram.WebApp.openLink(u, { try_instant_view:false });
+      } catch(_) {}
+      window.open(u, '_blank', 'noopener,noreferrer');
+    }
+
+    shareBtn.addEventListener('click', (e) => {
+      e.preventDefault(); e.stopPropagation();
+
+      const url  = 'https://youtube.com/@p.l.a.m?si=BpFdF-Fkx-5Yve1l';
+      const text = T('share.text','Заходи в PLAM — отправляй фото и выигрывай!');
+      openShareLink(url, text);
+
+      markUsed();                 // фиксируем «один раз»
+      clearUploadCooldown();      // сбрасываем кулдаун
+      renderUploadUI();
+
+      try { window.Telegram?.WebApp?.showAlert?.(T('reset.shared_ok','Спасибо! Таймер сброшен.')); } catch(_) {}
+      if (backdrop) backdrop.style.background = prevBg;
+      closeStack();
+    }, { once:true });
+  }
+}
+
 
   // вернуть фон при закрытии
   const onOutsideClose = (ev) => {
