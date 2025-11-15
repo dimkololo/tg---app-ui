@@ -220,16 +220,23 @@
   <!-- СТАЛО: чистый контент, без внутреннего крестика и без inline -->
 <template id="tpl-reset-cooldown">
   <section class="popup reset-popup">
-    <p class="reset-title">
-      Сбросить <span data-mins>0</span> минут за <span data-coins>0</span> PLAMc
-    </p>
     <div class="u-center">
-      <button class="btn-pay btn-pay--green" type="button" data-reset-now data-i18n="common.confirm">
-        Подтвердить
+      <!-- В КНОПКЕ теперь сам текст со стоимостью -->
+      <button class="btn-pay btn-pay--green" type="button" data-reset-now
+              data-i18n="reset.confirm_with_sum_fallback">
+        Сбросить 0 минут за 0 PLAMc
       </button>
+    </div>
+
+    <!-- Разделитель "или" показываем только если доступен бесплатный сброс -->
+    <div class="reset-or" data-reset-or data-i18n="reset.or">или</div>
+
+    <div class="u-center" data-share-wrap>
+      <button class="btn" type="button" data-reset-share data-i18n="reset.share">Поделиться</button>
     </div>
   </section>
 </template>
+
 
   <!-- Правила: обязательное согласие (первый раз) -->
 <template id="tpl-policy-required">
