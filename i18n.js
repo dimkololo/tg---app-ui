@@ -178,10 +178,10 @@ i18n.load('en', {
   "upload.link_invalid": "The link must start with http:// or https:// (https://t.me/ is also supported)",
   "upload.reset_ok": "Done! Send another photo",
   "upload.promo": "Win. Promote. Invite.",
+   "reset.button": "Reset {{mins}} min for {{coins}} PLAMc",
   "reset.or": "or",
   "reset.share": "Share",
   "reset.shared_ok": "Thanks! The timer has been reset.",
-  "reset.button": "Reset {{mins}} min for {{coins}} PLAMc",
   "share.text": "Join PLAM — send photos and win!",
 
   // Rules
@@ -311,12 +311,11 @@ i18n.load('ru', {
   "upload.link_invalid": "Ссылка должна начинаться с http:// или https:// (поддерживается и https://t.me/...)",
   "upload.reset_ok": "Удачно! Скорее отправляй еще фото",
   "upload.promo": "Побеждай. Рекламируй. Приглашай",
+   "reset.button": "Сбросить {{mins}} минут за {{coins}} PLAMc",
   "reset.or": "или",
   "reset.share": "Поделиться",
   "reset.shared_ok": "Спасибо! Таймер сброшен.",
-  "reset.button": "Сбросить {{mins}} минут за {{coins}} PLAMc",
-  "share.text": "Заходи в PLAM — отправляй фото и выигрывай!"
-  "reset.confirm": "Подтвердить",
+  "share.text": "Заходи в PLAM — отправляй фото и выигрывай!",
 
   "rules.title": "Правила отправки фото",
   "rules.forbidden": "<strong>Запрещено:</strong> обнажёнка/эротика; алкоголь/табак/наркотики; насилие и опасные действия; дискриминация/экстремизм; реклама, QR-коды, ссылки и контакты; личные/конфиденциальные данные; чужие фото без согласия; попытки обхода модерации.",
