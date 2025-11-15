@@ -719,103 +719,89 @@ const counterHandler = (ev) => {
     e.preventDefault();
 
     // режим "Сбросить таймер"
-    if (isCooldownActive()){
-      const leftMin = Math.floor(cdLeftMs()/60000);
-      if (leftMin <= 0){ clearUploadCooldown(); renderUploadUI(); return; }
+    // режим "Сбросить таймер"
+if (isCooldownActive()){
+  const mins = Math.max(0, Math.floor(cdLeftMs()/60000));
+  if (mins <= 0){ clearUploadCooldown(); renderUploadUI(); return; }
 
-      openStack('reset-cooldown');
+  openStack('reset-cooldown');
 
-const backdrop = stackRoot.querySelector('.modal__backdrop');
-const prevBg   = backdrop ? backdrop.style.background : '';
-if (backdrop) backdrop.style.background = 'rgba(0,0,0,.5)';
+  const backdrop = stackRoot.querySelector('.modal__backdrop');
+  const prevBg   = backdrop ? backdrop.style.background : '';
+  if (backdrop) backdrop.style.background = 'rgba(0,0,0,.5)';
 
-const box = stackRoot.querySelector('.reset-popup');
-const SHARE_USED_KEY = 'plam_free_reset_used_v1'; // единоразовый бесплатный сброс
-const leftMin = Math.floor(cdLeftMs()/60000);
+  const box = stackRoot.querySelector('.reset-popup');
 
-// --- основная кнопка: "Сбросить N минут за N PLAMc" (перенесли текст в кнопку)
-const btnReset = box?.querySelector('[data-reset-now]');
-if (btnReset) {
-  const fallback = i18nLang()==='en'
-    ? 'Reset {{mins}} minutes for {{coins}} PLAMc'
-    : 'Сбросить {{mins}} минут за {{coins}} PLAMc';
-  // подставляем числа в текст
-  btnReset.textContent = T('reset.confirm_with_sum', fallback, { mins: leftMin, coins: leftMin });
+  // (опционально) обновим числа в разметке, если есть такие плейсхолдеры
+  box?.querySelector('[data-mins]') ?.replaceChildren(String(mins));
+  box?.querySelector('[data-coins]').replaceChildren(String(mins));
 
-  btnReset.addEventListener('click', () => {
-    if (getBalance() < leftMin){ alert(T('errors.not_enough','Недостаточно PLAMc')); return; }
-    addBalance(-leftMin); updatePlusBalanceUI();
+  // Заголовок (если остался в шаблоне)
+  const titleEl = box?.querySelector('.reset-title');
+  if (titleEl) {
+    const html = T('reset.title', 'Сбросить {{mins}} минут за {{coins}} PLAMc', { mins, coins: mins });
+    if (html.indexOf('<') !== -1) titleEl.innerHTML = html; else titleEl.textContent = html;
+  }
 
-    clearUploadCooldown();
-    renderUploadUI();
-
-    try { window.Telegram?.WebApp?.showAlert?.(T('upload.reset_ok','Удачно! Скорее отправляй еще фото')); } catch(_) {}
-    if (backdrop) backdrop.style.background = prevBg;
-    closeStack();
-  }, { once:true });
-}
-
-// --- кнопка "Поделиться" (работает один раз вообще)
-const shareWrap = box?.querySelector('[data-share-wrap]');
-const orEl      = box?.querySelector('[data-reset-or]');
-const shareBtn  = box?.querySelector('[data-reset-share]');
-
-// если уже использовали бесплатный сброс — убираем "или" и кнопку
-const shareUsed = localStorage.getItem(SHARE_USED_KEY) === '1';
-if (shareUsed) {
-  orEl?.remove();
-  shareWrap?.remove();
-} else if (shareBtn) {
-  shareBtn.addEventListener('click', () => {
-    // помечаем как использованный — только по факту клика
-    try { localStorage.setItem(SHARE_USED_KEY, '1'); } catch(_) {}
-
-    // Открываем «поделяшку» Telegram через спец-ссылку
-    const url  = 'https://youtube.com/@p.l.a.m?si=BpFdF-Fkx-5Yve1l';
-    const text = i18nLang()==='en'
-      ? 'Check out PLAM — WebApp'
-      : 'Зацени PLAM — WebApp';
-    const shareLink = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
-
-    try { window.Telegram?.WebApp?.openTelegramLink?.(shareLink); }
-    catch(_) { try { window.open(shareLink, '_blank'); } catch(__){} }
-
-    // Сбрасываем таймер как за «бесплатный сброс за репост»
-    clearUploadCooldown();
-    renderUploadUI();
-
-    try { window.Telegram?.WebApp?.showAlert?.(T('reset.shared_ok','Спасибо! Таймер сброшен.')); } catch(_) {}
-
-    // закрываем окно; возвращаем фон
-    if (backdrop) backdrop.style.background = prevBg;
-    closeStack();
-  }, { once:true });
-}
-
-// --- реакция на смену языка (пересчитать тексты в окне)
-const onLang = () => {
-  if (!document.contains(box)) return;
+  // Кнопка сброса за монеты — текст внутри кнопки
+  const btnReset = box?.querySelector('[data-reset-now]');
   if (btnReset) {
-    const fallback = i18nLang()==='en'
-      ? 'Reset {{mins}} minutes for {{coins}} PLAMc'
-      : 'Сбросить {{mins}} минут за {{coins}} PLAMc';
-    btnReset.textContent = T('reset.confirm_with_sum', fallback, { mins: leftMin, coins: leftMin });
-  }
-  if (!shareUsed && orEl) orEl.textContent = T('reset.or','или');
-};
-document.addEventListener('plam:langChanged', onLang, { passive:true });
+    btnReset.textContent = T('reset.button', 'Сбросить {{mins}} минут за {{coins}} PLAMc', { mins, coins: mins });
+    btnReset.addEventListener('click', () => {
+      if (getBalance() < mins){ alert(T('errors.not_enough','Недостаточно PLAMc')); return; }
+      addBalance(-mins); updatePlusBalanceUI();
 
-// снятие бэка при закрытии «крестиком/бэкдропом»
-stackRoot.addEventListener('click', function once2(ev2){
-  const isBackdrop = ev2.target.classList.contains('modal__backdrop');
-  const isClose    = ev2.target.closest('[data-dismiss-stack]');
-  if (isBackdrop || isClose){
-    if (backdrop) backdrop.style.background = prevBg;
-    stackRoot.removeEventListener('click', once2);
+      clearUploadCooldown();
+      renderUploadUI();
+
+      try { window.Telegram?.WebApp?.showAlert?.(T('upload.reset_ok','Удачно! Скорее отправляй еще фото')); } catch(_) {}
+      if (backdrop) backdrop.style.background = prevBg;
+      closeStack();
+    }, { once:true });
   }
-}, { once:true });
-      return;
+
+  // Кнопка «Поделиться» — один раз
+  const shareBtn = box?.querySelector('[data-share-once]');
+  if (shareBtn) {
+    const FLAG = 'plam_reset_share_used_v1';
+    const used = localStorage.getItem(FLAG) === '1';
+    if (used) {
+      shareBtn.disabled = true;
+      shareBtn.classList.add('is-disabled');
+      // можно скрыть: shareBtn.closest('.some-wrapper')?.remove();
+    } else {
+      shareBtn.addEventListener('click', () => {
+        try {
+          const url = 'https://youtube.com/@p.l.a.m?si=BpFdF-Fkx-5Yve1l';
+          // откроем нативную «поделяжку» Telegram
+          window.Telegram?.WebApp?.openTelegramLink?.(`https://t.me/share/url?url=${encodeURIComponent(url)}`);
+        } catch(_) {}
+
+        // зачесть «один бесплатный раз»
+        localStorage.setItem(FLAG, '1');
+
+        clearUploadCooldown();
+        renderUploadUI();
+
+        if (backdrop) backdrop.style.background = prevBg;
+        closeStack();
+      }, { once:true });
     }
+  }
+
+  // Закрытие по бэкдропу/крестику
+  stackRoot.addEventListener('click', function once2(ev2){
+    const isBackdrop = ev2.target.classList.contains('modal__backdrop');
+    const isClose    = ev2.target.closest('[data-dismiss-stack]');
+    if (isBackdrop || isClose){
+      if (backdrop) backdrop.style.background = prevBg;
+      stackRoot.removeEventListener('click', once2);
+    }
+  }, { once:true });
+
+  return;
+}
+
 
     // обычная отправка
     if (!hasFile){
