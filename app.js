@@ -815,7 +815,7 @@ if (shareBtn) {
         window.Telegram?.WebApp?.switchInlineQuery?.(q, ['users','groups','channels']);
       } catch (_) {
         // fallback: обычная “поделяшка” (без верификации)
-        const url  = 'https://youtube.com/@p.l.a.m?si=BpFdF-Fkx-5Yve1l';
+        const url  = 'https://t.me/TESTPLAMBOT/PLAM';
         const text = T('share.text','Заходи в PLAM — отправляй фото и выигрывай!');
         const u = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
         window.Telegram?.WebApp?.openTelegramLink?.(u) || window.open(u, '_blank','noopener,noreferrer');
