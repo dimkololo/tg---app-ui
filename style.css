@@ -2033,7 +2033,6 @@ background: #FF7300; /* оранжевый активный */
   line-height: 1;
   color: #fff;
   background: #14ae5c;
-  box-shadow: 0 10px 22px rgba(20,174,92,.35);
   cursor: pointer;
   transition: transform .08s ease, filter .08s ease, opacity .2s ease;
 }
