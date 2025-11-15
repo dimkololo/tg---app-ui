@@ -226,6 +226,7 @@ i18n.load('en', {
   "premium.top_basic": "regular",
   "premium.top_premium": "high",
   "premium.note": "More submissions and longer showtime mean more chances for prizes and the leaderboard.",
+  "confirm.premium_title_static": "Get Premium for 7 days for 350 PLAMc?",
 
   // Leaders modal
   "leaders.weekly_gifts": "Weekly gifts",
@@ -348,6 +349,7 @@ i18n.load('ru', {
   "premium.top_basic": "обычные",
   "premium.top_premium": "высокие",
   "premium.note": "Больше отправок и дольше показ — больше шансов на призы и попадание в таблицу лидеров.",
+  "confirm.premium_title_static": "Получить премиум на 7 дней за 350 PLAMc?",
 
   "leaders.weekly_gifts": "Еженедельные подарки",
   "leaders.title": "Таблица лидеров",
