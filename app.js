@@ -755,10 +755,9 @@ const counterHandler = (ev) => {
   // режим "Сбросить таймер"
 if (isCooldownActive()) {
   const msLeft = cdLeftMs();
-  if (msLeft <= 0) { clearUploadCooldown(); renderUploadUI(); return; }
+  if (msLeft <= 0){ clearUploadCooldown(); renderUploadUI(); return; }
 
-  // Чтобы не было "0 минут" при остатке < 1 мин — округляем ВВЕРХ и минимум 1
-  const mins = Math.max(1, Math.ceil(msLeft / 60000));
+  const mins = Math.max(1, Math.ceil(msLeft / 60000)); // ← не 0 минут
 
   openStack('reset-cooldown');
 
@@ -769,18 +768,15 @@ if (isCooldownActive()) {
   const box = stackRoot.querySelector('.reset-popup');
   if (!box) return;
 
-  // Подставим числа в плейсхолдеры, если есть такие элементы
-  const minsEl  = box.querySelector('[data-mins]');
-  const coinsEl = box.querySelector('[data-coins]');
-  if (minsEl)  minsEl.textContent  = String(mins);
-  if (coinsEl) coinsEl.textContent = String(mins);
+  // Цифры в плейсхолдеры (если есть)
+  box.querySelector('[data-mins]')?.replaceChildren(String(mins));
+  box.querySelector('[data-coins]')?.replaceChildren(String(mins));
 
-  // Кнопка сброса за монеты — динамический текст
+  // Кнопка «Сбросить ... за ... PLAMc»
   const btnReset = box.querySelector('[data-reset-now]');
   if (btnReset) {
-    // Чтобы i18n не перезаписал наш динамический текст, уберём data-i18n (если есть)
-    btnReset.removeAttribute?.('data-i18n');
-    btnReset.textContent = T('reset.button', 'Сбросить {{mins}} минут за {{coins}} PLAMc', { mins, coins: mins });
+    btnReset.removeAttribute('data-i18n'); // чтобы i18n не перезатёр
+    btnReset.textContent = T('reset.button','Сбросить {{mins}} минут за {{coins}} PLAMc',{ mins, coins: mins });
 
     btnReset.addEventListener('click', () => {
       if (getBalance() < mins){ alert(T('errors.not_enough','Недостаточно PLAMc')); return; }
@@ -793,15 +789,14 @@ if (isCooldownActive()) {
     }, { once:true });
   }
 
-  // Кнопка «Поделиться» — один раз
+  // «Поделиться» — работать может только один раз
   const shareBtn = box.querySelector('[data-share-once]');
   if (shareBtn) {
     const FLAG = 'plam_reset_share_used_v1';
     if (localStorage.getItem(FLAG) === '1') {
-      // чтобы не путать пользователя — просто скрываем кнопку
-      shareBtn.remove();
+      shareBtn.remove(); // скрываем навсегда
     } else {
-      shareBtn.removeAttribute?.('data-i18n'); // на всякий, чтобы i18n не трогал
+      shareBtn.removeAttribute('data-i18n');
       shareBtn.addEventListener('click', () => {
         const url  = 'https://youtube.com/@p.l.a.m?si=BpFdF-Fkx-5Yve1l';
         const text = T('share.text','Заходи в PLAM — отправляй фото и выигрывай!');
@@ -810,19 +805,18 @@ if (isCooldownActive()) {
           window.Telegram?.WebApp?.openTelegramLink?.(shareUrl);
         } catch(_) {}
 
-        // Засчитываем единственный бесплатный сброс
-        localStorage.setItem(FLAG, '1');
+        localStorage.setItem(FLAG, '1'); // зачли единственный бесплатный раз
         clearUploadCooldown();
         renderUploadUI();
 
-        try { window.Telegram?.WebApp?.showAlert?.(T('upload.reset_ok','Удачно! Скорее отправляй еще фото')); } catch(_) {}
+        try { window.Telegram?.WebApp?.showAlert?.(T('reset.shared_ok','Спасибо! Таймер сброшен.')); } catch(_) {}
         if (backdrop) backdrop.style.background = prevBg;
         closeStack();
       }, { once:true });
     }
   }
 
-  // Закрытие по бэкдропу/крестику — вернём фон
+  // вернуть фон при закрытии
   const onOutsideClose = (ev) => {
     const isBackdrop = ev.target.classList?.contains('modal__backdrop');
     const isClose    = ev.target.closest?.('[data-dismiss-stack]');
@@ -835,6 +829,7 @@ if (isCooldownActive()) {
 
   return;
 }
+
 
 
 
