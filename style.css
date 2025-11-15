@@ -2004,6 +2004,53 @@ background: #FF7300; /* оранжевый активный */
 #appLoading, .splash { z-index: 9999; }
 #appLoading.is-hidden, .splash.is-hidden { pointer-events: none; }
 
+/* === Reset cooldown popup tweaks === */
+.reset-popup [data-or-text],
+.reset-popup .reset-or {
+  color: #000;                 /* "или" — чёрным */
+  text-align: center;
+  font-weight: 700;
+  margin: 10px 0 12px;
+  opacity: 1;                  /* на всякий случай, если где-то был .u-muted */
+}
+
+/* Контейнер кнопки "Поделиться" по центру */
+.reset-popup [data-share-wrap] {
+  display: flex;
+  justify-content: center;
+}
+
+/* Стили зелёной кнопки для "Поделиться" */
+.reset-popup [data-reset-share],
+.reset-popup [data-share-once] {
+  display: inline-block;
+  min-width: 220px;
+  padding: 14px 18px;
+  border: 0;
+  border-radius: 22px;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+  color: #fff;
+  background: #14ae5c;
+  box-shadow: 0 10px 22px rgba(20,174,92,.35);
+  cursor: pointer;
+  transition: transform .08s ease, filter .08s ease, opacity .2s ease;
+}
+
+.reset-popup [data-reset-share]:active,
+.reset-popup [data-share-once]:active {
+  transform: translateY(1px);
+}
+
+.reset-popup [data-reset-share]:disabled,
+.reset-popup [data-share-once]:disabled {
+  opacity: .55;
+  filter: grayscale(.1);
+  cursor: default;
+}
+
+
 
 
 /* Если у стека нет глобального затемнения — оставь как есть (у тебя JS ставит 50%) */
