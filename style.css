@@ -1989,6 +1989,10 @@ background: #FF7300; /* оранжевый активный */
   .splash.is-hidden { transition: none; }
 }
 
+/* Убрать крестик в стеке, когда нужно (confirm-premium, premium-timer) */
+.modal.modal--stack.stack--no-close .modal__close {
+  display: none !important;
+}
 
 
 /* Если у стека нет глобального затемнения — оставь как есть (у тебя JS ставит 50%) */
