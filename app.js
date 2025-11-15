@@ -341,8 +341,16 @@ function i18nLang(){
   catch(_) { return 'ru'; }
 }
 function T(key, fallback, vars){
-  try { return (window.i18n && typeof window.i18n.t === 'function' && window.i18n.t(key, vars)) || fallback; }
-  catch(_) { return fallback; }
+  try {
+    if (window.i18n && typeof window.i18n.t === 'function') {
+      const s = window.i18n.t(key, vars);
+      if (s) return s; // словарь нашёлся → уже с подстановками
+    }
+  } catch(_) {}
+  // словарь не дал строку → подставляем vars во fallback сами
+  if (!fallback) return '';
+  if (!vars) return String(fallback);
+  return String(fallback).replace(/\{\{(\w+)\}\}/g, (_, k) => (k in vars ? String(vars[k]) : ''));
 }
 
 function openModal(id){
