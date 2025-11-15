@@ -337,6 +337,10 @@ function openStack(id){
   stackRoot.hidden = false;
   stackRoot.setAttribute('aria-hidden','false');
 
+   // >>> добавить эту строку: включаем/выключаем флаг скрытия крестика
+  stackRoot.classList.toggle('stack--no-close', id === 'confirm-premium' || id === 'premium-timer');
+
+
   // применим i18n к только что вставленному содержимому стека
   i18nApply(stackRoot);
 
@@ -352,6 +356,9 @@ function closeStack(){
   stackRoot.setAttribute('aria-hidden','true');
   stackContent.innerHTML = '';
 }
+
+ // >>> добавить: на всякий случай убираем флаг
+  stackRoot.classList.remove('stack--no-close');
 
 // --- Политика: required/info (с фолбэками на единый tpl-policy) ---
 const POLICY_FLAG = K.POLICY_OK;
