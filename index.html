@@ -669,5 +669,21 @@
   <!-- Подключаем i18n перед app.js -->
   <script src="./i18n.js?v=1"></script>
   <script src="./app.js?v=51"></script>
+  <script>
+  // сверх-страховка: через 12с уберём сплэш и preloading-класс при любых раскладах
+  setTimeout(function(){
+    // попробуем штатный хелпер из app.js
+    if (window.__plamHideSplash) { window.__plamHideSplash(); return; }
+    // грубая очистка, если app.js не исполнился
+    var s = document.getElementById('appLoading');
+    if (s) {
+      s.classList.add('is-hidden');
+      try { s.remove(); } catch(e) { s.style.display = 'none'; }
+    }
+    document.documentElement.classList.remove('plam-preload');
+    try { window.Telegram && Telegram.WebApp && Telegram.WebApp.ready && Telegram.WebApp.ready(); } catch(e){}
+  }, 12000);
+</script>
+
 </body>
 </html>
