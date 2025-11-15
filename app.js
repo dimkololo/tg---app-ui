@@ -1,30 +1,26 @@
 
 // ========== app.js (главная) — LS-единообразие, миграции v1→v2 ==========
 
-// ==== SPLASH v2.4 — гарантированное скрытие заставки ====
+// ==== SPLASH v2.4 — гарантированное скрытие заставки и безошибочные клики ====
 (function setupSplash() {
   const splash = document.getElementById('appLoading') || document.querySelector('.splash,[data-splash]');
-  const html   = document.documentElement;
-  if (!splash) { html.classList.remove('plam-preload'); return; }
+  if (!splash) return;
 
-  // — мягкий минимум показа (оставь свои значения, если нужно) —
-  const MIN_SHOW_MS       = 600;   // минимум показа
-  const HARD_TIMEOUT_MS   = 9000;  // железный рубильник
-  const PRELOAD_BUDGET_MS = 2500;  // бюджет на прогрев картинок
-  const started = Date.now();
-
-  // одноразовый «возврат без сплэша» со страницы колеса
+  // ---- SKIP SPLASH ON SOFT RETURN FROM FORTUNE ----
   try {
     if (sessionStorage.getItem('plam_skip_splash_once') === '1') {
-      sessionStorage.removeItem('plam_skip_splash_once');
-      return forceHide();
+      sessionStorage.removeItem('plam_skip_splash_once'); // одноразовый флаг
+      splash.classList.add('is-hidden');
+      splash.setAttribute('aria-busy', 'false');
+      try { window.Telegram?.WebApp?.ready?.(); } catch(_) {}
+      requestAnimationFrame(() => { try { splash.remove(); } catch(_) { splash.style.display = 'none'; }});
+      return;
     }
-  } catch (_) {}
+  } catch(_) {}
 
-  // критичные картинки (НЕ включаем саму loading.gif/png)
+  // --- Картинки, которые «прогреваем». НЕ включаем сюда саму loading.png! ---
   const criticalImages = [
     './bgicons/bg-master.png',
-    './bgicons/plam.png',
     './bgicons/photohereru.png',
     './bgicons/tv.png',
     './bgicons/wintable.png',
@@ -33,36 +29,72 @@
     './bgicons/earth-item@2x.png',
     './bgicons/star-header.png',
     './bgicons/star-item.png',
+    './bgicons/plam.png',
     './bgicons/stump.png',
     './bgicons/gift.png',
     './bgicons/faq.png',
     './bgicons/notebook.png',
-    './bgicons/cloud-plus.png'
+    './bgicons/cloud-plus.png',
+    './bgicons/cloud-plus@2x.png'
   ];
 
-  function forceHide() {
-    splash.classList.add('is-hidden');
-    splash.setAttribute('aria-busy','false');
-    html.classList.remove('plam-preload');
-    try { window.Telegram?.WebApp?.ready?.(); } catch(_) {}
-    setTimeout(() => { try { splash.remove(); } catch(_) { splash.style.display = 'none'; } }, 300);
-  }
+  // --- Тайминги ---
+  const MIN_SHOW_MS       = 4000;  // минимум показа (чтобы не мигало)
+  const PRELOAD_BUDGET_MS = 2500;  // максимум времени на прогрев картинок
+  const HARD_TIMEOUT_MS   = 8000;  // рубильник: гарантированно спрятать
+  const started = performance.now();
 
-  function preloadOne(src){ return new Promise(r => { const img = new Image(); img.onload = img.onerror = r; img.src = src; }); }
-  const onDOMReady  = new Promise(r => (document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', r, {once:true}) : r()));
-  const preloadAll  = Promise.race([Promise.allSettled(criticalImages.map(preloadOne)), new Promise(r=>setTimeout(r, PRELOAD_BUDGET_MS))]);
-  const hardCut     = setTimeout(forceHide, HARD_TIMEOUT_MS);
-
-  Promise.all([onDOMReady, preloadAll]).then(() => {
-    clearTimeout(hardCut);
-    const left = Math.max(0, MIN_SHOW_MS - (Date.now() - started));
-    setTimeout(forceHide, left);
+  // --- Утилиты ожидания ---
+  const onDOMReady = new Promise((resolve) => {
+    if (document.readyState === 'interactive' || document.readyState === 'complete') resolve();
+    else document.addEventListener('DOMContentLoaded', resolve, { once: true });
   });
 
-  // если где-то выше случилась JS-ошибка — всё равно спрячем сплэш
-  window.addEventListener('error', () => setTimeout(forceHide, 0), { once: true });
-  window.__plamHideSplash = forceHide;
+  function preloadOne(src) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      const done = () => resolve();
+      img.onload = done;
+      img.onerror = done;
+      img.src = src;
+    });
+  }
+
+  const preloadAll = Promise.race([
+    Promise.allSettled(criticalImages.map(preloadOne)),
+    new Promise((r) => setTimeout(r, PRELOAD_BUDGET_MS))
+  ]);
+
+  // --- Спрятать сплэш (безопасно) ---
+  let hidden = false;
+  function hideSplash() {
+    if (hidden) return;
+    hidden = true;
+    splash.classList.add('is-hidden');
+    splash.setAttribute('aria-busy', 'false');
+    // чтоб не перекрывал клики, даже если CSS не подгрузился
+    splash.style.pointerEvents = 'none';
+    try { window.Telegram?.WebApp?.ready?.(); } catch(_) {}
+    // убрать из DOM после анимации
+    const fin = () => { try { splash.remove(); } catch(_) { splash.style.display = 'none'; } };
+    splash.addEventListener('transitionend', fin, { once: true });
+    setTimeout(fin, 500); // страховка
+  }
+
+  // --- Основной путь + таймауты ---
+  const mainWait = Promise.all([onDOMReady, preloadAll]);
+  const hardCut  = new Promise((r) => setTimeout(r, HARD_TIMEOUT_MS));
+
+  Promise.race([mainWait, hardCut]).then(() => {
+    const elapsed = performance.now() - started;
+    const left = Math.max(0, MIN_SHOW_MS - elapsed);
+    setTimeout(hideSplash, left);
+  });
+
+  // Ручной «рубильник» для отладки
+  window.__plamHideSplash = hideSplash;
 })();
+
 
 
 
