@@ -1,28 +1,27 @@
 
 // ========== app.js (главная) — LS-единообразие, миграции v1→v2 ==========
 
-// ==== SPLASH v2.4 — никогда не висит ====
+// ==== SPLASH v2.4 — гарантированное скрытие заставки ====
 (function setupSplash() {
   const splash = document.getElementById('appLoading') || document.querySelector('.splash,[data-splash]');
-  if (!splash) return;
+  const html   = document.documentElement;
+  if (!splash) { html.classList.remove('plam-preload'); return; }
 
-  // одноразовый пропуск при возврате с fortune
+  // — мягкий минимум показа (оставь свои значения, если нужно) —
+  const MIN_SHOW_MS       = 600;   // минимум показа
+  const HARD_TIMEOUT_MS   = 9000;  // железный рубильник
+  const PRELOAD_BUDGET_MS = 2500;  // бюджет на прогрев картинок
+  const started = Date.now();
+
+  // одноразовый «возврат без сплэша» со страницы колеса
   try {
     if (sessionStorage.getItem('plam_skip_splash_once') === '1') {
       sessionStorage.removeItem('plam_skip_splash_once');
-      return hideNow();
+      return forceHide();
     }
-  } catch(_) {}
+  } catch (_) {}
 
-  // ТАЙМИНГИ (можешь оставить свои значения)
-  const MIN_SHOW_MS       = 6000;  // минимальная длительность показа
-  const PRELOAD_BUDGET_MS = 2500;  // «бюджет» на прогрев картинок
-  const HARD_TIMEOUT_MS   = 8000;  // основной рубильник
-  const ULTIMATE_KILL_MS  = 12000; // ультра-рубильник (на всякий пожарный)
-
-  const started = performance.now();
-
-  // СЮДА — ТОЛЬКО существующие файлы (обязательно с запятыми между строк!)
+  // критичные картинки (НЕ включаем саму loading.gif/png)
   const criticalImages = [
     './bgicons/bg-master.png',
     './bgicons/plam.png',
@@ -41,47 +40,30 @@
     './bgicons/cloud-plus.png'
   ];
 
-  function hideNow() {
-    try { splash.classList.add('is-hidden'); splash.setAttribute('aria-busy','false'); } catch(_) {}
+  function forceHide() {
+    splash.classList.add('is-hidden');
+    splash.setAttribute('aria-busy','false');
+    html.classList.remove('plam-preload');
     try { window.Telegram?.WebApp?.ready?.(); } catch(_) {}
-    // не полагаемся на transitionend — убираем жёстко
-    setTimeout(() => { try { splash.remove(); } catch(_) { splash.style.display = 'none'; } }, 50);
-  }
-  function hideAfterMin() {
-    const wait = Math.max(0, MIN_SHOW_MS - (performance.now() - started));
-    setTimeout(hideNow, wait);
+    setTimeout(() => { try { splash.remove(); } catch(_) { splash.style.display = 'none'; } }, 300);
   }
 
-  const onDOMReady = new Promise(r => {
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', r, { once:true });
-    else r();
+  function preloadOne(src){ return new Promise(r => { const img = new Image(); img.onload = img.onerror = r; img.src = src; }); }
+  const onDOMReady  = new Promise(r => (document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', r, {once:true}) : r()));
+  const preloadAll  = Promise.race([Promise.allSettled(criticalImages.map(preloadOne)), new Promise(r=>setTimeout(r, PRELOAD_BUDGET_MS))]);
+  const hardCut     = setTimeout(forceHide, HARD_TIMEOUT_MS);
+
+  Promise.all([onDOMReady, preloadAll]).then(() => {
+    clearTimeout(hardCut);
+    const left = Math.max(0, MIN_SHOW_MS - (Date.now() - started));
+    setTimeout(forceHide, left);
   });
 
-  function preloadOne(src){
-    return new Promise(res => {
-      const img = new Image();
-      const done = () => res();
-      img.onload = done; img.onerror = done;
-      img.src = src;
-    });
-  }
-  const preloadAll = Promise.race([
-    Promise.allSettled(criticalImages.map(preloadOne)),
-    new Promise(r => setTimeout(r, PRELOAD_BUDGET_MS))
-  ]);
-
-  // основной путь + рубильник
-  Promise.race([
-    Promise.all([onDOMReady, preloadAll]),
-    new Promise(r => setTimeout(r, HARD_TIMEOUT_MS))
-  ]).then(hideAfterMin);
-
-  // ультра-рубильник — вообще при любых обстоятельствах
-  setTimeout(hideNow, ULTIMATE_KILL_MS);
-
-  // ручной килл, если застряло: window.__plamHideSplash()
-  window.__plamHideSplash = hideNow;
+  // если где-то выше случилась JS-ошибка — всё равно спрячем сплэш
+  window.addEventListener('error', () => setTimeout(forceHide, 0), { once: true });
+  window.__plamHideSplash = forceHide;
 })();
+
 
 
 
