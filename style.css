@@ -2000,6 +2000,11 @@ background: #FF7300; /* оранжевый активный */
   display: none !important;
 }
 
+/* Splash: не блокирует клики после скрытия */
+#appLoading, .splash { z-index: 9999; }
+#appLoading.is-hidden, .splash.is-hidden { pointer-events: none; }
+
+
 
 /* Если у стека нет глобального затемнения — оставь как есть (у тебя JS ставит 50%) */
 /* Но базово можно так, если вдруг понадобится общий стиль:
