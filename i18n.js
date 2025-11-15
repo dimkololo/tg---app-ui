@@ -177,6 +177,7 @@ i18n.load('en', {
   "upload.in_queue": "Your photo is queued",
   "upload.link_invalid": "The link must start with http:// or https:// (https://t.me/ is also supported)",
   "upload.reset_ok": "Done! Send another photo",
+  "upload.promo": "Win. Promote. Invite.",
 
   // Rules
   "rules.title": "Photo submission rules",
@@ -304,6 +305,7 @@ i18n.load('ru', {
   "upload.in_queue": "Ваше фото в очереди",
   "upload.link_invalid": "Ссылка должна начинаться с http:// или https:// (поддерживается и https://t.me/...)",
   "upload.reset_ok": "Удачно! Скорее отправляй еще фото",
+  "upload.promo": "Побеждай. Рекламируй. Приглашай",
 
   "rules.title": "Правила отправки фото",
   "rules.forbidden": "<strong>Запрещено:</strong> обнажёнка/эротика; алкоголь/табак/наркотики; насилие и опасные действия; дискриминация/экстремизм; реклама, QR-коды, ссылки и контакты; личные/конфиденциальные данные; чужие фото без согласия; попытки обхода модерации.",
