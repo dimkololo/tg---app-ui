@@ -744,11 +744,13 @@ const counterHandler = (ev) => {
   form?.addEventListener('submit', (e)=>{
     e.preventDefault();
 
-    // режим "Сбросить таймер"
-    // режим "Сбросить таймер"
-if (isCooldownActive()){
-  const mins = Math.max(0, Math.floor(cdLeftMs()/60000));
-  if (mins <= 0){ clearUploadCooldown(); renderUploadUI(); return; }
+  // режим "Сбросить таймер"
+if (isCooldownActive()) {
+  const msLeft = cdLeftMs();
+  if (msLeft <= 0) { clearUploadCooldown(); renderUploadUI(); return; }
+
+  // Чтобы не было "0 минут" при остатке < 1 мин — округляем ВВЕРХ и минимум 1
+  const mins = Math.max(1, Math.ceil(msLeft / 60000));
 
   openStack('reset-cooldown');
 
@@ -757,29 +759,26 @@ if (isCooldownActive()){
   if (backdrop) backdrop.style.background = 'rgba(0,0,0,.5)';
 
   const box = stackRoot.querySelector('.reset-popup');
+  if (!box) return;
 
-  // (опционально) обновим числа в разметке, если есть такие плейсхолдеры
-  box?.querySelector('[data-mins]') ?.replaceChildren(String(mins));
-  box?.querySelector('[data-coins]').replaceChildren(String(mins));
+  // Подставим числа в плейсхолдеры, если есть такие элементы
+  const minsEl  = box.querySelector('[data-mins]');
+  const coinsEl = box.querySelector('[data-coins]');
+  if (minsEl)  minsEl.textContent  = String(mins);
+  if (coinsEl) coinsEl.textContent = String(mins);
 
-  // Заголовок (если остался в шаблоне)
-  const titleEl = box?.querySelector('.reset-title');
-  if (titleEl) {
-    const html = T('reset.title', 'Сбросить {{mins}} минут за {{coins}} PLAMc', { mins, coins: mins });
-    if (html.indexOf('<') !== -1) titleEl.innerHTML = html; else titleEl.textContent = html;
-  }
-
-  // Кнопка сброса за монеты — текст внутри кнопки
-  const btnReset = box?.querySelector('[data-reset-now]');
+  // Кнопка сброса за монеты — динамический текст
+  const btnReset = box.querySelector('[data-reset-now]');
   if (btnReset) {
+    // Чтобы i18n не перезаписал наш динамический текст, уберём data-i18n (если есть)
+    btnReset.removeAttribute?.('data-i18n');
     btnReset.textContent = T('reset.button', 'Сбросить {{mins}} минут за {{coins}} PLAMc', { mins, coins: mins });
+
     btnReset.addEventListener('click', () => {
       if (getBalance() < mins){ alert(T('errors.not_enough','Недостаточно PLAMc')); return; }
       addBalance(-mins); updatePlusBalanceUI();
-
       clearUploadCooldown();
       renderUploadUI();
-
       try { window.Telegram?.WebApp?.showAlert?.(T('upload.reset_ok','Удачно! Скорее отправляй еще фото')); } catch(_) {}
       if (backdrop) backdrop.style.background = prevBg;
       closeStack();
@@ -787,46 +786,48 @@ if (isCooldownActive()){
   }
 
   // Кнопка «Поделиться» — один раз
-  const shareBtn = box?.querySelector('[data-share-once]');
+  const shareBtn = box.querySelector('[data-share-once]');
   if (shareBtn) {
     const FLAG = 'plam_reset_share_used_v1';
-    const used = localStorage.getItem(FLAG) === '1';
-    if (used) {
-      shareBtn.disabled = true;
-      shareBtn.classList.add('is-disabled');
-      // можно скрыть: shareBtn.closest('.some-wrapper')?.remove();
+    if (localStorage.getItem(FLAG) === '1') {
+      // чтобы не путать пользователя — просто скрываем кнопку
+      shareBtn.remove();
     } else {
+      shareBtn.removeAttribute?.('data-i18n'); // на всякий, чтобы i18n не трогал
       shareBtn.addEventListener('click', () => {
+        const url  = 'https://youtube.com/@p.l.a.m?si=BpFdF-Fkx-5Yve1l';
+        const text = T('share.text','Заходи в PLAM — отправляй фото и выигрывай!');
         try {
-          const url = 'https://youtube.com/@p.l.a.m?si=BpFdF-Fkx-5Yve1l';
-          // откроем нативную «поделяжку» Telegram
-          window.Telegram?.WebApp?.openTelegramLink?.(`https://t.me/share/url?url=${encodeURIComponent(url)}`);
+          const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
+          window.Telegram?.WebApp?.openTelegramLink?.(shareUrl);
         } catch(_) {}
 
-        // зачесть «один бесплатный раз»
+        // Засчитываем единственный бесплатный сброс
         localStorage.setItem(FLAG, '1');
-
         clearUploadCooldown();
         renderUploadUI();
 
+        try { window.Telegram?.WebApp?.showAlert?.(T('upload.reset_ok','Удачно! Скорее отправляй еще фото')); } catch(_) {}
         if (backdrop) backdrop.style.background = prevBg;
         closeStack();
       }, { once:true });
     }
   }
 
-  // Закрытие по бэкдропу/крестику
-  stackRoot.addEventListener('click', function once2(ev2){
-    const isBackdrop = ev2.target.classList.contains('modal__backdrop');
-    const isClose    = ev2.target.closest('[data-dismiss-stack]');
-    if (isBackdrop || isClose){
+  // Закрытие по бэкдропу/крестику — вернём фон
+  const onOutsideClose = (ev) => {
+    const isBackdrop = ev.target.classList?.contains('modal__backdrop');
+    const isClose    = ev.target.closest?.('[data-dismiss-stack]');
+    if (isBackdrop || isClose) {
       if (backdrop) backdrop.style.background = prevBg;
-      stackRoot.removeEventListener('click', once2);
+      stackRoot.removeEventListener('click', onOutsideClose);
     }
-  }, { once:true });
+  };
+  stackRoot.addEventListener('click', onOutsideClose);
 
   return;
 }
+
 
 
     // обычная отправка
