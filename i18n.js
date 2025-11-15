@@ -183,6 +183,7 @@ i18n.load('en', {
   "reset.share": "Share",
   "reset.shared_ok": "Thanks! The timer has been reset.",
   "share.text": "Join PLAM — send photos and win!",
+  "reset.shared_used": "Already used",
 
   // Rules
   "rules.title": "Photo submission rules",
@@ -316,6 +317,7 @@ i18n.load('ru', {
   "reset.share": "Поделиться",
   "reset.shared_ok": "Спасибо! Таймер сброшен.",
   "share.text": "Заходи в PLAM — отправляй фото и выигрывай!",
+  "reset.shared_used": "Уже использовано",
 
   "rules.title": "Правила отправки фото",
   "rules.forbidden": "<strong>Запрещено:</strong> обнажёнка/эротика; алкоголь/табак/наркотики; насилие и опасные действия; дискриминация/экстремизм; реклама, QR-коды, ссылки и контакты; личные/конфиденциальные данные; чужие фото без согласия; попытки обхода модерации.",
