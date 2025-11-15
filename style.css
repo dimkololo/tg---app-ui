@@ -768,6 +768,12 @@ html,body{
 .range::-webkit-slider-thumb{-webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:var(--accent); border:1px solid #fff; cursor:pointer}
 .range::-moz-range-thumb{width:18px; height:18px; border-radius:50%; background:var(--accent); border:1px solid #fff; cursor:pointer}
 .form-card{display:grid; gap:10px; padding:14px}
+.form-card .form-note{
+  font-weight: 800;
+  text-align: center;
+  margin: 6px 0 10px;
+  color: #2b2b2b; /* тот же, что в тексте карточек */
+}
 .field{width:100%; padding:14px 16px; border-radius:16px; border:1px solid rgba(0,0,0,.08); background:#fff; color:#111; font:16px/1.4 inherit}
 .field::placeholder{color:#9aa3b2; opacity:.8}
 .field:focus{outline:2px solid rgba(255,115,0,.35)}
