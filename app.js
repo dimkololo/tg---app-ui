@@ -1,5 +1,4 @@
 
-// ========== app.js (главная) — LS-единообразие, миграции v1→v2 ==========
 
 // === TEMP: reset LocalStorage on every page load (for testing) УДАЛИТЬ!!!!!!!!!!!!!===
 // ВКЛ/ВЫКЛ: поменяй FORCE_RESET на false, либо добавь ?keep=1 в адресную строку.
