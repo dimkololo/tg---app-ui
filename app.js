@@ -1028,10 +1028,16 @@ function initPrizes(){
   const root = modalRoot.querySelector('.prizes-popup');
   if (!root) return;
 
-  const payBtn = root.querySelector('.btn-pay');
   const grid   = root.querySelector('[data-prize-grid]');
+  const payBtn = root.querySelector('.btn-pay');
 
-  // Настройки промокода (фронт-демо)
+  // --- мини-тост
+  function toast(key, fallback, vars){
+    const msg = T(key, fallback, vars);
+    try { window.Telegram?.WebApp?.showAlert?.(msg); } catch(_) { alert(msg); }
+  }
+
+  // --- Промокод: конфиг для теста 3PUKAIZ3NA (+30 PLAMc) ---
   const PROMO = {
     code:  '3PUKAIZ3NA',
     id:    'promo-3PUKAIZ3NA-30',
@@ -1040,39 +1046,75 @@ function initPrizes(){
     flag:  'plam_promo_3PUKAIZ3NA_used_v1'
   };
 
-  // Тост/алерт с фолбэком
-  const toast = (msgKey, fallback, vars) => {
-    const msg = (window.i18n && i18n.t && i18n.t(msgKey, vars)) || fallback;
-    try { window.Telegram?.WebApp?.showAlert?.(msg); } catch(_) { alert(msg); }
-  };
+  // селекторы промо-формы
+  const promoForm  = root.querySelector('[data-promo-form]');
+  const promoInput = root.querySelector('[data-promo-input]');
+  const promoBtn   = root.querySelector('[data-promo-apply]');
 
-  // Если приз уже есть в списке (например, LS сброшен частично), зафиксируем флаг
-  function syncPromoFlag() {
-    const list = getPrizes();
-    if (list.some(p => p.id === PROMO.id)) {
-      try { localStorage.setItem(PROMO.flag, '1'); } catch(_) {}
+  function normalizeCode(v){
+    return String(v || '')
+      .trim()
+      .replace(/[\s\-]+/g, '') // убираем пробелы/дефисы
+      .toUpperCase();
+  }
+
+  function alreadyHasPromo(){
+    try { if (localStorage.getItem(PROMO.flag) === '1') return true; } catch(_) {}
+    return getPrizes().some(p => p.id === PROMO.id);
+  }
+
+  function applyPromo(){
+    const raw = normalizeCode(promoInput?.value);
+    if (!raw || raw !== PROMO.code){
+      toast('promo.invalid', 'Неверный промокод');
+      return;
     }
+    if (alreadyHasPromo()){
+      toast('promo.already', 'Этот промокод вы уже активировали');
+      return;
+    }
+    // добавляем приз в список
+    addPrize({
+      id: PROMO.id,
+      kind: 'coins',
+      amount: PROMO.amount,
+      img: PROMO.img,
+      title: T('promo.title','Промокод: +{{amount}} PLAMc', { amount: PROMO.amount })
+    });
+    try { localStorage.setItem(PROMO.flag, '1'); } catch(_) {}
+    if (promoInput) promoInput.value = '';
+    toast('promo.activated', 'Промокод активирован: +{{amount}} PLAMc', { amount: PROMO.amount });
+    render(); // перерисовать сетку с новым подарком
   }
 
-  function selectedId(){
-    const sel = root.querySelector('.prize-item.is-selected');
-    return sel ? sel.dataset.id : null;
+  // запрет перезагрузки при submit
+  if (promoForm && !promoForm.dataset.bound){
+    promoForm.dataset.bound = '1';
+    promoForm.addEventListener('submit', (e) => {
+      e.preventDefault(); e.stopPropagation();
+      applyPromo();
+    });
+  }
+  if (promoBtn && !promoBtn.dataset.bound){
+    promoBtn.dataset.bound = '1';
+    promoBtn.addEventListener('click', (e) => {
+      e.preventDefault(); e.stopPropagation();
+      applyPromo();
+    }, { passive:false });
   }
 
-  function syncPayBtn(){
-    if (payBtn) payBtn.disabled = !selectedId();
-  }
-
+  // --- РЕНДЕР ПРИЗОВ ---
   function render(){
     const list = getPrizes();
     if (!grid) return;
 
     if (!list.length){
       grid.innerHTML = `<div style="opacity:.7;text-align:center;font-weight:800">${T('prizes.none','Пока нет призов')}</div>`;
-      syncPayBtn();
+      if (payBtn) payBtn.disabled = true;
       return;
     }
 
+    // карточки призов
     grid.innerHTML = list.map(p => `
       <div class="prize-item" data-id="${p.id}" role="button" tabindex="0" title="${p.title||''}">
         <span class="prize-card" style="background-image:url('${p.img}')"></span>
@@ -1080,111 +1122,81 @@ function initPrizes(){
     `).join('');
 
     syncPayBtn();
-    syncPromoFlag();
   }
 
-  // Радио-поведение выбора (внешне всё как раньше)
-  if (grid && !grid.dataset.bound){
-    grid.dataset.bound = '1';
-
-    grid.addEventListener('click', (e)=>{
-      const item = e.target.closest('.prize-item'); 
-      if (!item) return;
-      // снять выбор со всех, затем выбрать один
-      grid.querySelectorAll('.prize-item.is-selected').forEach(el => el.classList.remove('is-selected'));
-      item.classList.add('is-selected');
-      syncPayBtn();
-    });
-
-    grid.addEventListener('keydown', (e)=>{
-      if (e.key !== 'Enter' && e.key !== ' ') return;
-      const item = e.target.closest('.prize-item'); 
-      if (!item) return;
-      e.preventDefault();
-      grid.querySelectorAll('.prize-item.is-selected').forEach(el => el.classList.remove('is-selected'));
-      item.classList.add('is-selected');
-      syncPayBtn();
-    });
+  // --- «Радио»-выбор: только один элемент может быть выбран ---
+  function selectedId(){
+    const sel = root.querySelector('.prize-item.is-selected');
+    return sel ? sel.dataset.id : null;
+  }
+  function selectOnly(el){
+    root.querySelectorAll('.prize-item.is-selected').forEach(x => x.classList.remove('is-selected'));
+    if (el) el.classList.add('is-selected');
+    syncPayBtn();
+  }
+  function toggleRadio(el){
+    if (!el) return;
+    if (el.classList.contains('is-selected')) {
+      // повторный клик — снимаем выбор (можно и оставить, на твой вкус)
+      el.classList.remove('is-selected');
+    } else {
+      selectOnly(el);
+      return; // уже синхронизировали
+    }
+    syncPayBtn();
   }
 
-  // Кнопка «Забрать» — забираем по одному призу
+  function syncPayBtn(){
+    if (!payBtn) return;
+    payBtn.disabled = !selectedId();
+    // (опционально) локализовать подпись кнопки «Забрать»
+    // payBtn.textContent = T('prizes.take','Забрать');
+  }
+
+  grid.addEventListener('click', (e)=>{
+    const item = e.target.closest('.prize-item'); if (!item) return;
+    toggleRadio(item);
+  });
+  grid.addEventListener('keydown', (e)=>{
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const item = e.target.closest('.prize-item'); if (!item) return;
+    e.preventDefault(); toggleRadio(item);
+  });
+
+  // --- КНОПКА «ЗАБРАТЬ» (выдаём только один выбранный приз) ---
   if (payBtn && !payBtn.dataset.bound){
     payBtn.dataset.bound = '1';
-    payBtn.addEventListener('click', ()=>{
-      const id = selectedId();
+    payBtn.addEventListener('click', () => {
+      const list = getPrizes();
+      const id   = selectedId();
       if (!id) return;
 
-      const list = getPrizes();
-      const p = list.find(x => x.id === id);
-      let sum = 0;
-      if (p && p.kind === 'coins') sum = Number(p.amount) || 0;
+      const prize = list.find(x => x.id === id);
+      if (!prize) return;
 
-      if (sum > 0){
-        addBalance(sum); updatePlusBalanceUI();
-        try { window.Telegram?.WebApp?.showAlert?.(`+${sum} PLAMc`); } catch(_) {}
+      // поддерживаем тип coins (PLAMc). Если будут звезды/другие типы — расширим.
+      if (prize.kind === 'coins') {
+        const amount = Number(prize.amount) || 0;
+        if (amount > 0){
+          addBalance(amount);
+          updatePlusBalanceUI();
+          try { window.Telegram?.WebApp?.showAlert?.(`+${amount} PLAMc`); } catch(_) {}
+        }
       }
 
-      // удаляем только выбранный приз
-      const next = list.filter(x => x.id !== id);
+      // удаляем выданный приз из списка и перерисовываем
+      const next = list.filter(p => p.id !== id);
       setPrizes(next);
-
       render();
-      // модалку можно оставить открытой, чтобы забирать следующие призы
-      syncPayBtn();
+
+      // можно НЕ закрывать модалку, чтобы забирать по одному; если хочешь закрывать — раскомментируй:
+      // closeModal();
     });
   }
 
-  // Промокод: поле/кнопка
-  const promoInput = root.querySelector('[data-promo-input]');
-  const promoBtn   = root.querySelector('[data-promo-apply]');
-
-  if (promoBtn && !promoBtn.dataset.bound){
-    promoBtn.dataset.bound = '1';
-
-    promoBtn.addEventListener('click', ()=>{
-      const raw = (promoInput?.value || '').trim().toUpperCase();
-      if (!raw){
-        toast('promo.invalid', 'Неверный промокод');
-        return;
-      }
-
-      if (raw !== PROMO.code){
-        toast('promo.invalid', 'Неверный промокод');
-        return;
-      }
-
-      // проверка «уже активирован»
-      const already = (()=>{
-        try { if (localStorage.getItem(PROMO.flag) === '1') return true; } catch(_) {}
-        return getPrizes().some(p => p.id === PROMO.id);
-      })();
-
-      if (already){
-        toast('promo.already', 'Этот промокод вы уже активировали');
-        return;
-      }
-
-      // добавляем приз +30 PLAMc
-      addPrize({
-        id: PROMO.id,
-        kind: 'coins',
-        amount: PROMO.amount,
-        img: PROMO.img,
-        title: T('promo.title','Промокод: {{amount}} PLAMc', { amount: PROMO.amount })
-      });
-
-      try { localStorage.setItem(PROMO.flag, '1'); } catch(_) {}
-      if (promoInput) promoInput.value = '';
-
-      toast('promo.activated', 'Промокод активирован: +{{amount}} PLAMc', { amount: PROMO.amount });
-
-      render();
-    });
-  }
-
-  // первый рендер
   render();
 }
+
 
 
 // --- Профиль ---
