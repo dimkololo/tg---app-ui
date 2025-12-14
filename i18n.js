@@ -264,6 +264,17 @@ i18n.load('en', {
   "upload.link_placeholder": "...link to social or website",
   "upload.desc_placeholder": "...description",
 
+  //promocode
+   "promo.placeholder": "Promo code",
+  "promo.apply": "Redeem",
+  "promo.hint": "You can use each code once.",
+  "promo.ok": "+{{amount}} PLAMc added",
+  "promo.already": "You already redeemed this code",
+  "promo.limit": "The code usage limit has been reached",
+  "promo.expired": "The code has expired",
+  "promo.invalid": "Invalid promo code",
+  "promo.error": "Redemption failed. Try again later",
+
   
   //fortune
    "fortune.title": "Spin the Wheel",
@@ -390,6 +401,16 @@ i18n.load('ru', {
 
   "upload.link_placeholder": "...ссылка на соц.сеть или сайт",
   "upload.desc_placeholder": "...описание",
+
+  "promo.placeholder": "Промокод",
+  "promo.apply": "Активировать",
+  "promo.hint": "Промокод можно использовать один раз.",
+  "promo.ok": "+{{amount}} PLAMc начислено",
+  "promo.already": "Этот промокод вы уже активировали",
+  "promo.limit": "Лимит активаций исчерпан",
+  "promo.expired": "Срок действия промокода истёк",
+  "promo.invalid": "Неверный промокод",
+  "promo.error": "Не удалось активировать. Повторите позже",
 
    "fortune.title": "Колесо фортуны",
   "fortune.spin": "Вращать",
