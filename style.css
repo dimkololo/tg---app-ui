@@ -855,19 +855,41 @@ html,body{
 /* ====== попап 3: призы ====== */
 
 .prizes-popup{width:100%; max-width:420px; display:grid; gap:14px}
-/* Сетка призов — растягивается, без пустых слотов */
 /* Сетка: слоты фиксированные по 100px, ряды начинаются слева */
 .prize-grid{
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 100px));
+  grid-template-columns: repeat(3, 100px); /* три слота по 100px */
   gap: 12px;
-  justify-content: flex-start;      /* всегда слева */
+  justify-content: center;                 /* центрируем всю решётку */
 }
 
-/* Если приз ОДИН — центрируем всю сетку */
-.prize-grid:not(:has(.prize-item:nth-child(2))){
-  justify-content: center;          /* центр только для 1 элемента */
+/* 1 карточка — строго во 2-й колонке, по центру */
+.prize-grid > .prize-item:only-child{
+  grid-column: 2;
+  justify-self: center;
 }
+
+/* 2 колонки на узких экранах */
+@media (max-width: 380px){
+  .prize-grid{
+    grid-template-columns: repeat(2, 100px);
+    gap: 12px;
+  }
+  /* одна карточка на 2-колоночной решётке — по центру строки */
+  .prize-grid > .prize-item:only-child{
+    grid-column: 1 / span 2;
+    justify-self: center;
+  }
+}
+
+/* совсем узко — одна колонка, центр останется за счёт justify-content */
+@media (max-width: 300px){
+  .prize-grid{
+    grid-template-columns: 1fr;
+    justify-content: center;
+  }
+}
+
 /* Элемент списка: чекбокс + квадрат 100x100 */
 .prize-item{
   display: inline-flex;
