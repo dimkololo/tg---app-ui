@@ -1083,7 +1083,7 @@ function initPrizes(){
     });
     try { localStorage.setItem(PROMO.flag, '1'); } catch(_) {}
     if (promoInput) promoInput.value = '';
-    toast('promo.activated', 'Промокод активирован: +{{amount}} PLAMc', { amount: PROMO.amount });
+    
     render(); // перерисовать сетку с новым подарком
   }
 
