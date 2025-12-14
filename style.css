@@ -2071,8 +2071,6 @@ background: #FF7300; /* оранжевый активный */
   border-radius: 14px;
   box-shadow: 0 6px 18px rgba(20,174,92,.25);
   padding-block: 12px;     /* вертикальные отступы */
-  min-height: 44px;        /* комфортный тач-таргет */
-  line-height: 1.2;        /* чтобы текст не “жался” */
 }
 
 
