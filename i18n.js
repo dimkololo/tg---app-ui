@@ -266,14 +266,14 @@ i18n.load('en', {
 
   //promocode
    "promo.placeholder": "Promo code",
-  "promo.apply": "Redeem",
+  "promo.apply": "Activate",
   "promo.hint": "You can use each code once.",
   "promo.ok": "+{{amount}} PLAMc added",
-  "promo.already": "You already redeemed this code",
+  "promo.already": "You already activated this code",
   "promo.limit": "The code usage limit has been reached",
   "promo.expired": "The code has expired",
   "promo.invalid": "Invalid promo code",
-  "promo.error": "Redemption failed. Try again later",
+  "promo.error": "Activation failed. Try again later",
 
   
   //fortune
