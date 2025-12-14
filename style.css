@@ -2054,7 +2054,13 @@ background: #FF7300; /* оранжевый активный */
   padding-top: calc(12px + env(safe-area-inset-top));
 }
 
-
+.promo-form { margin: 8px 0 12px; }
+.promo-row { display:flex; gap:8px; }
+.promo-input {
+  flex:1; height:44px; border-radius:14px; padding:0 14px;
+  border:1px solid rgba(0,0,0,.12); background:#fff;
+}
+.promo-hint { margin:6px 2px 0; font-size:12px; opacity:.7; }
 
 
 
