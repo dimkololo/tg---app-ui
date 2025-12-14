@@ -269,7 +269,6 @@ i18n.load('en', {
   "promo.apply": "Activate",
   "promo.hint": "You can use a promo code once.",
   "promo.title": "Promo: +{{amount}} PLAMc",
-  "promo.activated": "Promo activated: +{{amount}} PLAMc",
   "promo.invalid": "Invalid promo code",
   "promo.already": "You have already activated this promo code",
   
@@ -403,7 +402,6 @@ i18n.load('ru', {
   "promo.apply": "Активировать",
   "promo.hint": "Промокод можно использовать один раз.",
   "promo.title": "Промокод: +{{amount}} PLAMc",
-  "promo.activated": "Промокод активирован: +{{amount}} PLAMc",
   "promo.invalid": "Неверный промокод",
   "promo.already": "Этот промокод вы уже активировали",
 
