@@ -1069,7 +1069,7 @@ function initPrizes(){
       return;
     }
     if (alreadyHasPromo()){
-      toast('promo.already', 'Этот промокод вы уже активировали');
+      toast('promo.already', 'Этот промокод уже активирован');
       return;
     }
     // добавляем приз в список
