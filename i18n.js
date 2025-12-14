@@ -267,14 +267,11 @@ i18n.load('en', {
   //promocode
    "promo.placeholder": "Promo code",
   "promo.apply": "Activate",
-  "promo.hint": "You can use each code once.",
-  "promo.ok": "+{{amount}} PLAMc added",
-  "promo.already": "You already activated this code",
-  "promo.limit": "The code usage limit has been reached",
-  "promo.expired": "The code has expired",
+  "promo.hint": "You can use a promo code once.",
+  "promo.title": "Promo: +{{amount}} PLAMc",
+  "promo.activated": "Promo activated: +{{amount}} PLAMc",
   "promo.invalid": "Invalid promo code",
-  "promo.error": "Activation failed. Try again later",
-
+  "promo.already": "You have already activated this promo code",
   
   //fortune
    "fortune.title": "Spin the Wheel",
@@ -402,15 +399,13 @@ i18n.load('ru', {
   "upload.link_placeholder": "...ссылка на соц.сеть или сайт",
   "upload.desc_placeholder": "...описание",
 
-  "promo.placeholder": "Промокод",
+   "promo.placeholder": "Промокод",
   "promo.apply": "Активировать",
   "promo.hint": "Промокод можно использовать один раз.",
-  "promo.ok": "+{{amount}} PLAMc начислено",
-  "promo.already": "Этот промокод вы уже активировали",
-  "promo.limit": "Лимит активаций исчерпан",
-  "promo.expired": "Срок действия промокода истёк",
+  "promo.title": "Промокод: +{{amount}} PLAMc",
+  "promo.activated": "Промокод активирован: +{{amount}} PLAMc",
   "promo.invalid": "Неверный промокод",
-  "promo.error": "Не удалось активировать. Повторите позже",
+  "promo.already": "Этот промокод вы уже активировали",
 
    "fortune.title": "Колесо фортуны",
   "fortune.spin": "Вращать",
