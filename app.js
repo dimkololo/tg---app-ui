@@ -1023,71 +1023,45 @@ function initBuyStars(){
   // при закрытии модалки слушатель нам больше не нужен — удалим его автоматически вместе с DOM (без утечек)
 }
 
-// --- Призы ---
+// --- Призы + промокод ---
 function initPrizes(){
   const root = modalRoot.querySelector('.prizes-popup');
-    // --- PROMO: обработка ввода промокода ---
-  const promoForm  = root.querySelector('[data-promo-form]');
-  const promoInput = promoForm?.querySelector('input[name="promo"]');
-  const btnApply   = promoForm?.querySelector('[data-promo-apply]');
+  if (!root) return;
 
-  async function redeemPromo(code){
-    // Telegram initData для идентификации пользователя (обязательно на бэке проверять подпись!)
-    const tg = window.Telegram?.WebApp;
-    const initData = tg?.initData || ''; // строка с hash
+  const payBtn = root.querySelector('.btn-pay');
+  const grid   = root.querySelector('[data-prize-grid]');
 
-    try {
-      btnApply.disabled = true;
+  // Настройки промокода (фронт-демо)
+  const PROMO = {
+    code:  '3PUKAIZ3NA',
+    id:    'promo-3PUKAIZ3NA-30',
+    amount: 30,
+    img:   './bgicons/plam-30.png',
+    flag:  'plam_promo_3PUKAIZ3NA_used_v1'
+  };
 
-      const res = await fetch('/api/v1/promo/redeem', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ code: code.trim(), initData })
-      });
+  // Тост/алерт с фолбэком
+  const toast = (msgKey, fallback, vars) => {
+    const msg = (window.i18n && i18n.t && i18n.t(msgKey, vars)) || fallback;
+    try { window.Telegram?.WebApp?.showAlert?.(msg); } catch(_) { alert(msg); }
+  };
 
-      const data = await res.json().catch(()=>({}));
-      // Сервер возвращает { ok, amount, newBalance } или { ok:false, code: 'ALREADY|LIMIT|EXPIRED|INVALID' }
-      if (res.ok && data.ok) {
-        // доверяем серверу: синхронизируем баланс с тем, что пришло
-        if (typeof data.newBalance === 'number') {
-          setBalance(data.newBalance);
-          updatePlusBalanceUI();
-        }
-        // тост
-        const msg = (window.i18n?.t('promo.ok', { amount: data.amount }) || `+${data.amount} PLAMc начислено`);
-        try { tg?.showAlert?.(msg); } catch(_) { alert(msg); }
-        promoInput.value = '';
-        return;
-      }
-
-      // Ошибки по коду
-      const codeMap = {
-        ALREADY: window.i18n?.t('promo.already') || 'Этот промокод вы уже активировали',
-        LIMIT:   window.i18n?.t('promo.limit')   || 'Лимит активаций исчерпан',
-        EXPIRED: window.i18n?.t('promo.expired') || 'Срок действия промокода истёк',
-        INVALID: window.i18n?.t('promo.invalid') || 'Неверный промокод'
-      };
-      const txt = codeMap[data.code] || (window.i18n?.t('promo.error') || 'Не удалось активировать. Повторите позже');
-      try { tg?.showAlert?.(txt); } catch(_) { alert(txt); }
-
-    } catch (e) {
-      const txt = window.i18n?.t('promo.error') || 'Не удалось активировать. Повторите позже';
-      try { window.Telegram?.WebApp?.showAlert?.(txt); } catch(_) { alert(txt); }
-    } finally {
-      btnApply.disabled = false;
+  // Если приз уже есть в списке (например, LS сброшен частично), зафиксируем флаг
+  function syncPromoFlag() {
+    const list = getPrizes();
+    if (list.some(p => p.id === PROMO.id)) {
+      try { localStorage.setItem(PROMO.flag, '1'); } catch(_) {}
     }
   }
 
-  promoForm?.addEventListener('submit', (e)=>{
-    e.preventDefault();
-    const code = promoInput?.value || '';
-    if (!code.trim()) return;
-    redeemPromo(code);
-  });
+  function selectedId(){
+    const sel = root.querySelector('.prize-item.is-selected');
+    return sel ? sel.dataset.id : null;
+  }
 
-  if (!root) return;
-  const payBtn = root.querySelector('.btn-pay');
-  const grid   = root.querySelector('[data-prize-grid]');
+  function syncPayBtn(){
+    if (payBtn) payBtn.disabled = !selectedId();
+  }
 
   function render(){
     const list = getPrizes();
@@ -1095,7 +1069,7 @@ function initPrizes(){
 
     if (!list.length){
       grid.innerHTML = `<div style="opacity:.7;text-align:center;font-weight:800">${T('prizes.none','Пока нет призов')}</div>`;
-      if (payBtn) payBtn.disabled = true;
+      syncPayBtn();
       return;
     }
 
@@ -1104,44 +1078,114 @@ function initPrizes(){
         <span class="prize-card" style="background-image:url('${p.img}')"></span>
       </div>
     `).join('');
+
     syncPayBtn();
+    syncPromoFlag();
   }
-  function selectedIds(){ return [...root.querySelectorAll('.prize-item.is-selected')].map(el => el.dataset.id); }
-  function syncPayBtn(){ if (payBtn) payBtn.disabled = selectedIds().length === 0; }
 
-  grid.addEventListener('click', (e)=>{
-    const item = e.target.closest('.prize-item'); if (!item) return;
-    item.classList.toggle('is-selected'); syncPayBtn();
-  });
-  grid.addEventListener('keydown', (e)=>{
-    if (e.key !== 'Enter' && e.key !== ' ') return;
-    const item = e.target.closest('.prize-item'); if (!item) return;
-    e.preventDefault(); item.classList.toggle('is-selected'); syncPayBtn();
-  });
+  // Радио-поведение выбора (внешне всё как раньше)
+  if (grid && !grid.dataset.bound){
+    grid.dataset.bound = '1';
 
-  payBtn?.addEventListener('click', ()=>{
-    const list = getPrizes();
-    const ids  = selectedIds();
-    const sum = ids.reduce((acc, id)=>{
+    grid.addEventListener('click', (e)=>{
+      const item = e.target.closest('.prize-item'); 
+      if (!item) return;
+      // снять выбор со всех, затем выбрать один
+      grid.querySelectorAll('.prize-item.is-selected').forEach(el => el.classList.remove('is-selected'));
+      item.classList.add('is-selected');
+      syncPayBtn();
+    });
+
+    grid.addEventListener('keydown', (e)=>{
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      const item = e.target.closest('.prize-item'); 
+      if (!item) return;
+      e.preventDefault();
+      grid.querySelectorAll('.prize-item.is-selected').forEach(el => el.classList.remove('is-selected'));
+      item.classList.add('is-selected');
+      syncPayBtn();
+    });
+  }
+
+  // Кнопка «Забрать» — забираем по одному призу
+  if (payBtn && !payBtn.dataset.bound){
+    payBtn.dataset.bound = '1';
+    payBtn.addEventListener('click', ()=>{
+      const id = selectedId();
+      if (!id) return;
+
+      const list = getPrizes();
       const p = list.find(x => x.id === id);
-      if (p && p.kind === 'coins') acc += (Number(p.amount) || 0);
-      return acc;
-    }, 0);
+      let sum = 0;
+      if (p && p.kind === 'coins') sum = Number(p.amount) || 0;
 
-    if (sum > 0){
-      addBalance(sum); updatePlusBalanceUI();
-      try { window.Telegram?.WebApp?.showAlert?.(`+${sum} PLAMc`); } catch(_) {}
-    }
+      if (sum > 0){
+        addBalance(sum); updatePlusBalanceUI();
+        try { window.Telegram?.WebApp?.showAlert?.(`+${sum} PLAMc`); } catch(_) {}
+      }
 
-    const next = list.filter(p => !ids.includes(p.id));
-    setPrizes(next);
+      // удаляем только выбранный приз
+      const next = list.filter(x => x.id !== id);
+      setPrizes(next);
 
-    render();
-    closeModal();
-  }, { once:true });
+      render();
+      // модалку можно оставить открытой, чтобы забирать следующие призы
+      syncPayBtn();
+    });
+  }
 
+  // Промокод: поле/кнопка
+  const promoInput = root.querySelector('[data-promo-input]');
+  const promoBtn   = root.querySelector('[data-promo-apply]');
+
+  if (promoBtn && !promoBtn.dataset.bound){
+    promoBtn.dataset.bound = '1';
+
+    promoBtn.addEventListener('click', ()=>{
+      const raw = (promoInput?.value || '').trim().toUpperCase();
+      if (!raw){
+        toast('promo.invalid', 'Неверный промокод');
+        return;
+      }
+
+      if (raw !== PROMO.code){
+        toast('promo.invalid', 'Неверный промокод');
+        return;
+      }
+
+      // проверка «уже активирован»
+      const already = (()=>{
+        try { if (localStorage.getItem(PROMO.flag) === '1') return true; } catch(_) {}
+        return getPrizes().some(p => p.id === PROMO.id);
+      })();
+
+      if (already){
+        toast('promo.already', 'Этот промокод вы уже активировали');
+        return;
+      }
+
+      // добавляем приз +30 PLAMc
+      addPrize({
+        id: PROMO.id,
+        kind: 'coins',
+        amount: PROMO.amount,
+        img: PROMO.img,
+        title: T('promo.title','Промокод: {{amount}} PLAMc', { amount: PROMO.amount })
+      });
+
+      try { localStorage.setItem(PROMO.flag, '1'); } catch(_) {}
+      if (promoInput) promoInput.value = '';
+
+      toast('promo.activated', 'Промокод активирован: +{{amount}} PLAMc', { amount: PROMO.amount });
+
+      render();
+    });
+  }
+
+  // первый рендер
   render();
 }
+
 
 // --- Профиль ---
 function initProfile(){
