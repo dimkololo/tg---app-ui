@@ -2063,7 +2063,7 @@ background: #FF7300; /* оранжевый активный */
 
 /* Больше "воздуха" у кнопки Активировать + зелёный стиль */
 .promo-form [data-promo-apply] {
-  margin: 8px 0 12px;
+  
   padding-inline: 10px;            /* было тесно по бокам */
   background: #14AE5C;             /* зелёная кнопка */
   color: #fff;
