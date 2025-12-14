@@ -855,39 +855,39 @@ html,body{
 /* ====== попап 3: призы ====== */
 
 .prizes-popup{width:100%; max-width:420px; display:grid; gap:14px}
-/* Сетка: слоты фиксированные по 100px, ряды начинаются слева */
+/* базово — 3 слота по 100px и центр всей решётки */
 .prize-grid{
   display: grid;
-  grid-template-columns: repeat(3, 100px); /* три слота по 100px */
+  grid-template-columns: repeat(3, 100px);
   gap: 12px;
-  justify-content: center;                 /* центрируем всю решётку */
+  justify-content: center;      /* центрируем всю область треков */
 }
 
-/* 1 карточка — строго во 2-й колонке, по центру */
+/* ровно ОДИН приз — ставим строго в центр (2-я колонка) */
 .prize-grid > .prize-item:only-child{
   grid-column: 2;
   justify-self: center;
 }
 
-/* 2 колонки на узких экранах */
-@media (max-width: 380px){
-  .prize-grid{
-    grid-template-columns: repeat(2, 100px);
-    gap: 12px;
-  }
-  /* одна карточка на 2-колоночной решётке — по центру строки */
-  .prize-grid > .prize-item:only-child{
-    grid-column: 1 / span 2;
-    justify-self: center;
-  }
+/* ровно ДВА приза — делаем 2 колонки и центрируем пару */
+.prize-grid:has(.prize-item:nth-child(2)):not(:has(.prize-item:nth-child(3))){
+  grid-template-columns: repeat(2, 100px);
+  justify-content: center;
 }
 
-/* совсем узко — одна колонка, центр останется за счёт justify-content */
-@media (max-width: 300px){
-  .prize-grid{
-    grid-template-columns: 1fr;
-    justify-content: center;
+/* адаптив (опционально): на очень узких экранах — 2 колонки или 1 */
+@media (max-width: 380px){
+  /* если ≥3 призов, переходим на 2 колонки */
+  .prize-grid:has(.prize-item:nth-child(3)){
+    grid-template-columns: repeat(2, 100px);
   }
+  /* одна карточка — растянуть на 2 колонки, чтобы осталась по центру */
+  .prize-grid > .prize-item:only-child{
+    grid-column: 1 / span 2;
+  }
+}
+@media (max-width: 300px){
+  .prize-grid{ grid-template-columns: 1fr; } /* по одной в линию */
 }
 
 /* Элемент списка: чекбокс + квадрат 100x100 */
