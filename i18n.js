@@ -403,7 +403,7 @@ i18n.load('ru', {
   "promo.hint": "Промокод можно использовать один раз.",
   "promo.title": "Промокод: +{{amount}} PLAMc",
   "promo.invalid": "Неверный промокод",
-  "promo.already": "Этот промокод вы уже активировали",
+  "promo.already": "Этот промокод уже активирован",
 
    "fortune.title": "Колесо фортуны",
   "fortune.spin": "Вращать",
