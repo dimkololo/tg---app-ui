@@ -251,6 +251,14 @@ function isPremium(){ const u = getPremiumUntil(); return u > Date.now(); }
 
 
 function getPhotoCount(){ return LS.getNum(K.PHOTO_COUNT, 0); }
+function setPhotoCount(n){
+  n = Math.max(0, n|0);
+  LS.setNum(K.PHOTO_COUNT, n);
+  window.PLAM.photoCount = n;
+}
+function syncPhotoCountFromLS(){
+  window.PLAM.photoCount = getPhotoCount();
+}
 function incPhotoCount(){ LS.setNum(K.PHOTO_COUNT, getPhotoCount() + 1); }
 
 function getUploadCooldownUntil(){ return LS.getNum(K.UPLOAD_CD_UNTIL, 0); }
