@@ -698,6 +698,15 @@ html,body{
 
 /* ====== попапы: общие ====== */
 .popup{display:grid; gap:12px; justify-items:center; width:100%; max-width:420px; margin-inline:auto}
+/* Upload: делаем вертикальные расстояния компактнее */
+.upload-popup.popup{
+  gap: 8px;              /* было 12px у .popup */
+}
+
+/* Upload: таймер ближе к кнопке */
+.upload-popup [data-cd-text]{
+  margin-bottom: 6px;    /* было 12px */
+}
 .u-center{
   display: flex;
   justify-content: center;
