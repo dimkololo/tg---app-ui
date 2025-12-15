@@ -1256,7 +1256,7 @@ background: #FF7300; /* оранжевый активный */
 /* Прокрутка контента в верхнем слое модалки (стек) */
 .modal--stack .modal__content{
   padding-bottom: calc(16px + var(--kb-inset));
-  max-height: calc(100svh - 140px);
+  max-height: calc(var(--appH) - 140px - var(--kb-inset));
   overflow: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -1662,7 +1662,7 @@ background: #FF7300; /* оранжевый активный */
 /* диалог — непрозрачный, скролл включён (у тебя это уже есть для .modal--opaque) */
 .modal--opaque .modal__dialog{ background: var(--chip); }
 .modal__content.is-scrollable{
-  max-height: calc(100svh - 140px);
+  max-height: calc(var(--appH) - 140px - var(--kb-inset));
   overflow:auto;
   -webkit-overflow-scrolling:touch;
 }
