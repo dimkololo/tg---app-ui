@@ -418,13 +418,12 @@ function openStack(id){
 }
 function closeStack(){
   stackRoot.classList.remove('stack--policy');
+  stackRoot.classList.remove('stack--no-close'); // ← ДОБАВЬ ЭТО СЮДА
   stackRoot.hidden = true;
   stackRoot.setAttribute('aria-hidden','true');
   stackContent.innerHTML = '';
 }
 
- // >>> добавить: на всякий случай убираем флаг
-  stackRoot.classList.remove('stack--no-close');
 
 // --- Политика: required/info (с фолбэками на единый tpl-policy) ---
 const POLICY_FLAG = K.POLICY_OK;
