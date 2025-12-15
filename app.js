@@ -565,6 +565,60 @@ document.addEventListener('keydown', (e) => {
   window.addEventListener('orientationchange', ()=> root.classList.remove('kb-open'));
 })();
 
+// ==== Lock viewport height (не реагируем на клавиатуру) ====
+(function lockViewportHeight(){
+  const root = document.documentElement;
+
+  const isKeyboardOpen = () => {
+    if (!window.visualViewport) return false;
+    const vh = window.visualViewport.height;
+    const sh = window.screen && window.screen.height ? window.screen.height : vh;
+    // если стало заметно меньше экрана — считаем, что открылась клавиатура
+    return vh <= sh * 0.78;
+  };
+
+  let raf = null;
+  function setAppH(px){
+    root.style.setProperty('--appH', px + 'px');
+  }
+
+  function measureAndSet(){
+    // Берём реальную высоту вьюпорта БЕЗ учёта клавиатуры
+    // (когда kbd открыт — пропускаем обновление, чтобы фон не сжимался)
+    if (isKeyboardOpen()) return;
+    const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    setAppH(Math.round(h));
+  }
+
+  // первичное измерение
+  measureAndSet();
+
+  // переизмеряем на «нормальных» ресайзах и смене ориентации
+  const schedule = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(measureAndSet); };
+
+  window.addEventListener('resize', schedule, { passive: true });
+  window.addEventListener('orientationchange', () => setTimeout(measureAndSet, 250), { passive: true });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', schedule, { passive: true });
+  }
+
+  // Небольшая интеграция с нашим классом kb-open (если он уже есть где-то)
+  document.addEventListener('focusin', (e)=>{
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable)) {
+      document.documentElement.classList.add('kb-open');
+    }
+  });
+  document.addEventListener('focusout', ()=>{
+    // когда фокус ушёл со всех инпутов — можно обновить высоту
+    setTimeout(()=>{
+      if (!document.querySelector('input:focus, textarea:focus, [contenteditable="true"]:focus')){
+        document.documentElement.classList.remove('kb-open');
+        measureAndSet();
+      }
+    }, 0);
+  });
+})();
+
 
 // --- Попап 1: загрузка фото ---
 function initUploadPopup(){
