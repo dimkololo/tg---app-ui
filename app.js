@@ -378,6 +378,11 @@ function openModal(id){
   modalRoot.setAttribute('aria-hidden', 'false');
   document.documentElement.style.overflow = 'hidden';
 
+   // <<< ДОБАВЬ: замораживаем диалог только для "Призы"
+  const dlg = modalContent.closest('.modal__dialog');
+  dlg?.classList.toggle('no-hop', id === 'prizes');
+
+
   // применим i18n к только что вставленному содержимому
   i18nApply(modalRoot);
 
