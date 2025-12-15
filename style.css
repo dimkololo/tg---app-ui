@@ -1234,6 +1234,8 @@ background: #FF7300; /* оранжевый активный */
 /* сам диалог в верхнем слое — сплошной фон */
 .modal--stack .modal__dialog{
   background: var(--chip);
+  max-height: calc(min(680px, var(--appH)) - 48px - var(--kb-inset));
+  margin-bottom: var(--kb-inset);
 }
 
 /* фон подложки можно сделать чуть темнее, чтобы читалось */
