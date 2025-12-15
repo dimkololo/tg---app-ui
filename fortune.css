@@ -1,0 +1,319 @@
+:root{
+  /* подстрой — фактическая высота «системной» панели TG */
+  --tg-topbar: 64px;
+}
+/* центр страницы колеса */
+.scene--fortune{
+  place-items: stretch;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 100svh;
+}
+@supports (height: 100dvh){
+  .scene--fortune{ min-height: 100dvh; }
+}
+
+.fortune-body{
+  /* занимает весь второй ряд грида */
+  height: 100%;
+  min-height: 0;
+
+  /* вертикальная колонка по центру экрана */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;          /* <-- было flex-start */
+
+  gap: clamp(16px, 3vh, 28px);
+  padding: clamp(12px, 3vh, 24px)
+           env(safe-area-inset-right, 12px)
+           max(24px, env(safe-area-inset-bottom, 12px))
+           env(safe-area-inset-left, 12px);
+}
+
+
+
+/* колесо */
+.wheel-stack{
+  position: relative;
+  --wheel-size: clamp(240px, 80vmin, 520px);
+  width:  var(--wheel-size);
+  height: var(--wheel-size);
+  margin: 0 auto;
+  z-index: 1;
+}
+
+/* сама картинка колеса */
+.wheel-img{
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: contain;
+  transform-origin: 50% 50%;
+  z-index: 1;
+}
+
+/* кнопка под колесом */
+.scene--fortune .btn-spin{
+  position: relative;
+  z-index: 10;
+  display:inline-flex; align-items:center; justify-content:center;
+  min-width:220px; height:56px; border-radius:35px;
+  border:0; cursor:pointer;
+  background:#FF7300; color:#fff; font-weight:800; font-size:18px;
+  box-shadow:0 6px 14px rgba(255,115,0,.25);
+}
+.scene--fortune .btn-spin[disabled]{
+  opacity:.5; pointer-events:none; cursor:default; filter:grayscale(.15);
+}
+
+
+
+/* цифры: радиус вынесен в переменную; можно подстроить 0.40–0.45 */
+.wheel__numbers{
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+
+  --R: calc(var(--wheel-size) * 0.32);
+
+  font-weight: 900;
+  color: #210B00;
+  text-shadow: 0 2px 4px rgba(255,255,255,.6);
+}
+
+/* КЛЮЧЕВОЕ: «повернуть к центру» и увеличить размер */
+.wheel__label{
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform:
+    translate(-50%, -50%)
+    rotate(var(--a, 0deg))           /* поворот к центру сектора */
+    translateX(var(--R, 200px))      /* выносим на окружность */
+    rotate(90deg);                  /* «лицом» к центру */
+
+  font-size: clamp(18px, 6vmin, 32px);  /* КРУПНЕЕ */
+  line-height: 1;
+  letter-spacing: .02em;
+  text-align: center;
+  user-select: none;
+}
+
+/* чтобы поворот шел от центра контейнера */
+.wheel-stack{
+  transform-origin: 50% 50%;
+}
+
+/* ротор занимает весь круг и крутится из центра */
+.wheel-rotor{
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 50%;
+  z-index: 1; 
+}
+
+/* стрелка — сосед ротора, НЕ вращается */
+.wheel-pointer{
+  position: absolute;
+  right: -2%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: clamp(40px, 8vw, 60px);
+  height: auto;
+  pointer-events: none;
+  z-index: 5;
+  filter: drop-shadow(0 5px 1px rgba(0,0,0,.35));
+}
+
+/* центр. иконка — всегда по центру, масштаб от размера колеса */
+.wheel-stack{ 
+  /* можно подстроить процент при желании */
+  --center-size: calc(var(--wheel-size) * 0.16);
+}
+
+.wheel-center{
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);  /* идеальный центр */
+  width: var(--center-size);
+  height: auto;
+  z-index: 3;                        /* выше диска/цифр, ниже указателя */
+  pointer-events: none;              /* не перехватывает тапы */
+}
+
+
+/* лёгкая «пружинка» стрелки */
+@keyframes pointer-bounce {
+  0%   { transform: translateY(-50%) rotate(0deg); }
+  30%  { transform: translateY(-50%) rotate(-9deg); }
+  60%  { transform: translateY(-50%) rotate(6deg); }
+  100% { transform: translateY(-50%) rotate(0deg); }
+}
+.wheel-pointer.wiggle{
+  animation: pointer-bounce 800ms ease-out;
+}
+
+/* тост */
+.toast{
+  position: fixed;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom, 12px) + clamp(30px, 20vh, 60px));
+  transform: translateX(-50%);
+  background: rgba(0,0,0,.82);
+  color: #fff;
+  font-weight: 800;
+  padding: 12px 16px;
+  border-radius: 14px;
+  z-index: 300;
+  opacity: 0;
+  animation: toast-in 220ms ease-out forwards, toast-out 400ms ease-in 3200ms forwards;
+  pointer-events: none;
+}
+
+@keyframes toast-in {
+  from { transform: translateX(-50%) translateY(8px); opacity: 0; }
+  to   { transform: translateX(-50%) translateY(0);    opacity: 1; }
+}
+@keyframes toast-out {
+  to   { transform: translateX(-50%) translateY(8px); opacity: 0; }
+}
+/* сам топбар — ниже системных кнопок TG */
+.fortune-topbar{
+  position: sticky;
+  top: calc(env(safe-area-inset-top, 0px) + var(--tg-topbar));
+  z-index: 20;
+  padding: 8px 12px;
+  display: grid;
+  grid-template-columns: auto 1fr auto; /* ← back | tabs(center) | spacer */
+  align-items: center;
+  gap: 8px;
+  background: rgba(0,0,0,.2)
+}
+
+
+/* кнопка назад — теперь часть топбара */
+.btn-back{
+  appearance: none;
+  position: relative;      /* без fixed! */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  border: 0;
+  background: #fff;
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,.18);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-back:active{ transform: translateY(1px); }
+
+/* простая иконка-стрелка без SVG */
+.i-back{
+  width: 16px; height: 16px;
+  border-left: 3px solid currentColor;
+  border-bottom: 3px solid currentColor;
+  transform: rotate(45deg);
+}
+
+/* Табы в топбаре */
+.fortune-tabs{ justify-self: center; display: flex; gap: 10px; }
+.fortune-tab{
+  appearance:none; border:0; cursor:pointer;
+  padding:10px 14px; border-radius:8px;
+  font-weight:800; font-size:14px;
+  background:#D9D9D9; color:#D9D9D9;
+}
+.fortune-tab.is-active{
+  background:#14AE5C; color:#fff;
+}
+
+.topbar-spacer{ width: 40px; height: 1px; } /* балансирует ширину с кнопкой назад */
+
+/* Панели вкладок */
+.tab-panel[hidden]{ display:none !important; }
+
+/* Плейсхолдер для «Задания» */
+.tasks-empty{
+  display:grid; place-items:center; gap:12px;
+  min-height: 40vh;
+  text-align:center;
+  opacity:.8;
+}
+.tasks-empty__img{ width:64px; height:auto; opacity:.6; }
+.tasks-empty__text{ font-weight:800; }
+
+/* Разметка панели с колесом: центр и нормальные отступы */
+.tab-panel[data-panel="wheel"]{
+  display: flex;
+  flex-direction: column;
+  align-items: center;                         /* центрируем кнопку */
+  gap: clamp(20px, 4vh, 36px);                 /* расстояние между колесом, кнопкой и таймером */
+}
+
+/* на всякий случай — если где-то переопределится */
+.tab-panel[data-panel="wheel"] .btn-spin{
+  align-self: center;
+}
+
+
+/* плавное появление/исчезновение содержимого вкладок */
+.tab-panel{ will-change: opacity, transform; }
+.tab-panel.anim-in{  animation: panel-in 220ms ease-out both; }
+.tab-panel.anim-out{ animation: panel-out 180ms ease-in  both; }
+
+@keyframes panel-in{
+  from{ opacity:0; transform: translateY(6px) scale(.98); }
+  to  { opacity:1; transform: none; }
+}
+@keyframes panel-out{
+  from{ opacity:1; transform: none; }
+  to  { opacity:0; transform: translateY(6px) scale(.98); }
+}
+
+/* немного анимации кнопок-таба */
+.fortune-tab{
+  transition: background-color .2s ease, color .2s ease, box-shadow .2s ease, transform .16s ease;
+}
+.fortune-tab.is-active{ transform: translateY(-1px); }
+
+
+/* панель колеса по центру, расстояние между колесом и зоной кнопки */
+.tab-panel[data-panel="wheel"]{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(20px, 4vh, 36px);
+}
+
+/* обёртка — якорь для таймера */
+.wheel-cta{
+  position: relative;                  /* ← таймер будет позиционироваться от неё */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* таймер под кнопкой, не влияет на лэйаут */
+#fortuneTimer{
+  position: absolute;
+  top: calc(100% + 10px);              /* 10px — зазор под кнопкой, подправь по вкусу */
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  text-align: center;
+  pointer-events: none;                 /* не ловит клики */
+  z-index: 1;                           /* ниже тостов/попапов, выше фона */
+  white-space: nowrap;     /* ← вся строка в одну линию */
+  display: block;          /* на всякий случай, чтобы не было inline-flex из прошлых правок */
+  line-height: 1.15;
+}
+
+
+
+
+
