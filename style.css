@@ -848,48 +848,84 @@ html,body{
 
 /* ====== попап 3: призы ====== */
 
-.prizes-popup{width:100%; max-width:420px; display:grid; gap:14px}
-/* Сетка призов — растягивается, без пустых слотов */
-/* Сетка: слоты фиксированные по 100px, ряды начинаются слева */
+.prizes-popup{width:100%; max-width:420px; display:grid; gap:14px} 
+/* Сетка: слоты фиксированные по 100px, ряды начинаются слева */ 
+/* базово — 3 слота по 100px и центр всей решётки */
 .prize-grid{
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 100px));
+  grid-template-columns: repeat(3, 100px);
   gap: 12px;
-  justify-content: flex-start;      /* всегда слева */
+  justify-content: center;      /* центрируем всю область треков */
 }
 
-/* Если приз ОДИН — центрируем всю сетку */
-.prize-grid:not(:has(.prize-item:nth-child(2))){
-  justify-content: center;          /* центр только для 1 элемента */
-}
-/* Элемент списка: чекбокс + квадрат 100x100 */
-.prize-item{
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
+/* ровно ОДИН приз — ставим строго в центр (2-я колонка) */
+.prize-grid > .prize-item:only-child{
+  grid-column: 2;
+  justify-self: center;
 }
 
-/* Подсветка выбранного приза (рамка по периметру) */
-.prize-item.is-selected .prize-card{
-  box-shadow:
-    inset 0 0 0 2px #FF7300,
-    0 0 0 1px rgba(0,0,0,.04);
+/* ровно ДВА приза — делаем 2 колонки и центрируем пару */
+.prize-grid:has(.prize-item:nth-child(2)):not(:has(.prize-item:nth-child(3))){
+  grid-template-columns: repeat(2, 100px);
+  justify-content: center;
 }
 
-/* Квадрат под подарок (контейнер 100x100, скругление 12) */
-.prize-card{
-  width: 100px;
-  height: 100px;
-  border-radius: 12px;
-  background: #D9D9D9 center / cover no-repeat;
+/* адаптив (опционально): на очень узких экранах — 2 колонки или 1 */
+@media (max-width: 380px){
+  /* если ≥3 призов, переходим на 2 колонки */
+  .prize-grid:has(.prize-item:nth-child(3)){
+    grid-template-columns: repeat(2, 100px);
+  }
+  /* одна карточка — растянуть на 2 колонки, чтобы осталась по центру */
+  .prize-grid > .prize-item:only-child{
+    grid-column: 1 / span 2;
+  }
+}
+@media (max-width: 300px){
+  .prize-grid{ grid-template-columns: 1fr; } /* по одной в линию */
+}
+
+/* если внутри .prize-grid ВСЕГО ОДИН элемент (а это как раз плейсхолдер),
+   растянуть его на всю ширину и центрировать */
+.prize-grid > *:only-child{
+  grid-column: 1 / -1;
+  justify-self: center;
+  text-align: center;
+}
+
+
+
+/* Элемент списка: чекбокс + квадрат 100x100 */ 
+.prize-item{ 
+  display: inline-flex; 
+  flex-direction: column; 
+  align-items: center; 
+  gap: 8px; cursor: pointer; 
+} 
+/* Подсветка выбранного приза (рамка по периметру) */ 
+.prize-item.is-selected .prize-card{ 
+  box-shadow: inset 0 0 0 2px #FF7300, 0 0 0 1px rgba(0,0,0,.04);
+} 
+/* Квадрат под подарок (контейнер 100x100, скругление 12) */ 
+.prize-card{ 
+  width: 100px; 
+  height: 100px; 
+  border-radius: 12px; 
+  background: #D9D9D9 center / cover no-repeat; 
   box-shadow: inset 0 0 0 1px rgba(0,0,0,.06);
-  transition: box-shadow .15s ease;  /* приятнее подсветка */
-}
-.prize-body{color:#000; opacity:.75; font-size:12px}
-.prize-title{font-weight:700; margin-bottom:4px; opacity:.9}
+  transition: box-shadow .15s ease; /* приятнее подсветка */ 
+} 
+.prize-body{
+  color:#000; opacity:.75; 
+  font-size:12px
+} 
+.prize-title{
+  font-weight:700;
+  margin-bottom:4px; 
+  opacity:.9
+} 
 .prize-sub{font-size:11px}
+
 .btn-pay{
   display:inline-flex; align-items:center; justify-content:center;
   min-width:220px; padding:0 18px; height:56px; border-radius:35px;
