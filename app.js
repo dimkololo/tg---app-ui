@@ -1742,13 +1742,3 @@ document.addEventListener('plam:langChanged', () => {
 });
 
 
-// Debug хот-спотов
-(function debugHotspots(){
-  const on = /[?&]debug=1/.test(location.search);
-  if (on) document.body.classList.add('__debug');
-  window.addEventListener('keydown', (e)=>{
-    if ((e.key === 'D' || e.key === 'd') && e.shiftKey){
-      document.body.classList.toggle('__debug');
-    }
-  });
-})();
