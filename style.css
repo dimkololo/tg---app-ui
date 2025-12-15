@@ -126,7 +126,7 @@ html,body{
 }
 
 /* LARGE: большой холст */
-@media (min-width:768px),(min-height:1024px){
+@media (min-width:768px){
   .stage{ --design-w: var(--lw); --design-h: var(--lh); }
   :root{
     --plus-font-m:28px;
@@ -205,7 +205,7 @@ html,body{
     height:calc(var(--actions-h-s)/var(--design-h)*100%);
   }
 }
-@media (min-width:768px),(min-height:1024px){
+@media (min-width:768px){
   .hotspot--actions{
     left:  calc(var(--actions-x-l)/var(--design-w)*100%);
     top:   calc(var(--actions-y-l)/var(--design-h)*100%);
@@ -253,7 +253,7 @@ html,body{
 }
 
 /* large */
-@media (min-width:768px),(min-height:1024px){
+@media (min-width:768px){
   .anchor--tv{
     left:  calc(var(--tv-x-l)/var(--design-w)*100%);
     top:   calc(var(--tv-y-l)/var(--design-h)*100%);
@@ -304,7 +304,7 @@ html,body{
       height:42.529%;
     }
   }
-  @media (min-width:768px),(min-height:1024px){
+ @media (min-width:768px){
     .anchor--tv .hotspot--wintable{
       left: 92.857%;
       top:  45.356%;
@@ -362,7 +362,7 @@ html,body{
 }
 
 /* large */
-@media (min-width:768px),(min-height:1024px){
+@media (min-width:768px){
   .anchor--stump{
     left:  calc(var(--stump-x-l)/var(--design-w)*100%);
     top:   calc(var(--stump-y-l)/var(--design-h)*100%);
@@ -542,7 +542,7 @@ html,body{
 }
 
 /* ====== large ====== */
-@media (min-width:768px),(min-height:1024px){
+@media (min-width:768px){
   .stage{--design-w:var(--lw); --design-h:var(--lh)}
   .hotspot--plus{
     left:calc(var(--plus-x-l)/var(--design-w)*100%); top:calc(var(--plus-y-l)/var(--design-h)*100%);
@@ -628,7 +628,7 @@ html,body{
 }
 
 /* large */
-@media (min-width:768px),(min-height:1024px){
+@media (min-width:768px){
   .hotspot--faq{
     left:  calc(var(--faq-x-l)/var(--design-w)*100%);
     top:   calc(var(--faq-y-l)/var(--design-h)*100%);
@@ -1532,7 +1532,7 @@ background: #FF7300; /* оранжевый активный */
 }
 
 /* Большие экраны — слоты побольше */
-@media (min-width:768px),(min-height:1024px){
+@media (min-width:768px){
   .lb-hero{ --lb-slot: 84px; width: 360px; }
 }
 
@@ -1699,7 +1699,7 @@ background: #FF7300; /* оранжевый активный */
     height:calc(var(--plane-h-s)/var(--design-h)*100%);
   }
 }
-@media (min-width:768px),(min-height:1024px){
+@media (min-width:768px){
   .decal--plane{
     top:   calc(var(--plane-y-l)/var(--design-h)*100%);
     width: calc(var(--plane-w-l)/var(--design-w)*100%);
