@@ -81,7 +81,7 @@
 /* ====== базовая сцена ====== */
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{
-  height:100%;
+  height:auto;
   overflow:hidden;
   background:var(--bg);
   color:var(--text);
@@ -95,7 +95,6 @@ html,body{
   display: grid;
   place-items: end center;
   width: 100vw;
-  height: 100svh;
   overflow: hidden;
 
   /* НОВОЕ: один универсальный фон */
@@ -105,26 +104,19 @@ html,body{
   background-repeat: no-repeat;
   background-position: 50% 100%;                 /* центр-низ (см. примечание ниже) */
 }
-@supports (height: 100dvh){
-  .scene{ height: 100dvh; }                      /* стабильней на мобилках */
-}
-
 
 /* Сцена — размер задаёт картинка */
 .stage{
   position: relative;
   display: block;         /* можно и inline-block, но block надёжнее */
   width: 100vw;
-  height: 100svh;         /* важное: реальная высота контейнера */
   overflow: visible;
 
   /* как и было — «дизайн-холсты» для пересчёта координат */
   --design-w: var(--mw);
   --design-h: var(--mh);
 }
-@supports (height: 100dvh){
-  .stage{ height: 100dvh; }
-}
+
 
 /* SMALL: маленький холст */
 @media (max-width:375px),(max-height:667px){
@@ -1928,7 +1920,7 @@ background: #FF7300; /* оранжевый активный */
 .modal.modal--stack.stack--policy .modal__dialog {
   /* компактная ширина и безопасная высота */
   width: min(560px, calc(100% - 24px));
-  max-height: min(680px, 92dvh); /* dvh фиксит мобильные браузеры */
+  max-height: min(680px, 92svh); /* dvh фиксит мобильные браузеры */
   display: flex;
   flex-direction: column;
 }
@@ -2109,12 +2101,6 @@ background: #FF7300; /* оранжевый активный */
 .promo-form [data-promo-apply]:hover   { filter: brightness(1.05); }
 .promo-form [data-promo-apply]:active  { transform: translateY(1px); }
 .promo-form [data-promo-apply]:disabled{ opacity: .5; filter: none; }
-
-/* --- Фикс клавиатуры: не сжимать фон, когда открыт ввод --- */
-html.kb-open .scene,
-html.kb-open .stage{
-  height: 100svh !important; /* не реагируем на клавиатуру */
-}
 
 /* По желанию: чтобы модалка не «прыгала» по центру */
 html.kb-open .modal{
