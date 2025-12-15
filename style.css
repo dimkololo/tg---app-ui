@@ -1729,7 +1729,7 @@ background: #FF7300; /* оранжевый активный */
 
 .upload-popup{
   display: grid;          /* на случай, если нет .popup */
-  gap: 4px !important;    /* общий gap между блоками */
+  gap: 10px !important;    /* общий gap между блоками */
 }
 
 /* Большой таймер над кнопкой в попапе загрузки */
