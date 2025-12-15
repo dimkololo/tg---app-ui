@@ -1187,7 +1187,12 @@ background: #FF7300; /* оранжевый активный */
 .val-right{color:#000; font-weight:800}
 .pill{min-width:28px; height:28px; padding:0 10px; display:inline-flex; align-items:center; justify-content:center; border-radius:14px; color:#fff; font-weight:800; font-size:14px}
 .pill-orange{background:#FF7300}
-.hint{color:#000; opacity:.75; font-size:12px}
+.hint{
+  color:#000; 
+  opacity:.75; 
+  font-size:12px;
+  white-space: pre-line;
+}
 
 /* подтверждение */
 .confirm-card{width:100%; max-width:420px; padding:16px; background:var(--chip); border-radius:16px; display:grid; gap:12px}
