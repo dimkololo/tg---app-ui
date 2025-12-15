@@ -305,19 +305,6 @@ const SUBS_OK_KEY = 'plam_subs_ok_v1';
 function isSubsOk(){ return localStorage.getItem(SUBS_OK_KEY) === '1'; }
 function setSubsOk(v){ if (v) localStorage.setItem(SUBS_OK_KEY, '1'); else localStorage.removeItem(SUBS_OK_KEY); }
 
-// --- Фото: общий счётчик в LS (для условия "первая отправка") ---
-const PHOTO_COUNT_KEY = 'plam_photo_count_v1';
-function getPhotoCount(){ return parseInt(localStorage.getItem(PHOTO_COUNT_KEY) || '0', 10); }
-function setPhotoCount(n){
-  n = Math.max(0, parseInt(n||0,10));
-  localStorage.setItem(PHOTO_COUNT_KEY, String(n));
-  window.PLAM.photoCount = n;
-}
-function syncPhotoCountFromLS(){
-  window.PLAM.photoCount = getPhotoCount();
-}
-
-
 // --- Автозакрытие через 15 минут ---
 (function setupAutoClose(){
   const AUTO_CLOSE_MS = 15 * 60 * 1000;
