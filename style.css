@@ -1740,7 +1740,7 @@ background: #FF7300; /* оранжевый активный */
   font-size:22px;
   line-height:1.2;
   text-align:center;
-  margin-bottom:4px;
+  /*margin-bottom:4px;*/
   user-select:none;
 }
 
