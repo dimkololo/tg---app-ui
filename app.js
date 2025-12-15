@@ -45,7 +45,6 @@ function __plamFinishSplash() {
 
   const MIN_SHOW_MS = 4000;
   const HARD_TIMEOUT_MS = 12000;
-  const PRELOAD_BUDGET_MS = 2500;
   const t0 = performance.now();
 
  // ---- SKIP SPLASH ON SOFT RETURN FROM FORTUNE ----
@@ -103,10 +102,7 @@ try {
     });
   }
 
-  const preloadAll = Promise.race([
-    Promise.allSettled(criticalImages.map(preloadOne)),
-    new Promise((r) => setTimeout(r, PRELOAD_BUDGET_MS))
-  ]);
+  const preloadAll = Promise.allSettled(criticalImages.map(preloadOne));
  function hideSplashSoft() {
     const elapsed = performance.now() - t0;
     const delay = Math.max(0, MIN_SHOW_MS - elapsed);
