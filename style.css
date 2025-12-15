@@ -2056,6 +2056,23 @@ background: #FF7300; /* оранжевый активный */
 }
 .promo-hint { margin:6px 2px 0; font-size:12px; opacity:.7; }
 
+/* Больше "воздуха" у кнопки Активировать + зелёный стиль */
+.promo-form [data-promo-apply] {
+  padding-inline: 10px;            /* было тесно по бокам */
+  background: #14AE5C;             /* зелёная кнопка */
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(20,174,92,.25);
+  min-height: 44px;  
+}
+
+/* ховеры/нажатие/disabled — на вкус */
+.promo-form [data-promo-apply]:hover   { filter: brightness(1.05); }
+.promo-form [data-promo-apply]:active  { transform: translateY(1px); }
+.promo-form [data-promo-apply]:disabled{ opacity: .5; filter: none; }
+
+
 
 
 /* ====== DEBUG (включай <body class="__debug">) ====== 
