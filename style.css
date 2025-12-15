@@ -2176,6 +2176,37 @@ html, body {
   scroll-margin-bottom: calc(60px + var(--kb-inset));
 }
 
+/* === Freeze "Prizes" popup: никакого подпрыгивания при клавиатуре === */
+
+/* У диалога с .prizes-popup полностью игнорируем "подклады" под клавиатуру */
+.modal__dialog.no-hop{
+  /* Не опираемся на --kb-inset: окно не "поднимаем" */
+  margin-bottom: 0 !important;
+
+  /* Компенсируем сдвиг визуального вьюпорта (iOS) — двигаем диалог обратно вниз */
+  position: relative;
+  top: var(--vv-top, 0px);
+}
+
+/* Контент «Призы» не скроллим принудительно — всё помещается и не триггерит автопрокрутку */
+.modal__dialog.no-hop .modal__content{
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* На случай, если где-то стоит "скролли внутренности при инпуте" — режем только для «Призы» */
+.modal__dialog.no-hop .modal__content:has(input, textarea){
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* Само поле промокода не будет тянуть за собой автоскролл контейнера */
+.modal__dialog.no-hop .prizes-popup input,
+.modal__dialog.no-hop .prizes-popup textarea{
+  overscroll-behavior: contain;
+  scroll-margin-bottom: 0;
+}
+
 
 
 /* ====== DEBUG (включай <body class="__debug">) ====== */
