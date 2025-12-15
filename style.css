@@ -1255,6 +1255,7 @@ background: #FF7300; /* оранжевый активный */
 
 /* Прокрутка контента в верхнем слое модалки (стек) */
 .modal--stack .modal__content{
+  padding-bottom: calc(16px + var(--kb-inset));
   max-height: calc(100svh - 140px);
   overflow: auto;
   -webkit-overflow-scrolling: touch;
