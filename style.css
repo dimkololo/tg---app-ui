@@ -1727,6 +1727,11 @@ background: #FF7300; /* оранжевый активный */
   --plam-gray:   #D9D9D9;
 }
 
+.upload-popup{
+  display: grid;          /* на случай, если нет .popup */
+  gap: 4px !important;    /* общий gap между блоками */
+}
+
 /* Большой таймер над кнопкой в попапе загрузки */
 .upload-popup [data-cd-text]{
   display:block;
