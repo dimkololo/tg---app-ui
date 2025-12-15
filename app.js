@@ -210,16 +210,21 @@ const K = {
   if (localStorage.getItem('plam_premium_until') && !localStorage.getItem(K.PREMIUM_UNTIL)) {
     LS.set(K.PREMIUM_UNTIL, localStorage.getItem('plam_premium_until'));
   }
-  // photo count
-  if (localStorage.getItem('plam_photo_count') && !localStorage.getItem(K.PHOTO_COUNT)) {
-    LS.set(K.PHOTO_COUNT, localStorage.getItem('plam_photo_count'));
+
+  // photo count — тянем из любых старых ключей
+  if (!localStorage.getItem(K.PHOTO_COUNT)) {
+    const v1a = localStorage.getItem('plam_photo_count');     // очень старый
+    const v1b = localStorage.getItem('plam_photo_count_v1');  // свежий v1
+    const src = v1b ?? v1a;
+    if (src != null) LS.set(K.PHOTO_COUNT, src);
   }
-  // upload cooldown (раньше не сохраняли — мигрировать нечего)
+
   // welcome flag
   if (localStorage.getItem('plam_welcome_coins_given_v1') && !localStorage.getItem(K.WELCOME_FLAG)) {
     LS.set(K.WELCOME_FLAG, '1');
   }
 })();
+
 
 // --- API состояния (всё через LS) ---
 function getBalance(){ return LS.getNum(K.BALANCE, 0); }
