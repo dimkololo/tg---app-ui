@@ -1,5 +1,7 @@
 :root{
   --fortune-bar-gap: 26px; /* отступ от низа до бара */
+   --fortune-bar-h: 56px;     /* примерная высота бара (подгони, если нужно) */
+  --fortune-toast-extra: 12px;
 }
 /* центр страницы колеса */
 .scene--fortune{
@@ -159,7 +161,12 @@
 .toast{
   position: fixed;
   left: 50%;
-  bottom: calc(env(safe-area-inset-bottom, 12px) + clamp(30px, 20vh, 60px));
+  bottom: calc(
+    env(safe-area-inset-bottom, 0px)
+    + var(--fortune-bar-gap)
+    + var(--fortune-bar-h)
+    + var(--fortune-toast-extra)
+  );
   transform: translateX(-50%);
   background: rgba(0,0,0,.82);
   color: #fff;
