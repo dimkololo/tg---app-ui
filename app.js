@@ -1253,6 +1253,65 @@ function initBuyStars(){
 // --- Призы ---
 function initPrizes(){
   const root = modalRoot.querySelector('.prizes-popup');
+    // --- PROMO: обработка ввода промокода ---
+  const promoForm  = root.querySelector('[data-promo-form]');
+  const promoInput = promoForm?.querySelector('input[name="promo"]');
+  const btnApply   = promoForm?.querySelector('[data-promo-apply]');
+
+  async function redeemPromo(code){
+    // Telegram initData для идентификации пользователя (обязательно на бэке проверять подпись!)
+    const tg = window.Telegram?.WebApp;
+    const initData = tg?.initData || ''; // строка с hash
+
+    try {
+      btnApply.disabled = true;
+
+      const res = await fetch('/api/v1/promo/redeem', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ code: code.trim(), initData })
+      });
+
+      const data = await res.json().catch(()=>({}));
+      // Сервер возвращает { ok, amount, newBalance } или { ok:false, code: 'ALREADY|LIMIT|EXPIRED|INVALID' }
+      if (res.ok && data.ok) {
+        // доверяем серверу: синхронизируем баланс с тем, что пришло
+        if (typeof data.newBalance === 'number') {
+          setBalance(data.newBalance);
+          updatePlusBalanceUI();
+        }
+        // тост
+        const msg = (window.i18n?.t('promo.ok', { amount: data.amount }) || `+${data.amount} PLAMc начислено`);
+        try { tg?.showAlert?.(msg); } catch(_) { alert(msg); }
+        promoInput.value = '';
+        return;
+      }
+
+      // Ошибки по коду
+      const codeMap = {
+        ALREADY: window.i18n?.t('promo.already') || 'Этот промокод вы уже активировали',
+        LIMIT:   window.i18n?.t('promo.limit')   || 'Лимит активаций исчерпан',
+        EXPIRED: window.i18n?.t('promo.expired') || 'Срок действия промокода истёк',
+        INVALID: window.i18n?.t('promo.invalid') || 'Неверный промокод'
+      };
+      const txt = codeMap[data.code] || (window.i18n?.t('promo.error') || 'Не удалось активировать. Повторите позже');
+      try { tg?.showAlert?.(txt); } catch(_) { alert(txt); }
+
+    } catch (e) {
+      const txt = window.i18n?.t('promo.error') || 'Не удалось активировать. Повторите позже';
+      try { window.Telegram?.WebApp?.showAlert?.(txt); } catch(_) { alert(txt); }
+    } finally {
+      btnApply.disabled = false;
+    }
+  }
+
+  promoForm?.addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const code = promoInput?.value || '';
+    if (!code.trim()) return;
+    redeemPromo(code);
+  });
+
   if (!root) return;
   const payBtn = root.querySelector('.btn-pay');
   const grid   = root.querySelector('[data-prize-grid]');
