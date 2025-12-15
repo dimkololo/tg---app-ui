@@ -762,7 +762,7 @@ syncLinkCounter();
 
   // UX-штрихи (счётчики, preview)
   const descEl = root.querySelector('textarea[name="desc"]');
-  function normalizeAfterKeyboard(){ setTimeout(()=>{ window.scrollTo(0,0); const dlg=modalRoot.querySelector('.modal__dialog'); if(dlg){ dlg.style.transform='translateZ(0)'; void dlg.offsetHeight; dlg.style.transform=''; }},80); }
+  function normalizeAfterKeyboard(){}
   if (urlInput) {
     urlInput.setAttribute('enterkeyhint','next');
     urlInput.addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ e.preventDefault(); descEl?.focus(); } });
