@@ -569,12 +569,11 @@ document.addEventListener('keydown', (e) => {
   const root = document.documentElement;
 
   const isKeyboardOpen = () => {
-    if (!window.visualViewport) return false;
-    const vh = window.visualViewport.height;
-    const sh = window.screen && window.screen.height ? window.screen.height : vh;
-    // если стало заметно меньше экрана — считаем, что открылась клавиатура
-    return vh <= sh * 0.78;
-  };
+  if (!window.visualViewport) return false;
+  const vv = window.visualViewport;
+  const occluded = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+  return occluded > 50; // явный порог
+};
 
   let raf = null;
   function setAppH(px){
@@ -617,6 +616,28 @@ document.addEventListener('keydown', (e) => {
     }, 0);
   });
 })();
+
+// ==== Keyboard inset: поднимаем модалки ровно на высоту клавиатуры ====
+(function keyboardInset(){
+  const root = document.documentElement;
+  const vv = window.visualViewport;
+  if (!vv) return;
+
+  let raf;
+  function update(){
+    // сколько экрана перекрыто снизу
+    const occluded = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+    root.style.setProperty('--kb-inset', Math.round(occluded) + 'px');
+  }
+  function schedule(){ cancelAnimationFrame(raf); raf = requestAnimationFrame(update); }
+
+  vv.addEventListener('resize', schedule, { passive:true });
+  vv.addEventListener('scroll', schedule, { passive:true });
+  window.addEventListener('orientationchange', () => setTimeout(update, 250), { passive:true });
+
+  update();
+})();
+
 
 
 // --- Попап 1: загрузка фото ---
