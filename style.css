@@ -121,7 +121,7 @@ html,body{
 }
 
 /* SMALL: маленький холст */
-@media (max-width:375px),(max-height:667px){
+@media (max-width:375px){
   .stage{ --design-w: var(--sw); --design-h: var(--sh); }
 }
 
@@ -197,7 +197,7 @@ html,body{
   transform: translate3d(-50%, -50%, 0) scale(.98);
 }
 
-@media (max-width:375px),(max-height:667px){
+@media (max-width:375px){
   .hotspot--actions{
     left:  calc(var(--actions-x-s)/var(--design-w)*100%);
     top:   calc(var(--actions-y-s)/var(--design-h)*100%);
@@ -242,7 +242,7 @@ html,body{
 }
 
 /* small */
-@media (max-width:375px),(max-height:667px){
+@media (max-width:375px){
   .anchor--tv{
     left:  calc(var(--tv-x-s)/var(--design-w)*100%);
     top:   calc(var(--tv-y-s)/var(--design-h)*100%);
@@ -296,7 +296,7 @@ html,body{
 
 /* ФОЛБЭК, если @container не поддерживается */
 @supports not (container-type: size){
-  @media (max-width:375px),(max-height:667px){
+ @media (max-width:375px){
     .anchor--tv .hotspot--wintable{
       left: 96.239%;
       top:  47.126%;
@@ -346,7 +346,7 @@ html,body{
 }
 
 /* small */
-@media (max-width:375px),(max-height:667px){
+@media (max-width:375px){
   .anchor--stump{
     left:  calc(var(--stump-x-s)/var(--design-w)*100%);
     top:   calc(var(--stump-y-s)/var(--design-h)*100%);
@@ -518,7 +518,7 @@ html,body{
 }
 
 /* ====== small ====== */
-@media (max-width:375px),(max-height:667px){
+@media (max-width:375px){
   .stage{--design-w:var(--sw); --design-h:var(--sh)}
   .hotspot--plus{
     left:calc(var(--plus-x-s)/var(--design-w)*100%); top:calc(var(--plus-y-s)/var(--design-h)*100%);
@@ -618,7 +618,7 @@ html,body{
 
 
 /* small */
-@media (max-width:375px),(max-height:667px){
+@media (max-width:375px){
   .hotspot--faq{
     left:  calc(var(--faq-x-s)/var(--design-w)*100%);
     top:   calc(var(--faq-y-s)/var(--design-h)*100%);
@@ -837,7 +837,7 @@ html,body{
 .shop-item__right img{width:22px}
 .shop-num{min-width:36px; text-align:right}
 .shop-item:hover{filter:brightness(.98)}
-@media (max-width:375px),(max-height:667px){
+@media (max-width:375px){
   .shop-header{min-height:100px; padding:10px 8px}
   .shop-header__icon{width:40px}
   .shop-title{font-size:18px}
@@ -1417,7 +1417,7 @@ background: #FF7300; /* оранжевый активный */
   margin:10px 0;
 }
 
-@media (max-width:375px),(max-height:667px){
+@media (max-width:375px){
   .faq-scroll{ max-height: calc(100svh - 180px); }
 }
 
@@ -1527,7 +1527,7 @@ background: #FF7300; /* оранжевый активный */
 .lb-slot--3{ left: 75%; }
 
 /* Маленькие экраны (как в проекте) — слоты поменьше */
-@media (max-width:375px),(max-height:667px){
+@media (max-width:375px){
   .lb-hero{ --lb-slot: 58px; width: 288px; }
 }
 
@@ -1692,7 +1692,7 @@ background: #FF7300; /* оранжевый активный */
   background-image: url("./bgicons/plane.gif");
 }
 
-@media (max-width:375px),(max-height:667px){
+@media (max-width:375px){
   .decal--plane{
     top:   calc(var(--plane-y-s)/var(--design-h)*100%);
     width: calc(var(--plane-w-s)/var(--design-w)*100%);
