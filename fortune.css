@@ -6,7 +6,7 @@
 .scene--fortune{
   place-items: stretch;
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: 1fr auto; /* ← сначала контент, потом бар снизу */
   min-height: 100svh;
 }
 @supports (height: 100dvh){
@@ -181,16 +181,19 @@
 }
 /* сам топбар — ниже системных кнопок TG */
 .fortune-topbar{
-  position: sticky;
-  top: calc(env(safe-area-inset-top, 0px) + var(--tg-topbar));
+  position: relative; /* или просто убери position */
+  top: auto;
   z-index: 20;
-  padding: 8px 12px;
+
+  padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px));
   display: grid;
-  grid-template-columns: auto 1fr auto; /* ← back | tabs(center) | spacer */
+  grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 8px;
-  background: rgba(0,0,0,.2)
+
+  background: rgba(0,0,0,.2);
 }
+
 
 
 /* кнопка назад — теперь часть топбара */
@@ -311,6 +314,11 @@
   white-space: nowrap;     /* ← вся строка в одну линию */
   display: block;          /* на всякий случай, чтобы не было inline-flex из прошлых правок */
   line-height: 1.15;
+}
+
+/* резервируем место под таймер, т.к. он absolute и не участвует в лэйауте */
+.wheel-cta{
+  padding-bottom: 28px;
 }
 
 
