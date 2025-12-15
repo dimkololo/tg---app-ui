@@ -2062,5 +2062,5 @@ background: #FF7300; /* оранжевый активный */
 
 
 
-/* ====== DEBUG (включай <body class="__debug">) ====== */
-body.__debug .hotspot{outline:2px dashed rgba(0,200,255,.9); background:rgba(0,200,255,.10)}
+/* ====== DEBUG (включай <body class="__debug">) ====== 
+body.__debug .hotspot{outline:2px dashed rgba(0,200,255,.9); background:rgba(0,200,255,.10)} */
