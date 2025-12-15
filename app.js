@@ -151,6 +151,62 @@ Promise.race([
 if (window.Telegram && window.Telegram.WebApp) {
   try { window.Telegram.WebApp.expand(); } catch (e) {}
 }
+// === FIX: не даём сцене/фону “сжиматься” из-за клавиатуры ===
+(function lockSceneHeight(){
+  const root = document.documentElement;
+
+  let lastW = window.innerWidth;
+  let lastH = window.innerHeight;
+
+  function isTyping(){
+    const ae = document.activeElement;
+    if (!ae) return false;
+    const t = ae.tagName;
+    return t === 'INPUT' || t === 'TEXTAREA' || ae.isContentEditable;
+  }
+
+  function isKeyboardLikely(nextH){
+    // 1) лучший детектор через visualViewport
+    const vv = window.visualViewport;
+    if (vv && window.innerHeight) {
+      // когда клавиатура открыта — vv.height обычно заметно меньше
+      if (vv.height < window.innerHeight * 0.85) return true;
+    }
+    // 2) фолбэк: идёт ввод + высота стала меньше
+    if (isTyping() && nextH < lastH) return true;
+    return false;
+  }
+
+  function apply(h){
+    root.style.setProperty('--app-h', `${h}px`);
+  }
+
+  function update(force = false){
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+
+    if (!force && isKeyboardLikely(h)) return; // игнорим “резайз” от клавиатуры
+
+    // обновляем только при реальном изменении (поворот/адресная строка и т.п.)
+    if (!force && w === lastW && Math.abs(h - lastH) < 60) return;
+
+    lastW = w;
+    lastH = h;
+    apply(h);
+  }
+
+  // стартовое значение
+  apply(window.innerHeight);
+
+  window.addEventListener('resize', () => update(false), { passive: true });
+  window.addEventListener('orientationchange', () => setTimeout(() => update(true), 250), { passive: true });
+  window.addEventListener('pageshow', () => update(true), { passive: true });
+
+  // если есть visualViewport — пусть помогает ловить “настоящий” ресайз, но клаву мы всё равно игнорим
+  window.visualViewport?.addEventListener('resize', () => update(false), { passive: true });
+})();
+
+
 
 // --- LS helper Весь Local Storage перевести на сервер ---
 const LS = {
