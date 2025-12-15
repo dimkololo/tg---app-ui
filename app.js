@@ -543,6 +543,29 @@ document.addEventListener('keydown', (e) => {
   window.addEventListener('resize', update);
 })();
 
+// === Keyboard guard: ставим html.kb-open при фокусе в поля ===
+(function keyboardGuard(){
+  const root = document.documentElement;
+
+  function isFormEl(el){
+    return el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable);
+  }
+
+  document.addEventListener('focusin', (e)=>{
+    if (isFormEl(e.target)) root.classList.add('kb-open');
+  });
+
+  document.addEventListener('focusout', ()=>{
+    if (!document.querySelector('input:focus, textarea:focus, [contenteditable="true"]:focus')){
+      root.classList.remove('kb-open');
+    }
+  });
+
+  // Снятие флага при смене ориентации
+  window.addEventListener('orientationchange', ()=> root.classList.remove('kb-open'));
+})();
+
+
 // --- Попап 1: загрузка фото ---
 function initUploadPopup(){
   const root = modalRoot.querySelector('.upload-popup');
