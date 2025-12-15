@@ -1123,7 +1123,9 @@ function initPrizes(){
 
   // селекторы промо-формы
   const promoForm  = root.querySelector('[data-promo-form]');
-  const promoInput = root.querySelector('[data-promo-input]');
+  const promoInput = root.querySelector('[data-promo-input]') 
+                 || root.querySelector('.promo-input[name="promo"]');
+
   const promoBtn   = root.querySelector('[data-promo-apply]');
 
   function normalizeCode(v){
