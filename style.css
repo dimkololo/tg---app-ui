@@ -2125,7 +2125,8 @@ html, body {
 
 /* Модалки: не уезжать и не сжиматься при появлении клавиатуры */
 .modal__dialog {
-  max-height: min(680px, 92svh);       /* раньше был 92dvh — меняем на svh */
+  max-height: calc(min(680px, var(--appH)) - 48px - var(--kb-inset));
+  margin-bottom: var(--kb-inset); /* ← главный приём */
 }
 
 /* Если у тебя есть точечные правила типа
