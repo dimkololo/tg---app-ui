@@ -698,15 +698,7 @@ html,body{
 
 /* ====== попапы: общие ====== */
 .popup{display:grid; gap:12px; justify-items:center; width:100%; max-width:420px; margin-inline:auto}
-/* Upload: делаем вертикальные расстояния компактнее */
-.upload-popup.popup{
-  gap: 8px;              /* было 12px у .popup */
-}
 
-/* Upload: таймер ближе к кнопке */
-.upload-popup [data-cd-text]{
-  margin-bottom: 6px;    /* было 12px */
-}
 .u-center{
   display: flex;
   justify-content: center;
@@ -2128,6 +2120,18 @@ background: #FF7300; /* оранжевый активный */
 .promo-form [data-promo-apply]:hover   { filter: brightness(1.05); }
 .promo-form [data-promo-apply]:active  { transform: translateY(1px); }
 .promo-form [data-promo-apply]:disabled{ opacity: .5; filter: none; }
+
+/* Upload popup — уменьшаем вертикальные расстояния */
+.upload-popup{
+  display: grid;          /* на случай, если нет .popup */
+  gap: 8px !important;    /* общий gap между блоками */
+}
+
+/* таймер ближе к кнопке */
+.upload-popup [data-cd-text]{
+  margin-bottom: 6px !important; /* было 12px */
+}
+
 
 
 
