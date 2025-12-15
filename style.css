@@ -95,7 +95,7 @@ html,body{
   display: grid;
   place-items: end center;
   width: 100vw;
-  height: 100svh;
+  height: var(--app-h, 100vh);   /* фиксируем сцену и фон */
   overflow: hidden;
 
   /* НОВОЕ: один универсальный фон */
@@ -105,9 +105,6 @@ html,body{
   background-repeat: no-repeat;
   background-position: 50% 100%;                 /* центр-низ (см. примечание ниже) */
 }
-@supports (height: 100dvh){
-  .scene{ height: 100dvh; }                      /* стабильней на мобилках */
-}
 
 
 /* Сцена — размер задаёт картинка */
@@ -115,15 +112,12 @@ html,body{
   position: relative;
   display: block;         /* можно и inline-block, но block надёжнее */
   width: 100vw;
-  height: 100svh;         /* важное: реальная высота контейнера */
+  height: var(--app-h, 100vh);   /* фиксируем “холст” хотспотов */
   overflow: visible;
 
   /* как и было — «дизайн-холсты» для пересчёта координат */
   --design-w: var(--mw);
   --design-h: var(--mh);
-}
-@supports (height: 100dvh){
-  .stage{ height: 100dvh; }
 }
 
 /* SMALL: маленький холст */
