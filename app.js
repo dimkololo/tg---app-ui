@@ -901,7 +901,7 @@ syncLinkCounter();
     descEl.addEventListener('keypress', hideKb);
     descEl.addEventListener('blur', normalizeAfterKeyboard);
   }
-  if (window.visualViewport) window.visualViewport.addEventListener('resize', normalizeAfterKeyboard);
+  //if (window.visualViewport) window.visualViewport.addEventListener('resize', normalizeAfterKeyboard);
 
   // ===== Live-счётчики для всех полей с [data-counter] через делегирование =====
 function updateCounter(el){
