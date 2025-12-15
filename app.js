@@ -1,10 +1,14 @@
 
 // ========== app.js (главная) — LS-единообразие, миграции v1→v2 ==========
+(() => {
+  if (window.__PLAM_APP_INIT__) {
+    console.warn('app.js already initialized');
+    return;
+  }
+  window.__PLAM_APP_INIT__ = true;
 
-if (window.__PLAM_APP_INIT__) { console.warn('app.js already initialized'); }
-else { window.__PLAM_APP_INIT__ = true;
-// проверка на повторный запуск скрипта 
-}
+  // ↓↓↓ весь остальной код файла остаётся как есть
+
 
 // === TEMP: reset LocalStorage on every page load (for testing) УДАЛИТЬ!!!!!!!!!!!!!===
 // ВКЛ/ВЫКЛ: поменяй FORCE_RESET на false, либо добавь ?keep=1 в адресную строку.
@@ -1853,5 +1857,6 @@ document.addEventListener('plam:langChanged', () => {
   // Синхронизируем магазин (initBuyStars слушает plam:langChanged)
   // и остальные хуки, которые зависят от языка.
 });
+  })();
 
 
