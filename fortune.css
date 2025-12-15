@@ -1,4 +1,6 @@
-
+:root{
+  --fortune-bar-gap: 26px; /* отступ от низа до бара */
+}
 /* центр страницы колеса */
 .scene--fortune{
   place-items: stretch;
@@ -12,6 +14,7 @@
 
 .fortune-body{
   /* занимает весь второй ряд грида */
+  grid-row: 1;
   height: 100%;
   min-height: 0;
 
@@ -178,11 +181,16 @@
 }
 /* сам топбар — ниже системных кнопок TG */
 .fortune-topbar{
-  position: relative; /* или просто убери position */
+  position: relative;
   top: auto;
   z-index: 20;
 
-   padding: 8px 12px calc(26px + env(safe-area-inset-bottom, 0px)); /* было 8px */
+  /* подложка “плотная”: одинаково сверху/снизу */
+  padding: 8px 12px;
+
+  /* вот тут поднимаем бар, НЕ раздувая фон */
+  margin-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--fortune-bar-gap));
+
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
@@ -190,6 +198,7 @@
 
   background: rgba(0,0,0,.2);
 }
+
 
 
 
