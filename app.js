@@ -628,6 +628,7 @@ function openModal(id){
   if (id === 'policy' || id === 'policy-required' || id === 'policy-info') initPolicyModal();
 }
 function closeModal(){
+  setModalFreezeForKeyboard(false);
   modalRoot.hidden = true;
   modalRoot.setAttribute('aria-hidden','true');
   modalContent.innerHTML = '';
