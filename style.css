@@ -1427,10 +1427,10 @@ background: #FF7300; /* оранжевый активный */
 
 /* Включить реальный скролл у длинного попапа */
 .modal__content.is-scrollable{
-  max-height: calc(100svh - 140px);
+  max-height: calc(var(--appH) - 140px - var(--kb-inset));
   overflow: auto;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: 8px; /* небольшой запас под «липкую» кнопку */
+   padding-bottom: calc(8px + var(--kb-inset));
 }
 
 .modal__dialog:has(.leaderboard-popup) .modal__close{ display:none; }
