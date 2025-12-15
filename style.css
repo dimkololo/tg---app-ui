@@ -2108,7 +2108,10 @@ html.kb-open, html.kb-open body{ overflow: hidden; height: 100svh; }
 
 
 /* ==== Viewport lock: фон не «сжимается» при клавиатуре ==== */
-:root { --appH: 100svh; }              /* дефолт: стабильная высота */
+:root { 
+  --appH: 100svh; 
+  --kb-inset: 0px; /* высота перекрытия клавиатурой */
+}              /* дефолт: стабильная высота */
 
 html, body {
   overscroll-behavior: none;
