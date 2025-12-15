@@ -2141,19 +2141,40 @@ html, body {
    .modal.modal--stack.stack--policy .modal__dialog { max-height: ... }
    — там тоже замени dvh -> svh. */
 
-/* Убираем «подпрыгивание» окна при фокусе (если добавляли раньше) */
-html.kb-open .modal { place-items: center; }
-html.kb-open .modal__dialog { margin-top: 8px; } /* чутка воздуха и всё */
-
-
-
-
-/* Если у стека нет глобального затемнения — оставь как есть (у тебя JS ставит 50%) */
-/* Но базово можно так, если вдруг понадобится общий стиль:
-[data-modal-stack]:not([aria-hidden="true"]) .modal__backdrop{
-  background: rgba(0,0,0,.5);
+/* Диалог: ровно подниматься на высоту клавиатуры */
+.modal__dialog{
+  max-height: calc(min(680px, var(--appH)) - 48px - var(--kb-inset)) !important;
+  margin-bottom: var(--kb-inset) !important;
 }
-*/
+
+/* Контент модалки: чтобы браузер скроллил ЕГО, а не дёргал весь диалог */
+.modal__content:has(input, textarea){
+  max-height: calc(var(--appH) - 140px - var(--kb-inset)) !important;
+  overflow: auto !important;
+  -webkit-overflow-scrolling: touch;
+  scroll-padding-bottom: calc(16px + var(--kb-inset)); /* инпуты не прячутся */
+}
+
+/* Стек-модалка (верхний слой) — то же самое */
+.modal--stack .modal__content{
+  max-height: calc(var(--appH) - 140px - var(--kb-inset)) !important;
+  overflow: auto !important;
+  -webkit-overflow-scrolling: touch;
+  scroll-padding-bottom: calc(16px + var(--kb-inset));
+}
+
+/* Призы: локально даём скролл внутри самого попапа, чтобы «Активировать» не улетала */
+.prizes-popup{
+  max-height: calc(var(--appH) - 160px - var(--kb-inset));
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Когда фокус в поле — гарантируем, что браузер будет прокручивать контент, а не «взлетать» модалкой */
+.prizes-popup input, .prizes-popup textarea,
+.upload-popup input, .upload-popup textarea{
+  scroll-margin-bottom: calc(60px + var(--kb-inset));
+}
 
 
 
