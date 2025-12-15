@@ -212,7 +212,7 @@ i18n.load('en', {
   // Profile
   "profile.get_premium": "Get Premium",
   "profile.photos_count": "Photos sent:",
-  "profile.photos_hint": "The number of sent photos increases your live time. 100 photos = +1 second",
+  "profile.photos_hint": "The number of sent photos increases your live time.\n100 photos = +1 second",
   "profile.show_time": "Live time:",
 
   // Premium timer/help
@@ -354,7 +354,7 @@ i18n.load('ru', {
 
   "profile.get_premium": "Получить премиум",
   "profile.photos_count": "Количество фото:",
-  "profile.photos_hint": "Количество фото влияет на время их отображения. 100 фото = +1 секунда",
+  "profile.photos_hint": "Количество фото влияет на время их отображения.\n100 фото = +1 секунда",
   "profile.show_time": "Время показа фото:",
 
   "premium.active": "Премиум активен",
