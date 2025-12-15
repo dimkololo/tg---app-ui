@@ -2102,13 +2102,6 @@ background: #FF7300; /* оранжевый активный */
 .promo-form [data-promo-apply]:active  { transform: translateY(1px); }
 .promo-form [data-promo-apply]:disabled{ opacity: .5; filter: none; }
 
-/* По желанию: чтобы модалка не «прыгала» по центру */
-html.kb-open .modal{
-  place-items: start center;   /* приподнимем диалог к верху */
-}
-html.kb-open .modal__dialog{
-  margin-top: 10px;            /* чуть воздуха сверху */
-}
 
 /* На всякий: фон точно не скроллится под модалкой */
 html.kb-open, html.kb-open body{ overflow: hidden; height: 100svh; }
