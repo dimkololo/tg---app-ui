@@ -586,6 +586,25 @@ function T(key, fallback, vars){
   if (!vars) return String(fallback);
   return String(fallback).replace(/\{\{(\w+)\}\}/g, (_, k) => (k in vars ? String(vars[k]) : ''));
 }
+  function setModalFreezeForKeyboard(on){
+  if (!modalRoot) return;
+
+  if (on){
+    // фиксируем оверлей по "замороженной" высоте сцены
+    modalRoot.style.top = '0';
+    modalRoot.style.left = '0';
+    modalRoot.style.right = '0';
+    modalRoot.style.bottom = 'auto';
+    modalRoot.style.height = 'var(--app-h, 100vh)';
+  } else {
+    modalRoot.style.height = '';
+    modalRoot.style.bottom = '';
+    modalRoot.style.top = '';
+    modalRoot.style.left = '';
+    modalRoot.style.right = '';
+  }
+}
+
 
 function openModal(id){
   const tpl = document.getElementById(`tpl-${id}`);
@@ -593,6 +612,7 @@ function openModal(id){
   modalContent.innerHTML = '';
   modalContent.appendChild(tpl.content.cloneNode(true));
   modalRoot.hidden = false;
+  setModalFreezeForKeyboard(id === 'prizes');
   modalRoot.setAttribute('aria-hidden', 'false');
   document.documentElement.style.overflow = 'hidden';
 
