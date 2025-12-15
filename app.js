@@ -155,60 +155,118 @@ Promise.race([
 if (window.Telegram && window.Telegram.WebApp) {
   try { window.Telegram.WebApp.expand(); } catch (e) {}
 }
-// === FIX: не даём сцене/фону “сжиматься” из-за клавиатуры ===
+
+// === FIX v2: сцена НЕ сжимается от клавиатуры (iOS visualViewport) ===
+// Заменить целиком твой (function lockSceneHeight(){ ... })();
 (function lockSceneHeight(){
   const root = document.documentElement;
 
-  let lastW = window.innerWidth;
-  let lastH = window.innerHeight;
+  // "Стабильная" высота сцены (без клавиатуры).
+  let stableH = 0;
+  let lastOrientation = null;
 
-  function isTyping(){
-    const ae = document.activeElement;
-    if (!ae) return false;
-    const t = ae.tagName;
-    return t === 'INPUT' || t === 'TEXTAREA' || ae.isContentEditable;
-  }
-
-  function isKeyboardLikely(nextH){
-    // 1) лучший детектор через visualViewport
-    const vv = window.visualViewport;
-    if (vv && window.innerHeight) {
-      // когда клавиатура открыта — vv.height обычно заметно меньше
-      if (vv.height < window.innerHeight * 0.85) return true;
+  function isTextInput(el){
+    if (!el) return false;
+    const tag = el.tagName;
+    if (tag === 'TEXTAREA') return true;
+    if (tag === 'INPUT') {
+      const type = (el.getAttribute('type') || 'text').toLowerCase();
+      // текстовые типы (чтобы range/file не считались "клавиатурой")
+      return !['checkbox','radio','range','color','file','button','submit','reset'].includes(type);
     }
-    // 2) фолбэк: идёт ввод + высота стала меньше
-    if (isTyping() && nextH < lastH) return true;
-    return false;
+    return !!el.isContentEditable;
   }
 
-  function apply(h){
-    root.style.setProperty('--app-h', `${h}px`);
+  function getOrientation(){
+    return (window.innerWidth > window.innerHeight) ? 'landscape' : 'portrait';
   }
 
-  function update(force = false){
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-
-    if (!force && isKeyboardLikely(h)) return; // игнорим “резайз” от клавиатуры
-
-    // обновляем только при реальном изменении (поворот/адресная строка и т.п.)
-    if (!force && w === lastW && Math.abs(h - lastH) < 60) return;
-
-    lastW = w;
-    lastH = h;
-    apply(h);
+  function getVV(){
+    const vv = window.visualViewport;
+    if (!vv) return null;
+    return {
+      h: vv.height || 0,
+      top: vv.offsetTop || 0
+    };
   }
 
-  // стартовое значение
-  apply(window.innerHeight);
+  function applyAppH(h){
+    root.style.setProperty('--app-h', `${Math.round(h)}px`);
+  }
 
-  window.addEventListener('resize', () => update(false), { passive: true });
-  window.addEventListener('orientationchange', () => setTimeout(() => update(true), 250), { passive: true });
-  window.addEventListener('pageshow', () => update(true), { passive: true });
+  // полезно, если когда-нибудь захочешь делать паддинг модалки под клаву
+  function applyKb(px){
+    root.style.setProperty('--kb', `${Math.max(0, Math.round(px))}px`);
+  }
 
-  // если есть visualViewport — пусть помогает ловить “настоящий” ресайз, но клаву мы всё равно игнорим
-  window.visualViewport?.addEventListener('resize', () => update(false), { passive: true });
+  function initStable(){
+    const vv = getVV();
+    const base = window.innerHeight || 0;
+    const vvFull = vv ? (vv.h + vv.top) : 0;
+    stableH = Math.max(base, vvFull) || base || 0;
+    applyAppH(stableH);
+    applyKb(0);
+    lastOrientation = getOrientation();
+  }
+
+  function update(){
+    const ori = getOrientation();
+    const vv = getVV();
+    const typing = isTextInput(document.activeElement);
+
+    // при смене ориентации — переснимаем базу
+    if (ori !== lastOrientation) {
+      lastOrientation = ori;
+      initStable();
+      return;
+    }
+
+    // keyboard px (по vv) — считаем относительно стабильной высоты
+    if (vv) {
+      const vvFull = vv.h + vv.top;
+      const kb = Math.max(0, stableH - vvFull);
+      // kb показываем только когда реально вводим
+      applyKb(typing ? kb : 0);
+    } else {
+      applyKb(0);
+    }
+
+    // ключевой момент:
+    // - когда НЕ печатаем: разрешаем stableH только РАСТИ (адресная строка спряталась и т.п.)
+    // - когда печатаем: НИКОГДА не уменьшаем stableH (чтобы сцена не "дышала")
+    const nowH = window.innerHeight || 0;
+
+    if (!typing) {
+      if (nowH > stableH) {
+        stableH = nowH;
+        applyAppH(stableH);
+      } else {
+        // оставляем как есть (не уменьшаем — меньше визуальных скачков на iOS)
+        applyAppH(stableH);
+      }
+      return;
+    }
+
+    // typing = true → фиксируем высоту сцены
+    applyAppH(stableH);
+  }
+
+  initStable();
+
+  window.addEventListener('resize', update, { passive:true });
+  window.addEventListener('orientationchange', () => setTimeout(update, 250), { passive:true });
+  window.addEventListener('pageshow', () => setTimeout(update, 0), { passive:true });
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', update, { passive:true });
+    window.visualViewport.addEventListener('scroll', update, { passive:true });
+  }
+
+  // iOS иногда даёт события не через resize — страхуемся фокусом
+  document.addEventListener('focusin',  () => setTimeout(update, 0), true);
+  document.addEventListener('focusout', () => setTimeout(update, 0), true);
 })();
+  
 
 
 
