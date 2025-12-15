@@ -2128,6 +2128,31 @@ html.kb-open .modal__dialog{
 html.kb-open, html.kb-open body{ overflow: hidden; height: 100svh; }
 
 
+/* ==== Viewport lock: фон не «сжимается» при клавиатуре ==== */
+:root { --appH: 100svh; }              /* дефолт: стабильная высота */
+
+html, body {
+  overscroll-behavior: none;
+  height: auto;
+}
+
+.scene, .stage {
+  min-height: var(--appH);
+  height: var(--appH);
+}
+
+/* Модалки: не уезжать и не сжиматься при появлении клавиатуры */
+.modal__dialog {
+  max-height: min(680px, 92svh);       /* раньше был 92dvh — меняем на svh */
+}
+
+/* Если у тебя есть точечные правила типа
+   .modal.modal--stack.stack--policy .modal__dialog { max-height: ... }
+   — там тоже замени dvh -> svh. */
+
+/* Убираем «подпрыгивание» окна при фокусе (если добавляли раньше) */
+html.kb-open .modal { place-items: center; }
+html.kb-open .modal__dialog { margin-top: 8px; } /* чутка воздуха и всё */
 
 
 
