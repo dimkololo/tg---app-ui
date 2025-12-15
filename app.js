@@ -643,6 +643,24 @@ document.addEventListener('keydown', (e) => {
   update();
 })();
 
+// ==== VisualViewport offsets: компенсируем "подпрыгивание" ====
+(function viewportOffsets(){
+  const vv = window.visualViewport;
+  if (!vv) return;
+  const root = document.documentElement;
+  let raf;
+  function update(){
+    // Смещение верха визуального вьюпорта (iOS двигает его при клаве)
+    root.style.setProperty('--vv-top', Math.round(vv.offsetTop || 0) + 'px');
+  }
+  function schedule(){ cancelAnimationFrame(raf); raf = requestAnimationFrame(update); }
+  vv.addEventListener('resize', schedule, { passive:true });
+  vv.addEventListener('scroll', schedule, { passive:true });
+  window.addEventListener('orientationchange', () => setTimeout(update, 250), { passive:true });
+  update();
+})();
+
+
 
 
 // --- Попап 1: загрузка фото ---
