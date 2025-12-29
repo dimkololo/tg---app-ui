@@ -1,5 +1,5 @@
-// plam-sound.js?v=5
-console.info('[sound] init v5');
+// plam-sound.js?v=6
+console.info('[sound] init v6');
 
 if (window.__PLAM_SOUND_INIT__) {
   console.warn('[sound] already initialized');
@@ -8,12 +8,21 @@ if (window.__PLAM_SOUND_INIT__) {
 
   const KEY_ENABLED = 'plam_ambient_enabled_v1';
   const KEY_VOLUME  = 'plam_ambient_volume_v1';
-  const KEY_POS     = 'plam_ambient_pos_v1';   // для бесшовного продолжения
-  const SRC = 'bgicons/forest-at-night-after-sunset.mp3';
+  const KEY_POS     = 'plam_ambient_pos_v1';
+
+  // ВАЖНО: НЕ используем "/assets/..." (ломает GitHub Pages).
+  // Берём путь относительно текущей страницы.
+  const SRC = (window.__PLAM_SOUND_SRC__ ||
+    new URL('bgicons/forest-at-night-after-sunset.mp3', document.baseURI).toString()
+  );
+
+  const DEBUG = /(?:\?|&)sounddebug=1(?:&|$)/.test(location.search);
 
   let audio = null;
   let unlocked = false;
   let saveTimer = null;
+
+  function dbg(...a){ if (DEBUG) console.info('[sound][dbg]', ...a); }
 
   function isEnabled() {
     // по умолчанию ВЫКЛ
@@ -53,9 +62,7 @@ if (window.__PLAM_SOUND_INIT__) {
     const apply = () => {
       try {
         const d = Number(audio.duration);
-        if (Number.isFinite(d) && d > 0) {
-          audio.currentTime = pos % d; // бесшовно по кругу
-        }
+        if (Number.isFinite(d) && d > 0) audio.currentTime = pos % d;
       } catch (_) {}
     };
 
@@ -71,7 +78,7 @@ if (window.__PLAM_SOUND_INIT__) {
     audio.preload = 'auto';
     audio.volume = getVolume();
 
-    // Telegram/Android/iOS friendly
+    // дружелюбно к WebView
     try { audio.playsInline = true; } catch(_) {}
     try { audio.setAttribute('playsinline', ''); } catch(_) {}
     try { audio.setAttribute('webkit-playsinline', ''); } catch(_) {}
@@ -83,24 +90,26 @@ if (window.__PLAM_SOUND_INIT__) {
 
     restorePosWhenReady();
 
-    // иногда помогает на Android/WebView
+    // иногда помогает Android/WebView
     try { audio.load(); } catch(_) {}
 
+    dbg('SRC=', SRC);
     return audio;
   }
 
   async function play() {
-    if (!unlocked) return;
-    if (!isEnabled()) return;
+    if (!unlocked) { dbg('play: locked'); return; }
+    if (!isEnabled()) { dbg('play: disabled'); return; }
 
     const a = ensureAudio();
     try {
       await a.play();
       startSavingPos();
-      console.info('[sound] playing');
+      dbg('playing ok');
     } catch (e) {
       console.warn('[sound] play blocked', e);
       try { window.__plamSoundLastError = String(e && (e.name || e.message) || e); } catch(_) {}
+      dbg('blocked reason=', window.__plamSoundLastError);
     }
   }
 
@@ -109,7 +118,6 @@ if (window.__PLAM_SOUND_INIT__) {
     savePosOnce();
     stopSavingPos();
     try { audio.pause(); } catch (_) {}
-    // currentTime НЕ сбрасываем, чтобы продолжать бесшовно
   }
 
   function setEnabled(on) {
@@ -117,7 +125,6 @@ if (window.__PLAM_SOUND_INIT__) {
     updateAllToggles();
     if (!on) stop();
     else play();
-    try { console.info('[sound] enabled=', on, 'unlocked=', unlocked); } catch(_) {}
   }
 
   // UI (тумблер в профиле)
@@ -154,7 +161,7 @@ if (window.__PLAM_SOUND_INIT__) {
       const val = btn.getAttribute('data-sound-target');
       setEnabled(val === 'on');
 
-      // пробуем стартануть прямо внутри клика
+      // стартуем в рамках жеста
       play();
     });
 
@@ -165,8 +172,7 @@ if (window.__PLAM_SOUND_INIT__) {
     document.querySelectorAll('[data-sound-switch]').forEach(bindWrap);
   }
 
-  // Разлочка по первому жесту на странице
-  // (важно для fortune.html, где тумблера может не быть)
+  // Разлочка по первому жесту на странице (для fortune.html и т.п.)
   function unlockOnce() {
     const onFirstGesture = () => {
       unlocked = true;
@@ -185,7 +191,6 @@ if (window.__PLAM_SOUND_INIT__) {
     document.addEventListener('pointerdown', onFirstGesture, true);
     document.addEventListener('touchstart', onFirstGesture, true);
     document.addEventListener('keydown', onFirstGesture, true);
-    // ✅ Android/WebView часто надёжнее всего ловит именно click
     document.addEventListener('click', onFirstGesture, true);
   }
 
@@ -212,5 +217,6 @@ if (window.__PLAM_SOUND_INIT__) {
     stop,
     ensureAudio,
     updateAllToggles,
+    src: () => SRC,
   };
 }
