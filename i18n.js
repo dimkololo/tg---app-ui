@@ -178,7 +178,7 @@ i18n.load('en', {
   "upload.link_invalid": "The link must start with http:// or https:// (https://t.me/ is also supported)",
   "upload.reset_ok": "Done! Send another photo",
   "upload.promo": "Win. Promote. Invite.",
-   "reset.button": "Reset {{mins}} min for {{coins}} PLAMc",
+  "reset.button": "Reset {{mins}} min for {{coins}} PLAMc",
   "reset.or": "or",
   "reset.share": "Share",
   "reset.shared_ok": "Thanks! The timer has been reset.",
@@ -214,6 +214,8 @@ i18n.load('en', {
   "profile.photos_count": "Photos sent:",
   "profile.photos_hint": "The number of sent photos increases your live time.\n100 photos = +1 second",
   "profile.show_time": "Live time:",
+  "on": "On",
+  "off": "Off",
 
   // Premium timer/help
   "premium.active": "Premium is active",
@@ -356,6 +358,8 @@ i18n.load('ru', {
   "profile.photos_count": "Количество фото:",
   "profile.photos_hint": "Количество фото влияет на время их отображения.\n100 фото = +1 секунда",
   "profile.show_time": "Время показа фото:",
+  "on": "Вкл",
+  "off": "Выкл",
 
   "premium.active": "Премиум активен",
   "premium.countdown_note": "Обратный отсчёт до окончания подписки",
