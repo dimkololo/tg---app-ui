@@ -1850,8 +1850,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function reflectUI(code){
-    // Берём ИМЕННО языковой переключатель (а не первый попавшийся .lang-switch)
-    const root = document.querySelector('.lang-switch[aria-label="Language switcher"]');
+    // 100% только языковой переключатель
+    const root = document.querySelector('[data-lang-switch]');
     if (!root) return;
 
     const buttons = root.querySelectorAll('.lang-switch__btn');
@@ -1867,7 +1867,6 @@ document.addEventListener('DOMContentLoaded', () => {
     applyLangAttr(code);
     reflectUI(code);
 
-    // Если присутствует i18n.js — задействуем его без ошибок при отсутствии
     if (window.i18n && typeof window.i18n.setLang === 'function') {
       try { window.i18n.setLang(code); } catch(e) {}
     }
@@ -1875,32 +1874,28 @@ document.addEventListener('DOMContentLoaded', () => {
       try { window.i18n.apply(); } catch(e) {}
     }
 
-    // уведомим остальной код, чтобы обновить динамические подписи
     try { document.dispatchEvent(new CustomEvent('plam:langChanged', { detail: { lang: code } })); } catch(_){}
   }
 
   function initLangSwitcher(){
-    // 1) Восстановим язык
     const saved = localStorage.getItem(LS_KEY) || DEFAULT_LANG;
     applyLangAttr(saved);
     reflectUI(saved);
 
-    // 2) Делегирование кликов (на случай пересоздания попапа)
-    // Важно: реагируем ТОЛЬКО на клики внутри языкового переключателя
+    // Клик только по кнопкам, которые внутри [data-lang-switch]
     document.addEventListener('click', (e)=>{
       const btn = e.target.closest && e.target.closest('.lang-switch__btn');
       if (!btn) return;
 
-      const langRoot = btn.closest('.lang-switch[aria-label="Language switcher"]');
-      if (!langRoot) return; // клик не по RU/ENG
+      const langRoot = btn.closest('[data-lang-switch]');
+      if (!langRoot) return; // не RU/ENG
 
       const code = btn.getAttribute('data-lang-target');
       if (!code) return;
       setLang(code);
     });
 
-    // 3) Когда попап профиля открывается заново, сверим UI с актуальным языком
-    // и обновим тумблер звуков (чтобы подсветка появлялась сразу)
+    // При открытии профиля обновляем оба переключателя
     document.addEventListener('plam:profilePopup:open', ()=>{
       const current = localStorage.getItem(LS_KEY) || DEFAULT_LANG;
       reflectUI(current);
@@ -1908,36 +1903,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // DOM готов — инициализируем
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initLangSwitcher);
   } else {
     initLangSwitcher();
   }
 
-  // Экспорт на глобал при необходимости
   window.plamLang = { set: setLang };
 })();
 
 
 // Обновления при смене языка — привязываем единый обработчик
 document.addEventListener('plam:langChanged', () => {
-  // Применяем переводы ко всему документу и открытым модалкам
   try { i18nApply(document); } catch(_) {}
   try { i18nApply(modalRoot); } catch(_) {}
   try { i18nApply(stackRoot); } catch(_) {}
 
-  // Обновляем динамические тексты (профиль, upload popup и т.д.)
   try { refreshProfileUI(); } catch(_) {}
 
-  // Если upload-popup открыт — попросим его обновить свои строки
   try {
     const uploadRoot = modalRoot.querySelector('.upload-popup');
     if (uploadRoot) {
       document.dispatchEvent(new CustomEvent('plam:langChanged:upload'));
     }
   } catch(_) {}
-
-  // Синхронизируем магазин (initBuyStars слушает plam:langChanged)
-  // и остальные хуки, которые зависят от языка.
 });
