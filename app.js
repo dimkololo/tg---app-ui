@@ -1840,7 +1840,7 @@ document.addEventListener('DOMContentLoaded', () => {
   enableAlphaHit(document.querySelector('.hotspot--plus'),     './bgicons/cloud-plus.png');
 });
 
-// --- RU|ENG переключатель (минимальный безопасный слой) ---
+ // --- RU|ENG переключатель (минимальный безопасный слой) ---
 (function(){
   const LS_KEY = 'plam_lang';
   const DEFAULT_LANG = 'ru';
@@ -1850,8 +1850,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function reflectUI(code){
-    const root = document.querySelector('.lang-switch');
+    // Берём ИМЕННО языковой переключатель (а не первый попавшийся .lang-switch)
+    const root = document.querySelector('.lang-switch[aria-label="Language switcher"]');
     if (!root) return;
+
     const buttons = root.querySelectorAll('.lang-switch__btn');
     buttons.forEach(btn => {
       const on = btn.getAttribute('data-lang-target') === code;
@@ -1864,6 +1866,7 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem(LS_KEY, code);
     applyLangAttr(code);
     reflectUI(code);
+
     // Если присутствует i18n.js — задействуем его без ошибок при отсутствии
     if (window.i18n && typeof window.i18n.setLang === 'function') {
       try { window.i18n.setLang(code); } catch(e) {}
@@ -1871,6 +1874,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.i18n && typeof window.i18n.apply === 'function') {
       try { window.i18n.apply(); } catch(e) {}
     }
+
     // уведомим остальной код, чтобы обновить динамические подписи
     try { document.dispatchEvent(new CustomEvent('plam:langChanged', { detail: { lang: code } })); } catch(_){}
   }
@@ -1882,18 +1886,25 @@ document.addEventListener('DOMContentLoaded', () => {
     reflectUI(saved);
 
     // 2) Делегирование кликов (на случай пересоздания попапа)
+    // Важно: реагируем ТОЛЬКО на клики внутри языкового переключателя
     document.addEventListener('click', (e)=>{
       const btn = e.target.closest && e.target.closest('.lang-switch__btn');
       if (!btn) return;
+
+      const langRoot = btn.closest('.lang-switch[aria-label="Language switcher"]');
+      if (!langRoot) return; // клик не по RU/ENG
+
       const code = btn.getAttribute('data-lang-target');
       if (!code) return;
       setLang(code);
     });
 
     // 3) Когда попап профиля открывается заново, сверим UI с актуальным языком
+    // и обновим тумблер звуков (чтобы подсветка появлялась сразу)
     document.addEventListener('plam:profilePopup:open', ()=>{
       const current = localStorage.getItem(LS_KEY) || DEFAULT_LANG;
       reflectUI(current);
+      try { window.PlamSound && PlamSound.updateAllToggles && PlamSound.updateAllToggles(); } catch(_) {}
     });
   }
 
@@ -1907,6 +1918,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Экспорт на глобал при необходимости
   window.plamLang = { set: setLang };
 })();
+
 
 // Обновления при смене языка — привязываем единый обработчик
 document.addEventListener('plam:langChanged', () => {
@@ -1922,8 +1934,6 @@ document.addEventListener('plam:langChanged', () => {
   try {
     const uploadRoot = modalRoot.querySelector('.upload-popup');
     if (uploadRoot) {
-      // у initUploadPopup есть слушатель plam:langChanged,
-      // но на всякий вызовем ререндер селектов/текста кнопки через событие
       document.dispatchEvent(new CustomEvent('plam:langChanged:upload'));
     }
   } catch(_) {}
@@ -1931,6 +1941,3 @@ document.addEventListener('plam:langChanged', () => {
   // Синхронизируем магазин (initBuyStars слушает plam:langChanged)
   // и остальные хуки, которые зависят от языка.
 });
-  })();
-
-
