@@ -1850,12 +1850,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function reflectUI(code){
-    // 100% только языковой переключатель
     const root = document.querySelector('[data-lang-switch]');
     if (!root) return;
 
-    const buttons = root.querySelectorAll('.lang-switch__btn');
-    buttons.forEach(btn => {
+    root.querySelectorAll('.lang-switch__btn').forEach(btn => {
       const on = btn.getAttribute('data-lang-target') === code;
       btn.classList.toggle('is-active', on);
       btn.setAttribute('aria-selected', String(on));
@@ -1867,51 +1865,43 @@ document.addEventListener('DOMContentLoaded', () => {
     applyLangAttr(code);
     reflectUI(code);
 
-    if (window.i18n && typeof window.i18n.setLang === 'function') {
-      try { window.i18n.setLang(code); } catch(e) {}
-    }
-    if (window.i18n && typeof window.i18n.apply === 'function') {
-      try { window.i18n.apply(); } catch(e) {}
-    }
+    try {
+      if (window.i18n && typeof window.i18n.setLang === 'function') window.i18n.setLang(code);
+      if (window.i18n && typeof window.i18n.apply === 'function') window.i18n.apply();
+    } catch(_) {}
 
-    try { document.dispatchEvent(new CustomEvent('plam:langChanged', { detail: { lang: code } })); } catch(_){}
+    try { document.dispatchEvent(new CustomEvent('plam:langChanged', { detail: { lang: code } })); } catch(_) {}
   }
 
-  function initLangSwitcher(){
+  function init(){
     const saved = localStorage.getItem(LS_KEY) || DEFAULT_LANG;
     applyLangAttr(saved);
     reflectUI(saved);
 
-    // Клик только по кнопкам, которые внутри [data-lang-switch]
     document.addEventListener('click', (e)=>{
       const btn = e.target.closest && e.target.closest('.lang-switch__btn');
       if (!btn) return;
 
-      const langRoot = btn.closest('[data-lang-switch]');
-      if (!langRoot) return; // не RU/ENG
+      // только RU/ENG
+      if (!btn.closest('[data-lang-switch]')) return;
 
       const code = btn.getAttribute('data-lang-target');
       if (!code) return;
       setLang(code);
     });
 
-    // При открытии профиля обновляем оба переключателя
     document.addEventListener('plam:profilePopup:open', ()=>{
       const current = localStorage.getItem(LS_KEY) || DEFAULT_LANG;
       reflectUI(current);
-      try { window.PlamSound && PlamSound.updateAllToggles && PlamSound.updateAllToggles(); } catch(_) {}
+      try { window.PlamSound?.updateAllToggles?.(); } catch(_) {}
     });
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initLangSwitcher);
-  } else {
-    initLangSwitcher();
-  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 
   window.plamLang = { set: setLang };
 })();
-
 
 // Обновления при смене языка — привязываем единый обработчик
 document.addEventListener('plam:langChanged', () => {
@@ -1922,9 +1912,7 @@ document.addEventListener('plam:langChanged', () => {
   try { refreshProfileUI(); } catch(_) {}
 
   try {
-    const uploadRoot = modalRoot.querySelector('.upload-popup');
-    if (uploadRoot) {
-      document.dispatchEvent(new CustomEvent('plam:langChanged:upload'));
-    }
+    const uploadRoot = modalRoot && modalRoot.querySelector && modalRoot.querySelector('.upload-popup');
+    if (uploadRoot) document.dispatchEvent(new CustomEvent('plam:langChanged:upload'));
   } catch(_) {}
 });
