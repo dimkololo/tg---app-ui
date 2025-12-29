@@ -285,6 +285,8 @@ window.addEventListener('touchstart', () => {
   const spinOnce = () => {
     if (spinning) return;
 
+    try { window.PlamSound && PlamSound.play && PlamSound.play(); } catch(_) {}
+
     // >>> iOS safety: форсируем инициализацию и даём явные сигналы в рамках жеста
 const __isIOS = (window.Telegram?.WebApp?.platform === 'ios');
 if (HAPTICS.provider === 'none') HAPTICS.init();
