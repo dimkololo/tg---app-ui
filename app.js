@@ -1923,5 +1923,4 @@ document.addEventListener('plam:langChanged', () => {
   } catch(_) {}
 });
 
-// ВАЖНО: эта скобка должна закрывать твой внешний `else { ... }` (guard)
-} // END __PLAM_APP_INIT__ guard
+})(); // END app.js wrapper
