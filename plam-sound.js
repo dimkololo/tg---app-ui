@@ -14,7 +14,8 @@ if (window.__PLAM_SOUND_INIT__) {
   let unlocked = false;
 
   function isEnabled() {
-    return (localStorage.getItem(KEY_ENABLED) ?? '1') === '1';
+  // по умолчанию ВЫКЛ, если ключа ещё нет
+  return (localStorage.getItem(KEY_ENABLED) ?? '0') === '1';
   }
 
   function getVolume() {
