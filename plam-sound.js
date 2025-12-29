@@ -1,5 +1,5 @@
-// plam-sound.js?v=4
-console.info('[sound] init v4');
+// plam-sound.js?v=5
+console.info('[sound] init v5');
 
 if (window.__PLAM_SOUND_INIT__) {
   console.warn('[sound] already initialized');
@@ -9,14 +9,14 @@ if (window.__PLAM_SOUND_INIT__) {
   const KEY_ENABLED = 'plam_ambient_enabled_v1';
   const KEY_VOLUME  = 'plam_ambient_volume_v1';
   const KEY_POS     = 'plam_ambient_pos_v1';   // для бесшовного продолжения
-  const SRC = 'bgicons/forest-at-night-after-sunset.mp3';
+  const SRC = '/assets/sounds/nature.mp3';
 
   let audio = null;
   let unlocked = false;
   let saveTimer = null;
 
   function isEnabled() {
-    // по умолчанию ВЫКЛ (как ты просил)
+    // по умолчанию ВЫКЛ
     return (localStorage.getItem(KEY_ENABLED) ?? '0') === '1';
   }
 
@@ -59,7 +59,6 @@ if (window.__PLAM_SOUND_INIT__) {
       } catch (_) {}
     };
 
-    // duration доступен после loadedmetadata
     if (audio.readyState >= 1) apply();
     else audio.addEventListener('loadedmetadata', apply, { once: true });
   }
@@ -72,11 +71,21 @@ if (window.__PLAM_SOUND_INIT__) {
     audio.preload = 'auto';
     audio.volume = getVolume();
 
+    // Telegram/Android/iOS friendly
+    try { audio.playsInline = true; } catch(_) {}
+    try { audio.setAttribute('playsinline', ''); } catch(_) {}
+    try { audio.setAttribute('webkit-playsinline', ''); } catch(_) {}
+
     audio.addEventListener('error', () => {
       console.warn('[sound] audio error', audio?.error, 'src=', SRC);
+      try { window.__plamSoundLastError = 'audio error: ' + String(audio?.error?.code || 'unknown'); } catch(_) {}
     });
 
     restorePosWhenReady();
+
+    // иногда помогает на Android/WebView
+    try { audio.load(); } catch(_) {}
+
     return audio;
   }
 
@@ -88,8 +97,10 @@ if (window.__PLAM_SOUND_INIT__) {
     try {
       await a.play();
       startSavingPos();
+      console.info('[sound] playing');
     } catch (e) {
       console.warn('[sound] play blocked', e);
+      try { window.__plamSoundLastError = String(e && (e.name || e.message) || e); } catch(_) {}
     }
   }
 
@@ -106,6 +117,7 @@ if (window.__PLAM_SOUND_INIT__) {
     updateAllToggles();
     if (!on) stop();
     else play();
+    try { console.info('[sound] enabled=', on, 'unlocked=', unlocked); } catch(_) {}
   }
 
   // UI (тумблер в профиле)
@@ -153,7 +165,8 @@ if (window.__PLAM_SOUND_INIT__) {
     document.querySelectorAll('[data-sound-switch]').forEach(bindWrap);
   }
 
-  // Разлочка по первому жесту на странице (важно для fortune.html, там тумблера нет)
+  // Разлочка по первому жесту на странице
+  // (важно для fortune.html, где тумблера может не быть)
   function unlockOnce() {
     const onFirstGesture = () => {
       unlocked = true;
@@ -161,14 +174,19 @@ if (window.__PLAM_SOUND_INIT__) {
       play();
       cleanup();
     };
+
     const cleanup = () => {
       document.removeEventListener('pointerdown', onFirstGesture, true);
       document.removeEventListener('touchstart', onFirstGesture, true);
       document.removeEventListener('keydown', onFirstGesture, true);
+      document.removeEventListener('click', onFirstGesture, true);
     };
+
     document.addEventListener('pointerdown', onFirstGesture, true);
     document.addEventListener('touchstart', onFirstGesture, true);
     document.addEventListener('keydown', onFirstGesture, true);
+    // ✅ Android/WebView часто надёжнее всего ловит именно click
+    document.addEventListener('click', onFirstGesture, true);
   }
 
   document.addEventListener('visibilitychange', () => {
