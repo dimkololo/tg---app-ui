@@ -571,13 +571,31 @@
           <div class="val-right" data-show-seconds>20 сек</div>
         </div>
       </div>
+      
       <!-- Sound toggle (same UI as RU/ENG) -->
 <div class="profile-row">
   <div class="profile-row__title" data-i18n="profile_sound_title">Звуки природы</div>
 
-  <div class="lang-switch sound-switch" data-sound-switch>
-    <button type="button" class="lang-btn" data-sound="on" data-i18n="on">Вкл</button>
-    <button type="button" class="lang-btn" data-sound="off" data-i18n="off">Выкл</button>
+  <div class="lang-switch" data-sound-switch role="tablist" aria-label="Nature sounds switcher">
+    <button
+      class="lang-switch__btn"
+      data-sound-target="on"
+      role="tab"
+      aria-selected="false"
+      type="button"
+      data-i18n="on"
+    >Вкл</button>
+
+    <span class="lang-switch__divider" aria-hidden="true">|</span>
+
+    <button
+      class="lang-switch__btn"
+      data-sound-target="off"
+      role="tab"
+      aria-selected="false"
+      type="button"
+      data-i18n="off"
+    >Выкл</button>
   </div>
 </div>
 
