@@ -1916,3 +1916,4 @@ document.addEventListener('plam:langChanged', () => {
     if (uploadRoot) document.dispatchEvent(new CustomEvent('plam:langChanged:upload'));
   } catch(_) {}
 });
+} // END __PLAM_APP_INIT__ guard
