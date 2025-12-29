@@ -1,5 +1,5 @@
-// plam-sound.js?v=3
-console.info('[sound] init v3');
+// plam-sound.js?v=4
+console.info('[sound] init v4');
 
 if (window.__PLAM_SOUND_INIT__) {
   console.warn('[sound] already initialized');
@@ -8,19 +8,60 @@ if (window.__PLAM_SOUND_INIT__) {
 
   const KEY_ENABLED = 'plam_ambient_enabled_v1';
   const KEY_VOLUME  = 'plam_ambient_volume_v1';
+  const KEY_POS     = 'plam_ambient_pos_v1';   // для бесшовного продолжения
   const SRC = 'bgicons/forest-at-night-after-sunset.mp3';
 
   let audio = null;
   let unlocked = false;
+  let saveTimer = null;
 
   function isEnabled() {
-  // по умолчанию ВЫКЛ, если ключа ещё нет
-  return (localStorage.getItem(KEY_ENABLED) ?? '0') === '1';
+    // по умолчанию ВЫКЛ (как ты просил)
+    return (localStorage.getItem(KEY_ENABLED) ?? '0') === '1';
   }
 
   function getVolume() {
     const v = Number(localStorage.getItem(KEY_VOLUME));
     return Number.isFinite(v) ? Math.max(0, Math.min(1, v)) : 0.35;
+  }
+
+  function savePosOnce() {
+    if (!audio) return;
+    try {
+      const t = Number(audio.currentTime);
+      if (Number.isFinite(t) && t >= 0) localStorage.setItem(KEY_POS, String(t));
+    } catch (_) {}
+  }
+
+  function startSavingPos() {
+    if (saveTimer) return;
+    saveTimer = setInterval(savePosOnce, 1000);
+  }
+
+  function stopSavingPos() {
+    if (!saveTimer) return;
+    clearInterval(saveTimer);
+    saveTimer = null;
+  }
+
+  function restorePosWhenReady() {
+    if (!audio) return;
+    const raw = localStorage.getItem(KEY_POS);
+    const pos = Number(raw);
+    if (!Number.isFinite(pos) || pos < 0) return;
+
+    const apply = () => {
+      try {
+        const d = Number(audio.duration);
+        if (Number.isFinite(d) && d > 0) {
+          audio.currentTime = pos % d; // бесшовно по кругу
+        }
+      } catch (_) {}
+    };
+
+    // duration доступен после loadedmetadata
+    if (audio.readyState >= 1) apply();
+    else audio.addEventListener('loadedmetadata', apply, { once: true });
   }
 
   function ensureAudio() {
@@ -35,6 +76,7 @@ if (window.__PLAM_SOUND_INIT__) {
       console.warn('[sound] audio error', audio?.error, 'src=', SRC);
     });
 
+    restorePosWhenReady();
     return audio;
   }
 
@@ -45,7 +87,7 @@ if (window.__PLAM_SOUND_INIT__) {
     const a = ensureAudio();
     try {
       await a.play();
-      console.info('[sound] playing');
+      startSavingPos();
     } catch (e) {
       console.warn('[sound] play blocked', e);
     }
@@ -53,8 +95,10 @@ if (window.__PLAM_SOUND_INIT__) {
 
   function stop() {
     if (!audio) return;
+    savePosOnce();
+    stopSavingPos();
     try { audio.pause(); } catch (_) {}
-    try { audio.currentTime = 0; } catch (_) {}
+    // currentTime НЕ сбрасываем, чтобы продолжать бесшовно
   }
 
   function setEnabled(on) {
@@ -64,7 +108,7 @@ if (window.__PLAM_SOUND_INIT__) {
     else play();
   }
 
-  // UI
+  // UI (тумблер в профиле)
   function updateToggleByWrap(wrap) {
     if (!wrap) return;
     const btnOn  = wrap.querySelector('[data-sound-target="on"]');
@@ -91,14 +135,14 @@ if (window.__PLAM_SOUND_INIT__) {
       const btn = e.target && e.target.closest ? e.target.closest('[data-sound-target]') : null;
       if (!btn) return;
 
-      // ВАЖНО: клик по тумблеру = “жест”, разлочиваем тут же
+      // клик по тумблеру = жест → разлочка
       unlocked = true;
       ensureAudio();
 
       const val = btn.getAttribute('data-sound-target');
       setEnabled(val === 'on');
 
-      // попробуем стартануть прямо внутри клика (самый надёжный способ)
+      // пробуем стартануть прямо внутри клика
       play();
     });
 
@@ -109,7 +153,7 @@ if (window.__PLAM_SOUND_INIT__) {
     document.querySelectorAll('[data-sound-switch]').forEach(bindWrap);
   }
 
-  // fallback unlock (на всякий)
+  // Разлочка по первому жесту на странице (важно для fortune.html, там тумблера нет)
   function unlockOnce() {
     const onFirstGesture = () => {
       unlocked = true;
@@ -128,11 +172,15 @@ if (window.__PLAM_SOUND_INIT__) {
   }
 
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden) stop();
-    else play();
+    if (document.hidden) {
+      savePosOnce();
+      stop();
+    } else {
+      play();
+    }
   });
 
-  // Автопривязка при появлении модалки
+  // Автопривязка тумблера когда вставится модалка
   const mo = new MutationObserver(() => updateAllToggles());
   try { mo.observe(document.documentElement, { childList: true, subtree: true }); } catch (_) {}
 
