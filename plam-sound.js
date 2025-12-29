@@ -1,5 +1,5 @@
-// plam-sound.js?v=2
-console.info('[sound] init v2');
+// plam-sound.js?v=3
+console.info('[sound] init v3');
 
 if (window.__PLAM_SOUND_INIT__) {
   console.warn('[sound] already initialized');
@@ -8,7 +8,7 @@ if (window.__PLAM_SOUND_INIT__) {
 
   const KEY_ENABLED = 'plam_ambient_enabled_v1';
   const KEY_VOLUME  = 'plam_ambient_volume_v1';
-  const SRC = '/bgicons/forest-at-night-after-sunset.mp3';
+  const SRC = 'bgicons/forest-at-night-after-sunset.mp3';
 
   let audio = null;
   let unlocked = false;
@@ -17,21 +17,37 @@ if (window.__PLAM_SOUND_INIT__) {
     return (localStorage.getItem(KEY_ENABLED) ?? '1') === '1';
   }
 
+  function getVolume() {
+    const v = Number(localStorage.getItem(KEY_VOLUME));
+    return Number.isFinite(v) ? Math.max(0, Math.min(1, v)) : 0.35;
+  }
+
   function ensureAudio() {
     if (audio) return audio;
+
     audio = new Audio(SRC);
     audio.loop = true;
     audio.preload = 'auto';
-    const v = Number(localStorage.getItem(KEY_VOLUME));
-    audio.volume = Number.isFinite(v) ? Math.max(0, Math.min(1, v)) : 0.35;
+    audio.volume = getVolume();
+
+    audio.addEventListener('error', () => {
+      console.warn('[sound] audio error', audio?.error, 'src=', SRC);
+    });
+
     return audio;
   }
 
   async function play() {
     if (!unlocked) return;
     if (!isEnabled()) return;
+
     const a = ensureAudio();
-    try { await a.play(); } catch (_) {}
+    try {
+      await a.play();
+      console.info('[sound] playing');
+    } catch (e) {
+      console.warn('[sound] play blocked', e);
+    }
   }
 
   function stop() {
@@ -47,15 +63,14 @@ if (window.__PLAM_SOUND_INIT__) {
     else play();
   }
 
+  // UI
   function updateToggleByWrap(wrap) {
     if (!wrap) return;
-
     const btnOn  = wrap.querySelector('[data-sound-target="on"]');
     const btnOff = wrap.querySelector('[data-sound-target="off"]');
     if (!btnOn || !btnOff) return;
 
     const on = isEnabled();
-
     btnOn.classList.toggle('is-active', on);
     btnOff.classList.toggle('is-active', !on);
 
@@ -74,8 +89,16 @@ if (window.__PLAM_SOUND_INIT__) {
     wrap.addEventListener('click', (e) => {
       const btn = e.target && e.target.closest ? e.target.closest('[data-sound-target]') : null;
       if (!btn) return;
+
+      // ВАЖНО: клик по тумблеру = “жест”, разлочиваем тут же
+      unlocked = true;
+      ensureAudio();
+
       const val = btn.getAttribute('data-sound-target');
       setEnabled(val === 'on');
+
+      // попробуем стартануть прямо внутри клика (самый надёжный способ)
+      play();
     });
 
     updateToggleByWrap(wrap);
@@ -85,7 +108,7 @@ if (window.__PLAM_SOUND_INIT__) {
     document.querySelectorAll('[data-sound-switch]').forEach(bindWrap);
   }
 
-  // Разлочка аудио только после жеста пользователя
+  // fallback unlock (на всякий)
   function unlockOnce() {
     const onFirstGesture = () => {
       unlocked = true;
@@ -93,13 +116,11 @@ if (window.__PLAM_SOUND_INIT__) {
       play();
       cleanup();
     };
-
     const cleanup = () => {
       document.removeEventListener('pointerdown', onFirstGesture, true);
       document.removeEventListener('touchstart', onFirstGesture, true);
       document.removeEventListener('keydown', onFirstGesture, true);
     };
-
     document.addEventListener('pointerdown', onFirstGesture, true);
     document.addEventListener('touchstart', onFirstGesture, true);
     document.addEventListener('keydown', onFirstGesture, true);
@@ -110,18 +131,11 @@ if (window.__PLAM_SOUND_INIT__) {
     else play();
   });
 
-  // Автопривязка, когда модалка профиля вставится в DOM
-  const mo = new MutationObserver(() => {
-    // дешево и надежно: просто обновляем/привязываем все найденные
-    updateAllToggles();
-  });
-
-  try {
-    mo.observe(document.documentElement, { childList: true, subtree: true });
-  } catch (_) {}
+  // Автопривязка при появлении модалки
+  const mo = new MutationObserver(() => updateAllToggles());
+  try { mo.observe(document.documentElement, { childList: true, subtree: true }); } catch (_) {}
 
   unlockOnce();
-  // на всякий случай сразу синкнем (если уже есть в DOM)
   updateAllToggles();
 
   window.PlamSound = {
