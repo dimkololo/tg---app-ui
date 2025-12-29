@@ -572,50 +572,60 @@
         </div>
       </div>
       
-      <!-- Sound toggle (same UI as RU/ENG) -->
-<div class="profile-row">
-  <div class="profile-row__title" data-i18n="profile_sound_title">Звуки природы</div>
+      <!-- Bottom switches row: sounds (left) + language (right) -->
+<div class="profile-bottom-switches">
 
-  <div class="lang-switch" data-sound-switch role="tablist" aria-label="Nature sounds switcher">
-    <button
-      class="lang-switch__btn"
-      data-sound-target="on"
-      role="tab"
-      aria-selected="false"
-      type="button"
-      data-i18n="on"
-    >Вкл</button>
+  <!-- LEFT: Nature sounds -->
+  <div class="profile-bottom-switches__left">
+    <div class="profile-sound-title" data-i18n="profile_sound_title">Звуки природы</div>
 
-    <span class="lang-switch__divider" aria-hidden="true">|</span>
+    <div class="lang-switch" data-sound-switch role="tablist" aria-label="Nature sounds switcher">
+      <button
+        class="lang-switch__btn"
+        data-sound-target="on"
+        role="tab"
+        aria-selected="false"
+        type="button"
+        data-i18n="on"
+      >Вкл</button>
 
-    <button
-      class="lang-switch__btn"
-      data-sound-target="off"
-      role="tab"
-      aria-selected="false"
-      type="button"
-      data-i18n="off"
-    >Выкл</button>
+      <span class="lang-switch__divider" aria-hidden="true">|</span>
+
+      <button
+        class="lang-switch__btn"
+        data-sound-target="off"
+        role="tab"
+        aria-selected="false"
+        type="button"
+        data-i18n="off"
+      >Выкл</button>
+    </div>
   </div>
-</div>
 
-      <div class="lang-switch" data-lang-switch role="tablist" aria-label="Language switcher">
-          <button
-              class="lang-switch__btn is-active"
-              data-lang-target="ru"
-              role="tab"
-              aria-selected="true"
-              type="button"
-          >RU</button>
-          <span class="lang-switch__divider" aria-hidden="true">|</span>
-          <button
-              class="lang-switch__btn"
-              data-lang-target="en"
-              role="tab"
-              aria-selected="false"
-              type="button"
-          >ENG</button>
-          </div>
+  <!-- RIGHT: RU/ENG (unchanged logic, just positioned right) -->
+  <div class="profile-bottom-switches__right">
+    <div class="lang-switch" data-lang-switch role="tablist" aria-label="Language switcher">
+      <button
+        class="lang-switch__btn"
+        data-lang-target="ru"
+        role="tab"
+        aria-selected="false"
+        type="button"
+      >RU</button>
+
+      <span class="lang-switch__divider" aria-hidden="true">|</span>
+
+      <button
+        class="lang-switch__btn"
+        data-lang-target="en"
+        role="tab"
+        aria-selected="false"
+        type="button"
+      >ENG</button>
+    </div>
+  </div>
+
+</div>
     </section>
   </template>
 
