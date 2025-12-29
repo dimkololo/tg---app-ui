@@ -96,13 +96,30 @@
       translateAttr(el, 'data-i18n-aria-label', 'aria-label')
     );
   }
+function flattenDict(obj, prefix = '', out = {}) {
+  if (!obj || typeof obj !== 'object') return out;
+  for (const [k, v] of Object.entries(obj)) {
+    const key = prefix ? `${prefix}.${k}` : k;
+
+    if (v && typeof v === 'object' && !Array.isArray(v)) {
+      flattenDict(v, key, out);
+    } else {
+      out[key] = v;
+    }
+  }
+  return out;
+}
 
   // Позволяет постепенно подливать словари
-  function load(lang, dict) {
-    if (!lang || !dict) return;
-    const code = lang.toLowerCase();
-    DICTS[code] = Object.assign({}, DICTS[code] || {}, dict);
-  }
+ function load(lang, dict) {
+  if (!lang || !dict) return;
+  const code = lang.toLowerCase();
+
+  const flat = flattenDict(dict); // ← ВОТ ЭТО ВАЖНО
+
+  DICTS[code] = Object.assign({}, DICTS[code] || {}, flat);
+}
+
 
   function init() {
     // зафиксируем язык и проставим атрибуты на <html>
