@@ -9,7 +9,7 @@ if (window.__PLAM_SOUND_INIT__) {
   const KEY_ENABLED = 'plam_ambient_enabled_v1';
   const KEY_VOLUME  = 'plam_ambient_volume_v1';
   const KEY_POS     = 'plam_ambient_pos_v1';   // для бесшовного продолжения
-  const SRC = '/assets/sounds/nature.mp3';
+  const SRC = 'bgicons/forest-at-night-after-sunset.mp3';
 
   let audio = null;
   let unlocked = false;
