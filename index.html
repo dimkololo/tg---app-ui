@@ -25,6 +25,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title data-i18n="title.app">Plam — WebApp</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="plam-sound.js?v=1" defer></script>
   <link rel="stylesheet" href="./style.css?v=51" />
   <link rel="preload" as="image" href="./bgicons/loading.gif" imagesrcset="./bgicons/loading.gif">
 </head>
@@ -570,6 +571,15 @@
           <div class="val-right" data-show-seconds>20 сек</div>
         </div>
       </div>
+      <!-- Sound toggle (same UI as RU/ENG) -->
+<div class="profile-row">
+  <div class="profile-row__title" data-i18n="profile_sound_title">Звуки природы</div>
+
+  <div class="lang-switch sound-switch" data-sound-switch>
+    <button type="button" class="lang-btn" data-sound="on" data-i18n="on">Вкл</button>
+    <button type="button" class="lang-btn" data-sound="off" data-i18n="off">Выкл</button>
+  </div>
+</div>
 
       <div class="lang-switch" role="tablist" aria-label="Language switcher">
           <button
