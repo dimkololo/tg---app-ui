@@ -1912,8 +1912,16 @@ document.addEventListener('plam:langChanged', () => {
   try { refreshProfileUI(); } catch(_) {}
 
   try {
-    const uploadRoot = modalRoot && modalRoot.querySelector && modalRoot.querySelector('.upload-popup');
-    if (uploadRoot) document.dispatchEvent(new CustomEvent('plam:langChanged:upload'));
+    const uploadRoot =
+      (typeof modalRoot !== 'undefined' && modalRoot && modalRoot.querySelector)
+        ? modalRoot.querySelector('.upload-popup')
+        : null;
+
+    if (uploadRoot) {
+      document.dispatchEvent(new CustomEvent('plam:langChanged:upload'));
+    }
   } catch(_) {}
 });
+
+// ВАЖНО: эта скобка должна закрывать твой внешний `else { ... }` (guard)
 } // END __PLAM_APP_INIT__ guard
