@@ -1503,6 +1503,7 @@ function initPrizes(){
 
 // --- Профиль ---
 function initProfile(){
+  try { window.PlamSound && PlamSound.bindProfile(document); } catch(_) {}
   const root = modalRoot.querySelector('.profile-popup'); 
   if (!root) return;
 
