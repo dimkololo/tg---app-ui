@@ -294,6 +294,105 @@ i18n.load('en', {
   "fortune.return_in": "Return in: {{time}}",
   "fortune.tasks_tab": "Tasks",
   "fortune.tasks_empty": "The \"Tasks\" section will be available soon",
+  faq: {
+  title: "FAQ",
+
+  term_plam: "PLAM",
+  term_rewards: "rewards",
+  term_on_air: "On-air",
+  term_winner: "winner",
+  term_plamc: "PLAMc",
+  term_stump: "stump",
+  term_link: "link",
+  term_description: "description",
+  term_slider: "slider",
+  term_go_live_btn: "“Go live for … seconds”",
+  term_important: "Important:",
+  term_plus_seconds: "extra seconds",
+  term_maximum: "Maximum:",
+  term_no_premium: "Without Premium:",
+  term_with_premium: "With Premium:",
+  term_plus_one_second: "+1 second",
+  term_20_40: "20 → 40 seconds",
+  term_profile: "Profile",
+  term_get_premium: "“Get Premium”",
+  term_plus: "+",
+  support_contact: "support.example.replace.me",
+
+  what_is_title: "What is PLAM?",
+  what_is_p1_mid: " is a social project where you send photos on-air for a limited time and receive ",
+  what_is_li1_after: " is a 24/7 stream.",
+  what_is_li2_before: "Every hour a ",
+  what_is_li2_after: " is chosen at random and receives a reward.",
+  what_is_li3: "Photos sent on-air are treated as confirmation of participation in the draw and acceptance of the project rules.",
+  what_is_li4_before: "You can increase how many photos you can send using ",
+
+  how_send_title: "How do I send a photo on-air?",
+  how_send_1_before: "Tap the ",
+  how_send_1_after: " (photo upload).",
+  how_send_2_before: "Choose a photo → optionally add a ",
+  how_send_2_mid: " and a ",
+  how_send_3_before: "Set extra time with the ",
+  how_send_3_after: " (if needed).",
+  how_send_4_before: "Tap ",
+  how_send_4_after: " — the photo goes to moderation and, after approval, enters the display queue.",
+
+  queue_title: "Why do we need a queue and moderation?",
+  queue_p1: "Each photo is checked after submission to ensure it follows the rules and content restrictions.",
+  queue_p2: "The number of photos in the queue affects how many can be shown on-air at the same time. If multiple photos are on-air when a winner is chosen, the reward will be drawn randomly among them.",
+
+  why_link_title: "Why add a link and description?",
+  why_link_p1: "If your photo wins the hourly draw and it has a link and description attached, we will publish the winner in our Telegram channel. This gives the winner extra promotion on top of the reward.",
+  why_link_p2_after: " the link must not lead to prohibited content/products or to companies involved in propaganda.",
+
+  plamc_title: "PLAMc and display time",
+  plamc_what_title: "What is PLAMc?",
+  plamc_what_p1_after: " is PLAM’s internal currency. You can spend it to increase photo display time and use certain features.",
+
+  slider_title: "How does the time slider work?",
+  slider_p1_before: "The slider adds ",
+  slider_p1_after: " to the base display time. The more PLAMc you put in, the longer your photo stays on-air.",
+  slider_p2_after: " +20 seconds.",
+
+  default_title: "How long is one photo shown by default?",
+  default_li1_after: " base time = 20 seconds",
+  default_li2_after: " base time = 40 seconds",
+  default_p1_before: "For every 100 photos you send, the base value increases by ",
+  default_p1_after: " to the base value.",
+
+  cooldown_title: "Why is there a timer / cooldown?",
+  cooldown_p1: "To prevent endless spam and keep it fair for everyone. If a cooldown is active, sending is limited until it ends.",
+
+  premium_title: "Premium and balance",
+  premium_what_title: "What does Premium do?",
+  premium_what_p1_before: "Premium increases the base photo display time: ",
+  premium_what_p1_after: " (no extra cost). You can also see the status and time remaining in your profile.",
+
+  premium_where_title: "Where can I enable Premium?",
+  premium_where_p1_before: "Open ",
+  premium_where_p1_mid: " (notebook icon) → tap ",
+
+  premium_q_title: "Why is there a “?” next to Premium?",
+  premium_q_p1: "It briefly explains what Premium gives, how it works, and why it’s worth it.",
+
+  balance_where_title: "Where can I see my PLAMc balance?",
+  balance_where_p1_before: "Your balance is shown in the top-right corner — in the cloud with a ",
+
+  sections_title: "App sections",
+  gift_title: "What is the “gift” for?",
+  gift_p1: "This is where your rewards/prizes/activities you received in PLAM are stored.",
+
+  wheel_title: "What is the “Wheel of Fortune”?",
+  wheel_p1: "It’s a quick way to get PLAMc randomly. After spinning, the won PLAMc are added to your balance.",
+  wheel_p2: "One spin is available once per day.",
+
+  tasks_title: "What are “Tasks”?",
+  tasks_p1: "Tasks are actions that can earn PLAMc or bonuses: for example, subscribing, opening a partner app, or completing certain conditions.",
+
+  problem_title: "What should I do if I run into a problem?",
+  problem_p1_before: "If the app has errors — contact support: "
+}
+
 });
 
 // RU dictionary (чтобы переключение RU↔ENG работало без перезагрузки)
@@ -428,6 +527,105 @@ i18n.load('ru', {
   "fortune.return_in": "Возвращайся через: {{time}}",
   "fortune.tasks_tab": "Задания",
   "fortune.tasks_empty": "Раздел «Задания» скоро будет доступен",
+  faq: {
+  title: "FAQ",
+
+  term_plam: "PLAM",
+  term_rewards: "призы",
+  term_on_air: "Эфир",
+  term_winner: "победитель",
+  term_plamc: "PLAMc",
+  term_stump: "пень",
+  term_link: "ссылку",
+  term_description: "описание",
+  term_slider: "ползунком",
+  term_go_live_btn: "«В эфир на … секунд»",
+  term_important: "Важно:",
+  term_plus_seconds: "+секунды",
+  term_maximum: "Максимум:",
+  term_no_premium: "Без премиум:",
+  term_with_premium: "С премиум:",
+  term_plus_one_second: "+1 секунда",
+  term_20_40: "20 → 40 секунд",
+  term_profile: "Профиль",
+  term_get_premium: "«Получить премиум»",
+  term_plus: "+",
+  support_contact: "техблаблаподдержка.хватитсюдаписать",
+
+  what_is_title: "Что такое PLAM?",
+  what_is_p1_mid: " — это социальный проект, в котором ты отправляешь фото в эфир на время и за это получаешь ",
+  what_is_li1_after: " — трансляция 24/7.",
+  what_is_li2_before: "Каждый час случайным образом выбирается ",
+  what_is_li2_after: " и получает вознаграждение.",
+  what_is_li3: "Фото, отправленные в эфир, считаются подтверждением участия в розыгрыше и согласием с правилами проекта.",
+  what_is_li4_before: "Увеличить количество отправляемых фото можно за ",
+
+  how_send_title: "Как отправить фото в эфир?",
+  how_send_1_before: "Нажми на ",
+  how_send_1_after: " (загрузка фото).",
+  how_send_2_before: "Выбери фото → добавь (по желанию) ",
+  how_send_2_mid: " и ",
+  how_send_3_before: "Выставь дополнительное время ",
+  how_send_3_after: " (если нужно).",
+  how_send_4_before: "Нажми ",
+  how_send_4_after: " — фото попадает на модерацию и после успешной проверки встаёт в очередь на показ.",
+
+  queue_title: "Для чего нужна очередь и модерация?",
+  queue_p1: "Каждое фото после отправки проверяется на соответствие правилам и ограничениям по контенту.",
+  queue_p2: "Количество фото в очереди влияет на то, сколько фото может отображаться в эфире одновременно. Если на момент выбора победителя в эфире показывается несколько фото, приз будет разыгран случайным образом между ними.",
+
+  why_link_title: "Зачем ссылка и описание?",
+  why_link_p1: "Если фото победит в ежечасном розыгрыше и к нему прикреплены ссылка и описание — мы опубликуем победителя в нашем Telegram-канале. Тем самым победитель получит еще и рекламу в добавок к выигрышу.",
+  why_link_p2_after: " ссылка не должна вести на запрещённый контент/товары или на компании, занимающиеся пропагандой.",
+
+  plamc_title: "PLAMc и время показа",
+  plamc_what_title: "Что такое PLAMc?",
+  plamc_what_p1_after: " — внутренняя валюта PLAM. Её можно тратить на увеличение времени показа фото и на отдельные функции.",
+
+  slider_title: "Как работает ползунок времени?",
+  slider_p1_before: "Ползунок добавляет ",
+  slider_p1_after: " к базовому времени показа. Чем больше PLAMc поставишь — тем дольше фото будет в эфире.",
+  slider_p2_after: " +20 секунд.",
+
+  default_title: "Сколько по умолчанию показывается одно фото?",
+  default_li1_after: " базовое время = 20 секунд",
+  default_li2_after: " базовое время = 40 секунд",
+  default_p1_before: "За каждые 100 отправленных фото будет прибавляться ",
+  default_p1_after: " к базовому значению.",
+
+  cooldown_title: "Зачем нужен таймер/кулдаун?",
+  cooldown_p1: "Чтобы эфир не спамили бесконечно и у всех был равный шанс. Если активен кулдаун — отправка ограничена до его окончания.",
+
+  premium_title: "Премиум и баланс",
+  premium_what_title: "Что даёт премиум?",
+  premium_what_p1_before: "Премиум увеличивает базовый показ фото: ",
+  premium_what_p1_after: " (без доплат). Также в профиле видно статус и таймер до окончания.",
+
+  premium_where_title: "Где включить премиум?",
+  premium_where_p1_before: "Открой ",
+  premium_where_p1_mid: " (значок блокнота) → кнопка ",
+
+  premium_q_title: "Почему рядом есть знак “?” у премиума?",
+  premium_q_p1: "Там коротко объяснено: что даёт премиум, как он работает и почему это выгодно.",
+
+  balance_where_title: "Где смотреть баланс PLAMc?",
+  balance_where_p1_before: "Баланс виден в правом верхнем углу — в облаке со знаком ",
+
+  sections_title: "Разделы приложения",
+  gift_title: "Для чего “подарок”?",
+  gift_p1: "Там хранятся награды/призы/активности, которые ты получил в PLAM.",
+
+  wheel_title: "Что такое “Колесо фортуны”?",
+  wheel_p1: "Это быстрый способ получить PLAMc случайным образом. После вращения колеса выигранные PLAMc начисляются на баланс.",
+  wheel_p2: "Вращение доступно 1 раз в сутки.",
+
+  tasks_title: "Что такое “Задания”?",
+  tasks_p1: "Задания — это действия, за которые можно получить PLAMc или бонусы: например подписка, вход в партнёрское приложение, выполнение условий.",
+
+  problem_title: "Что делать, если столкнулся с проблемой?",
+  problem_p1_before: "Если возникли ошибки в работе приложения — напиши в техническую поддержку: "
+}
+
     
 });
 
