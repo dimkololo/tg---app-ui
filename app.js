@@ -1891,10 +1891,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.addEventListener('plam:profilePopup:open', ()=>{
-      const current = localStorage.getItem(LS_KEY) || DEFAULT_LANG;
-      reflectUI(current);
-      try { window.PlamSound?.updateAllToggles?.(); } catch(_) {}
-    });
+  const current = localStorage.getItem(LS_KEY) || DEFAULT_LANG;
+  reflectUI(current);
+
+  // применяем переводы к только что вставленному HTML профиля
+  try { i18nApply(modalRoot); } catch(_) {}
+  try { i18nApply(stackRoot); } catch(_) {}
+
+  // и синхроним подсветку тумблера звуков
+  try { window.PlamSound?.updateAllToggles?.(); } catch(_) {}
+});
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
