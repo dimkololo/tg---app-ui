@@ -9,7 +9,7 @@ else {
   const KEY_VOLUME  = 'plam_ambient_volume_v1';
 
   // Положи файл сюда (см. ниже в конце ответа):
-  const SRC = '/assets/sounds/nature.mp3';
+  const SRC = 'bgicons/forest-at-night-after-sunset.mp3';
 
   let audio = null;
   let unlocked = false;
