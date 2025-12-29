@@ -2131,6 +2131,48 @@ background: #FF7300; /* оранжевый активный */
 .promo-form [data-promo-apply]:active  { transform: translateY(1px); }
 .promo-form [data-promo-apply]:disabled{ opacity: .5; filter: none; }
 
+/* Profile: bottom row switches (sounds left, language right) */
+.profile-bottom-switches{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:16px;
+  width:100%;
+  margin-top:auto;          /* если родитель flex-column — прижмёт к низу */
+}
+
+.profile-bottom-switches__left{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;   /* слева */
+  gap:10px;
+}
+
+.profile-bottom-switches__right{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;     /* справа */
+}
+
+.profile-sound-title{
+  color:#fff;
+  opacity:.85;
+  font-size:18px;
+  line-height:1.2;
+  text-align:left;
+}
+
+/* На очень узких экранах можно переносить в столбик, чтобы не налезали */
+@media (max-width: 360px){
+  .profile-bottom-switches{
+    flex-direction:column;
+    align-items:stretch;
+  }
+  .profile-bottom-switches__right{
+    align-items:flex-start;
+  }
+}
+
 
 
 
