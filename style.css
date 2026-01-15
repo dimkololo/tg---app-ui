@@ -2278,7 +2278,7 @@ background: #FF7300; /* оранжевый активный */
   border-radius:16px;
   background: var(--chip);
   border: 1px solid rgba(0,0,0,.06);
-
+  margin-bottom: 8px;
   /* визуально отличаем от строк обмена */
   box-shadow: inset 0 0 0 2px rgba(255,115,0,.18);
   display:grid;
