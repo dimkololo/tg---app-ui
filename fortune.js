@@ -366,6 +366,16 @@ if (__isIOS && window.Telegram?.WebApp?.HapticFeedback) {
     }));
   });
 
+  document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-open-game]');
+  if (!btn) return;
+  e.preventDefault();
+  const url = './game.html';
+  const win = window.open(url, '_blank', 'noopener,noreferrer');
+  if (!win) location.href = url;
+});
+
+
   // 2.1 Флаг при любых уходах со страницы (назад/переход/закрытие)
 window.addEventListener('pagehide', () => {
   try { sessionStorage.setItem('plam_skip_splash_once', '1'); } catch(_) {}
