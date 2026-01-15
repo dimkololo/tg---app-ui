@@ -1963,4 +1963,21 @@ document.addEventListener('plam:langChanged', () => {
   } catch(_) {}
 });
 
+  (function devTestStarsPrize(){
+  const m = location.search.match(/[?&]teststars(?:=(\d+))?/i);
+  if (!m) return;
+  const amount = Math.max(1, parseInt(m[1]||'30',10));
+  const FLAG = 'plam_teststars_added_v1';
+  if (localStorage.getItem(FLAG) === '1') return;
+  addPrize({
+    id: `test-stars-${amount}`,
+    kind: 'stars',
+    amount,
+    img: './bgicons/star-item.png',     // можешь поставить любую свою пиктограмму
+    title: `Тест: +${amount} ⭐`
+  });
+  localStorage.setItem(FLAG, '1');
+})();
+
+
 })(); // END app.js wrapper
