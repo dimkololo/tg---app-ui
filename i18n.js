@@ -310,7 +310,9 @@ i18n.load('en', {
   "fortune.rules": "Rules",
   "fortune.return_in": "Return in: {{time}}",
   "fortune.tasks_tab": "Tasks",
+  "fortune.tab_game": "Game",
   "fortune.tasks_empty": "The \"Tasks\" section will be available soon",
+  "common.back": "Back",
   faq: {
   title: "FAQ",
 
@@ -543,7 +545,9 @@ i18n.load('ru', {
   "fortune.rules": "Правила",
   "fortune.return_in": "Возвращайся через: {{time}}",
   "fortune.tasks_tab": "Задания",
+  "fortune.tab_game": "Игра",
   "fortune.tasks_empty": "Раздел «Задания» скоро будет доступен",
+  "common.back": "Назад",
   faq: {
   title: "FAQ",
 
