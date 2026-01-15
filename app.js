@@ -557,6 +557,28 @@ function updatePlusBalanceUI(){
   if (el) el.textContent = String(getBalance());
 }
 
+  function getStars(){ return LS.getNum(K.STARS_BALANCE, 0); }
+function setStars(v){ LS.setNum(K.STARS_BALANCE, v); }
+function addStars(delta){ setStars(getStars() + delta); }
+
+  function updateStarsBadgeUI(){
+  const badge = document.getElementById('starsBadge');
+  if (!badge) return;
+  const v = getStars();
+  const valEl = document.getElementById('starsValue');
+  if (valEl) valEl.textContent = String(v);
+  const on = v > 0;
+  badge.hidden = !on;
+  badge.classList.toggle('is-visible', on);
+}
+
+window.addEventListener('DOMContentLoaded', updateStarsBadgeUI);
+window.addEventListener('pageshow',      updateStarsBadgeUI);
+window.addEventListener('storage', (e) => {
+  if (e.key === K.STARS_BALANCE) updateStarsBadgeUI();
+});
+
+
 // при старте и при возврате со страницы колеса подтягиваем свежие данные
 window.addEventListener('DOMContentLoaded', updatePlusBalanceUI);
 window.addEventListener('pageshow', updatePlusBalanceUI);
