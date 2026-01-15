@@ -103,6 +103,55 @@ try {
   }
 
   const preloadAll = Promise.allSettled(criticalImages.map(preloadOne));
+    // --- BOOT BARRIER: ждём базовые синки, чтобы не показывать "догрузку" пользователю ---
+  const defer = (fn) => {
+    if (typeof queueMicrotask === 'function') queueMicrotask(fn);
+    else Promise.resolve().then(fn);
+  };
+
+  function waitForBackendId(timeoutMs = 7000){
+    const tStart = performance.now();
+    return new Promise((resolve) => {
+      const tick = () => {
+        const id = (typeof getBackendUserId === 'function') ? getBackendUserId() : null;
+        if (id) return resolve(id);
+
+        // запасной путь: локальный plam_auth
+        try {
+          const raw = localStorage.getItem('plam_auth');
+          const j = raw ? JSON.parse(raw) : null;
+          if (j && j.id) return resolve(j.id);
+        } catch(_) {}
+
+        if ((performance.now() - tStart) >= timeoutMs) return resolve(null);
+        setTimeout(tick, 150);
+      };
+      tick();
+    });
+  }
+
+  const bootReady = new Promise((resolve) => {
+    defer(async () => {
+      try {
+        // ждём, пока появится userId (авторизация могла ещё записываться)
+        await waitForBackendId(7000);
+
+        // и делаем 1 "первичный" синк (не важно ок/не ок — важно, что попытались)
+        await Promise.allSettled([
+          (typeof syncBalanceFromBackend === 'function') ? syncBalanceFromBackend() : Promise.resolve(),
+          (typeof syncPremiumFromBackend === 'function') ? syncPremiumFromBackend() : Promise.resolve(),
+        ]);
+      } catch(_) {
+        // молча — не блокируем навсегда
+      } finally {
+        resolve();
+      }
+    });
+  });
+
+  // чтобы __plamHideSplash (в т.ч. из index fallback) мог уважать barrier
+  window.__plamBootReadyPromise = bootReady;
+
  function hideSplashSoft() {
     const elapsed = performance.now() - t0;
     const delay = Math.max(0, MIN_SHOW_MS - elapsed);
@@ -130,17 +179,29 @@ Promise.race([
   Promise.all([
     onDOMReady,
     fontsReady,
-    preloadAll,   // <-- ИСПОЛЬЗУЕМ реальный прелоад картинок с бюджетом
+    preloadAll,
+    bootReady,     // ← ДОБАВИЛИ
   ]),
-  new Promise(r => setTimeout(r, HARD_TIMEOUT_MS)) // рубильник
+  new Promise(r => setTimeout(r, HARD_TIMEOUT_MS))
 ]).then(hideSplashSoft);
 
+
   // Глобальный ручной рубильник (используется и fallback-скриптом в index.html)
-  window.__plamHideSplash = function() {
-    splash.classList.add('is-hidden');
-    splash.setAttribute('aria-busy', 'false');
-    __plamFinishSplash();
-    try { splash.remove(); } catch(_) { splash.style.display = 'none'; }
+    window.__plamHideSplash = function() {
+    const doHide = () => {
+      splash.classList.add('is-hidden');
+      splash.setAttribute('aria-busy', 'false');
+      __plamFinishSplash();
+      try { splash.remove(); } catch(_) { splash.style.display = 'none'; }
+    };
+
+    const p = window.__plamBootReadyPromise;
+    if (p && typeof p.then === 'function') {
+      // ждём barrier, но не вечно (чтобы аварийный скрыватель всё равно сработал)
+      Promise.race([ p, new Promise(r => setTimeout(r, 2500)) ]).finally(doHide);
+    } else {
+      doHide();
+    }
   };
 })();
 
