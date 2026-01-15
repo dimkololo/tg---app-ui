@@ -1132,7 +1132,8 @@ if (isCooldownActive()) {
   if (btnReset) {
     btnReset.removeAttribute('data-i18n'); // чтобы i18n не перезатёр
     btnReset.textContent = T('reset.button','Сбросить {{mins}} минут за {{coins}} PLAMc',{ mins, coins: mins });
-    applyResetPayAccess(stackContentEl /* или корень попапа */);
+applyResetPayAccess(box); // ✅ применяем доступ по премиуму к этому попапу
+
 
     btnReset.addEventListener('click', () => {
       if (getBalance() < mins){ alert(T('errors.not_enough','Недостаточно PLAMc')); return; }
