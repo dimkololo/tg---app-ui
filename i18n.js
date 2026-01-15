@@ -439,7 +439,7 @@ i18n.load('ru', {
   "upload.in_queue": "Ваше фото в очереди",
   "upload.link_invalid": "Ссылка должна начинаться с http:// или https:// (поддерживается и https://t.me/...)",
   "upload.reset_ok": "Удачно! Скорее отправляй еще фото",
-  "upload.promo": "Побеждай. Рекламируй. Приглашай",
+  "upload.promo": "Побеждай. Рекламируй. Приглашай.",
    "reset.button": "Сбросить {{mins}} минут за {{coins}} PLAMc",
   "reset.or": "или",
   "reset.share": "Поделиться",
