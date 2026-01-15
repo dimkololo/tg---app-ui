@@ -2217,6 +2217,15 @@ background: #FF7300; /* оранжевый активный */
   }
 }
 
+/* Premium-only controls (disabled) */
+[data-premium-only][disabled]{
+  opacity: .45;
+  filter: grayscale(.15);
+  cursor: default;
+  pointer-events: none; /* чтобы точно не нажималось */
+}
+
+
 
 
 
