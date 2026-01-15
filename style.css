@@ -1813,11 +1813,47 @@ background: #FF7300; /* оранжевый активный */
   left: auto;    /* ← убираем «слева» */
 }
 
-/* ===== Reset-cooldown: disabled кнопка оплаты должна выглядеть как кнопка ===== */
+/* ===== Reset-cooldown: кнопка "Сбросить ... за ... PLAMc" ===== */
 .reset-popup [data-reset-now]{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+
+  width: clamp(206px, 90%, 360px);
+  height: 56px;
+  padding: 0 18px;
+
+  border: 0;
+  border-radius: 35px;
+
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.1;
+
+  background: #14AE5C !important; /* зелёная как активные */
+  color: #fff !important;
+  box-shadow: 0 6px 14px rgba(20,174,92,.22) !important;
+
+  cursor: pointer;
+
   -webkit-appearance: none;
   appearance: none;
+  -webkit-tap-highlight-color: transparent;
 }
+
+/* disabled — как неактивная "Забрать" */
+.reset-popup [data-reset-now]:disabled,
+.reset-popup [data-reset-now][aria-disabled="true"]{
+  background: #D9D9D9 !important;
+  color: #777 !important;
+  -webkit-text-fill-color: #777; /* iOS */
+  box-shadow: none !important;
+
+  opacity: 1;
+  filter: none;
+  cursor: not-allowed;
+}
+
 
 /* На iOS/Telegram disabled-кнопки часто “обесцвечиваются” и теряют фон — фиксируем */
 .reset-popup [data-reset-now]:disabled,
