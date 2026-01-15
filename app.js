@@ -988,6 +988,20 @@ syncLinkCounter();
     updateSubmitState();
   }
 
+  function applyResetPayAccess(box){
+  const btn = box?.querySelector?.('[data-reset-now]');
+  if (!btn) return;
+
+  const isPrem = isPremium(); // используем твою текущую логику премиума
+  btn.disabled = !isPrem;
+  btn.classList.toggle('is-disabled', !isPrem);
+  btn.setAttribute('aria-disabled', String(!isPrem));
+
+  if (!isPrem) btn.title = 'Доступно в премиум';
+  else btn.removeAttribute('title');
+}
+
+
   // UX-штрихи (счётчики, preview)
   const descEl = root.querySelector('textarea[name="desc"]');
   function normalizeAfterKeyboard(){ setTimeout(()=>{ window.scrollTo(0,0); const dlg=modalRoot.querySelector('.modal__dialog'); if(dlg){ dlg.style.transform='translateZ(0)'; void dlg.offsetHeight; dlg.style.transform=''; }},80); }
