@@ -291,6 +291,8 @@ const K = {
   PHOTO_COUNT:          'plam_photo_count_v2',
   UPLOAD_CD_UNTIL:      'plam_upload_cd_until_v2',
   WELCOME_FLAG:         'plam_welcome_coins_given_v2',
+  STARS_BALANCE:        'plam_stars_balance_v2',
+
 };
 
 // --- Backend auth helper (общий id пользователя для всех запросов) ---
