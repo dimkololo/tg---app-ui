@@ -213,6 +213,9 @@ i18n.load('en', {
 
   // Shop / Prizes
   "shop.exchange": "Exchange and withdrawal",
+  "shop.your_stars": "Your stars",
+  "shop.ammount_stars": "Stars",
+  "shop.withdrawal_stars": "Withdraw",
   "shop.choose_amount": "Choose the number of stars",
   "prizes.take": "Claim",
   "prizes.note": "By clicking “Claim” you confirm that you have read the rules and the public offer.",
@@ -463,6 +466,9 @@ i18n.load('ru', {
 
   "shop.exchange": "Обмен и вывод",
   "shop.choose_amount": "Выберите количество звезд",
+  "shop.your_stars": "Ваши звезды",
+  "shop.ammount_stars": "Звезд",
+  "shop.withdrawal_stars": "Вывод",
 
   "prizes.take": "Забрать",
   "prizes.note": "Нажимая кнопку «Забрать» вы подтверждаете, что ознакомлены с правилами и публичной офертой.",
