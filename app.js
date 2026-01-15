@@ -1402,7 +1402,7 @@ function initBuyStars(){
   if (!root) return;
 
   function syncShopUnits(){
-    root.querySelectorAll('.shop-item').forEach(btn=>{
+    root.querySelectorAll('.shop-item[data-amount]').forEach(btn=>{
       const amount = Number(btn.dataset.amount || 0);
       const label = i18nLang()==='en' ? `${amount} stars` : `${amount} звезд`;
       const textSpan = btn.querySelector('.shop-item__left span:last-child');
@@ -1410,7 +1410,7 @@ function initBuyStars(){
     });
   }
 
-  root.querySelectorAll('.shop-item').forEach(btn=>{
+  root.querySelectorAll('.shop-item[data-amount]').forEach(btn=>{
     btn.addEventListener('click', (e)=>{
       e.preventDefault();
       const amount = Number(btn.dataset.amount || 0);
@@ -1422,6 +1422,31 @@ function initBuyStars(){
 
   // начальная синхронизация и при смене языка
   syncShopUnits();
+  function syncWithdrawRow(){
+  const ownedEl = root.querySelector('[data-stars-owned]');
+  const outBtn  = root.querySelector('[data-stars-withdraw]');
+  if (!ownedEl && !outBtn) return;
+
+  const v = (typeof getStars === 'function') ? getStars() : 0;
+
+  if (ownedEl) {
+    ownedEl.textContent = (i18nLang() === 'en') ? `${v} stars` : `${v} звезд`;
+  }
+
+  if (outBtn) {
+    const on = v > 0;
+    outBtn.disabled = !on;
+    outBtn.classList.toggle('is-disabled', !on);
+    outBtn.setAttribute('aria-disabled', String(!on));
+  }
+}
+
+syncWithdrawRow();
+
+// обновлять, когда меняются звезды или язык
+document.addEventListener('plam:langChanged', () => { if (document.contains(root)) syncWithdrawRow(); }, { passive:true });
+document.addEventListener('plam:starsChanged', () => { if (document.contains(root)) syncWithdrawRow(); }, { passive:true });
+
   const langHandler = () => { if (document.contains(root)) syncShopUnits(); };
   document.addEventListener('plam:langChanged', langHandler, { passive:true });
 
