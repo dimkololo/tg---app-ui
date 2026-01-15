@@ -1424,23 +1424,18 @@ function initBuyStars(){
   // начальная синхронизация и при смене языка
   syncShopUnits();
 function syncWithdrawRow(){
-  // поддерживаем и старые, и новые селекторы
-  const numEl   = root.querySelector('[data-stars-have]');          // НОВОЕ: только число
-  const ownedEl = root.querySelector('[data-stars-owned]');         // СТАРОЕ: целиком текст
-  const outBtn  = root.querySelector('.shop-withdraw')              // НОВОЕ: класс
-               || root.querySelector('[data-stars-withdraw]');      // СТАРОЕ: дата-атрибут
+  // поддерживаем и новые, и старые селекторы (на всякий)
+  const numEl = root.querySelector('[data-stars-have]') || root.querySelector('[data-stars-owned]');
+  const outBtn = root.querySelector('.shop-withdraw') || root.querySelector('[data-stars-withdraw]');
+  if (!numEl && !outBtn) return;
 
   const v = (typeof getStars === 'function') ? getStars() : 0;
 
-  // если в разметке число отдельно — обновляем только число
-  if (numEl) numEl.textContent = String(v);
-
-  // если старый вариант — подставляем целиком строку
-  if (ownedEl && !numEl) {
-    ownedEl.textContent = (i18nLang() === 'en') ? `${v} stars` : `${v} звезд`;
+  if (numEl) {
+    // тут обновляем ТОЛЬКО число, слово "stars/звёзд" переводится i18n отдельным span’ом
+    numEl.textContent = String(v);
   }
 
-  // кнопка "Вывод": активна только если звёзд > 0
   if (outBtn) {
     const on = v > 0;
     outBtn.disabled = !on;
@@ -1448,6 +1443,7 @@ function syncWithdrawRow(){
     outBtn.setAttribute('aria-disabled', String(!on));
   }
 }
+
 
 
 syncWithdrawRow();
