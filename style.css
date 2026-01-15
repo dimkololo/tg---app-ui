@@ -43,6 +43,12 @@
   --plus-x-s:277; --plus-y-s:100; --plus-w-s:181; --plus-h-s:70;       /* обновлено */
   --plus-x-l:640; --plus-y-l:145; --plus-w-l:310; --plus-h-l:130;
 
+  /* Положение звездного бейджа (между FAQ и плюс-облаком) */
+--stars-x-m: 196; --stars-y-m: 136;   /* medium */
+--stars-x-s: 182; --stars-y-s: 100;   /* small */
+--stars-x-l: 390; --stars-y-l: 145;   /* large */
+
+  
   /* Текст + иконка валюты внутри облака */
   --plus-font-m:20px;
   --plus-icon-m:22px;
@@ -2172,6 +2178,34 @@ background: #FF7300; /* оранжевый активный */
     align-items:flex-start;
   }
 }
+
+/* Маленькое текстовое поле для Stars между облаками */
+.stars-badge{
+  position:absolute;
+  left:  calc(var(--stars-x-m)/var(--design-w)*100%);
+  top:   calc(var(--stars-y-m)/var(--design-h)*100%);
+  transform: translate(-50%,-50%);
+  z-index:26;
+  font-weight:800;
+  font-size:14px;               /* как просили — поменьше */
+  line-height:1;
+  color:#F6E3A8;                 /* как у PLAMc */
+  text-shadow:0 2px 4px rgba(0,0,0,.25);
+  pointer-events:none;           /* не кликается */
+}
+@media (max-width:375px),(max-height:667px){
+  .stars-badge{
+    left:calc(var(--stars-x-s)/var(--design-w)*100%);
+    top: calc(var(--stars-y-s)/var(--design-h)*100%);
+  }
+}
+@media (min-width:768px),(min-height:1024px){
+  .stars-badge{
+    left:calc(var(--stars-x-l)/var(--design-w)*100%);
+    top: calc(var(--stars-y-l)/var(--design-h)*100%);
+  }
+}
+
 
 
 
