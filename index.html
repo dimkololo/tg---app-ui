@@ -303,6 +303,25 @@
         <p class="shop-subtitle" data-i18n="shop.choose_amount">Выберите количество звезд</p>
       </div>
 
+      <!-- Баланс звёзд (отдельный блок над списком обмена) -->
+<div class="chip shop-balance">
+  <div class="shop-balance__label">Ваши звёзды</div>
+
+  <div class="shop-balance__row">
+    <div class="shop-balance__left">
+      <img src="./bgicons/star.png" alt="" aria-hidden="true" />
+      <div class="shop-balance__value">
+        <span data-stars-have>0</span> звёзд
+      </div>
+    </div>
+
+    <button class="shop-withdraw" type="button" disabled>Вывод</button>
+  </div>
+</div>
+
+<div class="shop-divider" aria-hidden="true"></div>
+
+
       <div class="shop-list">
                 <!-- Мои звезды + Вывод -->
         <div class="chip shop-item shop-item--withdraw" data-stars-withdraw-row>
