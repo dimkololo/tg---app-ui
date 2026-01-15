@@ -253,6 +253,9 @@ i18n.load('en', {
   "premium.rule_top": "Chance to get into the leaderboard",
   "premium.top_basic": "regular",
   "premium.top_premium": "high",
+  "premium.rule_reset_pay": "Reset cooldown for PLAMc",
+  "premium.reset_pay_basic": "—",
+  "premium.reset_pay_premium": "✓",
   "premium.note": "More submissions and longer showtime mean more chances for prizes and the leaderboard.",
   "confirm.premium_title_static": "Get Premium for 7 days for 350 PLAMc?",
 
@@ -497,8 +500,12 @@ i18n.load('ru', {
   "premium.rule_top": "Шансы попасть в топ-лист",
   "premium.top_basic": "обычные",
   "premium.top_premium": "высокие",
+  "premium.rule_reset_pay": "Сброс таймера за PLAMc",
+  "premium.reset_pay_basic": "—",
+  "premium.reset_pay_premium": "✓",
   "premium.note": "Больше отправок и дольше показ — больше шансов на призы и попадание в таблицу лидеров.",
   "confirm.premium_title_static": "Получить премиум на 7 дней за 350 PLAMc?",
+  
 
   "leaders.weekly_gifts": "Еженедельные подарки",
   "leaders.title": "Таблица лидеров",
