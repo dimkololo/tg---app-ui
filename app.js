@@ -1211,6 +1211,26 @@ if (shareBtn) {
     }, { once:true });
   }
 }
+  function plamIsPremiumActive() {
+  try {
+    const until = Number(localStorage.getItem('plam_premium_until_v2') || 0);
+    return until > Date.now();
+  } catch (_) {
+    return false;
+  }
+}
+
+function applyResetPayAccess(root = document) {
+  const isPrem = plamIsPremiumActive();
+  root.querySelectorAll('[data-premium-only="reset-pay"]').forEach((btn) => {
+    if ('disabled' in btn) btn.disabled = !isPrem;
+    btn.setAttribute('aria-disabled', String(!isPrem));
+    // по желанию можно подсказку:
+    if (!isPrem) btn.title = 'Доступно в премиум';
+    else btn.removeAttribute('title');
+  });
+}
+
 
 
 
