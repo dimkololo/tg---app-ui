@@ -1813,6 +1813,15 @@ background: #FF7300; /* оранжевый активный */
   left: auto;    /* ← убираем «слева» */
 }
 
+/* reset-cooldown: платная кнопка недоступна без Premium */
+.reset-popup [data-premium-only="reset-pay"][disabled]{
+  opacity: .45;
+  filter: grayscale(.15);
+  cursor: default;
+  pointer-events: none;
+}
+
+
 /* === Policy popup buttons === */
 .policy-popup .modal__actions{
   display: flex;
