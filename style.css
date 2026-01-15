@@ -45,8 +45,8 @@
 
   /* Положение звездного бейджа (между FAQ и плюс-облаком) */
 --stars-x-m: 186; --stars-y-m: 136;   /* medium */
---stars-x-s: 172; --stars-y-s: 100;   /* small */
---stars-x-l: 450; --stars-y-l: 145;   /* large */
+--stars-x-s: 180; --stars-y-s: 100;   /* small */
+--stars-x-l: 460; --stars-y-l: 145;   /* large */
 
   
   /* Текст + иконка валюты внутри облака */
