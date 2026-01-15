@@ -214,7 +214,7 @@ i18n.load('en', {
   // Shop / Prizes
   "shop.exchange": "Exchange and withdrawal",
   "shop.your_stars": "Your stars",
-  "shop.ammount_stars": "Stars",
+  "shop.stars_unit": "Stars",
   "shop.withdrawal_stars": "Withdraw",
   "shop.choose_amount": "Choose the number of stars",
   "prizes.take": "Claim",
@@ -467,7 +467,7 @@ i18n.load('ru', {
   "shop.exchange": "Обмен и вывод",
   "shop.choose_amount": "Выберите количество звезд",
   "shop.your_stars": "Ваши звезды",
-  "shop.ammount_stars": "Звезд",
+  "shop.stars_unit": "Звезд",
   "shop.withdrawal_stars": "Вывод",
 
   "prizes.take": "Забрать",
