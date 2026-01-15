@@ -1511,6 +1511,16 @@ function initPrizes(){
         }
       }
 
+      else if (prize.kind === 'stars') {
+  const amount = Number(prize.amount) || 0;
+  if (amount > 0){
+    addStars(amount);
+    updateStarsBadgeUI();
+    try { window.Telegram?.WebApp?.showAlert?.(`+${amount} ⭐`); } catch(_) {}
+  }
+}
+
+
       // удаляем выданный приз из списка и перерисовываем
       const next = list.filter(p => p.id !== id);
       setPrizes(next);
