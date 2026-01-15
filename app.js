@@ -631,6 +631,7 @@ function addStars(delta){ setStars(getStars() + delta); }
   const on = v > 0;
   badge.hidden = !on;
   badge.classList.toggle('is-visible', on);
+  try { document.dispatchEvent(new CustomEvent('plam:starsChanged', { detail: { stars: v } })); } catch(_) {}  
 }
 
 window.addEventListener('DOMContentLoaded', updateStarsBadgeUI);
