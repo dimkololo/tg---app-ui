@@ -1813,13 +1813,30 @@ background: #FF7300; /* оранжевый активный */
   left: auto;    /* ← убираем «слева» */
 }
 
-/* reset-cooldown: платная кнопка недоступна без Premium */
-.reset-popup [data-premium-only="reset-pay"][disabled]{
-  opacity: .45;
-  filter: grayscale(.15);
-  cursor: default;
-  pointer-events: none;
+/* ===== Reset-cooldown: disabled кнопка оплаты должна выглядеть как кнопка ===== */
+.reset-popup [data-reset-now]{
+  -webkit-appearance: none;
+  appearance: none;
 }
+
+/* На iOS/Telegram disabled-кнопки часто “обесцвечиваются” и теряют фон — фиксируем */
+.reset-popup [data-reset-now]:disabled,
+.reset-popup [data-reset-now][aria-disabled="true"]{
+  opacity: 1;                 /* убираем системное “выцветание” */
+  -webkit-text-fill-color: rgba(0,0,0,.35); /* iOS: чтобы текст не становился “невидимым” */
+  background: #e6e6e6 !important;
+  color: rgba(0,0,0,.35) !important;
+  border: 1px solid rgba(0,0,0,.08);
+  box-shadow: 0 8px 16px rgba(0,0,0,.12);
+  filter: none;
+  cursor: default;
+}
+
+/* Чтоб сохранялась “кнопочность” (пилюля) даже если где-то глобально режется padding/радиус */
+.reset-popup [data-reset-now]:disabled{
+  border-radius: 999px;
+}
+
 
 
 /* === Policy popup buttons === */
@@ -2217,13 +2234,7 @@ background: #FF7300; /* оранжевый активный */
   }
 }
 
-/* Premium-only controls (disabled) */
-[data-premium-only][disabled]{
-  opacity: .45;
-  filter: grayscale(.15);
-  cursor: default;
-  pointer-events: none; /* чтобы точно не нажималось */
-}
+
 
 
 
