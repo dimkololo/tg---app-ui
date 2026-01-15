@@ -212,7 +212,7 @@ i18n.load('en', {
   "rules.agree": "I am 13+ and I agree with the rules",
 
   // Shop / Prizes
-  "shop.exchange": "Exchange",
+  "shop.exchange": "Exchange and withdrawal",
   "shop.choose_amount": "Choose the number of stars",
   "prizes.take": "Claim",
   "prizes.note": "By clicking “Claim” you confirm that you have read the rules and the public offer.",
@@ -461,7 +461,7 @@ i18n.load('ru', {
   "rules.confirmation": "Отправляя фото, вы подтверждаете, что вам 13+ и у вас есть права на изображение. Мы можем удалять материалы и ограничивать доступ при нарушениях.",
   "rules.agree": "Мне 13+ и я согласен с правилами",
 
-  "shop.exchange": "Обменять",
+  "shop.exchange": "Обмен и вывод",
   "shop.choose_amount": "Выберите количество звезд",
 
   "prizes.take": "Забрать",
