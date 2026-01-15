@@ -237,17 +237,41 @@
 }
 
 /* Табы в топбаре */
-.fortune-tabs{ justify-self: center; display: flex; gap: 10px; }
+.fortune-tabs{
+  justify-self:center;
+  display:flex;
+  gap:10px;
+  align-items:center; /* добавить */
+}
+
 .fortune-tab{
   appearance:none; border:0; cursor:pointer;
-  padding:10px 14px; border-radius:8px;
-  font-weight:800; font-size:14px;
-  background: rgba(255,255,255,.12); /* как у "неактивной" */
-  color:#fff;                        /* белый текст виден на фоне */
+  /* та же типографика */
+  font-weight:800; font-size:14px; line-height:1;
+
+  /* ровняем по вертикали с остальными */
+  display:inline-flex;
+  align-items:center;
+  height: var(--fortune-bar-h);   /* 56px по твоей переменной */
+  padding: 0 14px;
+  border-radius:8px;
+
+  /* как у "Задания": без фона */
+  background: transparent;
+  color:#fff;
+
+  /* убираем подчёркивание у <a> */
+  text-decoration:none;
 }
+.fortune-tab:hover,
+.fortune-tab:focus{ text-decoration:none; }
+
+/* активная вкладка оставляем как было */
 .fortune-tab.is-active{
-  background:#14AE5C; color:#fff;
+  background:#14AE5C;
+  color:#fff;
 }
+
 
 .topbar-spacer{ width: 40px; height: 1px; } /* балансирует ширину с кнопкой назад */
 
