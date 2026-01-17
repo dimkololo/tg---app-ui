@@ -1029,116 +1029,55 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// --- Оверлей ориентации (CSS-first + плавное скрытие в портрете) ---
+// --- Оверлей ориентации (фикс: без "вспышки", стабильнее на мобилках) ---
 (function setupOrientationOverlay(){
   const lock = document.getElementById('orientationLock');
   if (!lock) return;
 
-  const root = document.documentElement;
+  const mqPortrait = window.matchMedia ? window.matchMedia('(orientation: portrait)') : null;
 
   function isPortraitNow(){
-    try {
-      return window.matchMedia('(orientation: portrait)').matches || (window.innerHeight >= window.innerWidth);
-    } catch(_) {
-      return window.innerHeight >= window.innerWidth;
-    }
+    if (mqPortrait) return mqPortrait.matches;
+    return window.innerHeight >= window.innerWidth;
   }
 
-  // Жесткий "пинок" layout + переустановка --app-h (лечит залипание иконок)
-  function kickLayout(){
-    try{
-      const vv = window.visualViewport;
-      const vvFull = vv ? ((vv.height||0) + (vv.offsetTop||0)) : 0;
-      const h = Math.max(window.innerHeight || 0, vvFull || 0);
-      if (h > 0) root.style.setProperty('--app-h', `${Math.round(h)}px`);
-    } catch(_) {}
+  let last = null;
 
-    // форсим рефлоу, чтобы хотспоты/фон пересчитались
-    const stage = document.querySelector('.scene') || document.querySelector('.stage') || document.body;
-    if (stage) {
-      stage.style.transform = 'translateZ(0)';
-      // eslint-disable-next-line no-unused-expressions
-      stage.offsetHeight;
-      stage.style.transform = '';
-    }
-  }
-
-  function scheduleKicks(){
-    kickLayout();
-    requestAnimationFrame(kickLayout);
-    setTimeout(kickLayout, 80);
-    setTimeout(kickLayout, 180);
-    setTimeout(kickLayout, 320);
-    setTimeout(kickLayout, 650);
-  }
-
-  let hideTimer = 0;
-  let last = isPortraitNow() ? 'portrait' : 'landscape';
-
-  function showLock(){
-    clearTimeout(hideTimer);
-    lock.classList.add('is-active');
-    lock.classList.remove('is-hiding');
-    root.style.overflow = 'hidden';
-  }
-
-  function hideLockSoft(){
-    clearTimeout(hideTimer);
-
-    // IMPORTANT: скрываем только если реально пришли из landscape
-    // чтобы в обычном портрете при первом заходе ничего не "мигало"
-    lock.classList.add('is-active');
-    lock.classList.add('is-hiding');
-    root.style.overflow = 'hidden';
-
-    hideTimer = setTimeout(() => {
-      lock.classList.remove('is-active');
-      lock.classList.remove('is-hiding');
-      root.style.overflow = '';
-      scheduleKicks(); // финальный пинок после скрытия
-    }, 700);
-  }
-
-  function hardHideNow(){
-    clearTimeout(hideTimer);
-    lock.classList.remove('is-active','is-hiding');
-    root.style.overflow = '';
-  }
-
-  function update(){
+  function apply(){
     const portrait = isPortraitNow();
+    if (portrait === last) return;
+    last = portrait;
 
-    // каждый переход — дожимаем размеры
-    scheduleKicks();
-
-    if (!portrait) {
-      last = 'landscape';
-      showLock();
-      return;
-    }
-
-    // portrait
-    if (last === 'landscape' || lock.classList.contains('is-active')) {
-      last = 'portrait';
-      hideLockSoft();
-    } else {
-      // обычный портрет без перехода
-      hardHideNow();
-    }
+    lock.classList.toggle('is-active', !portrait);
+    document.documentElement.style.overflow = !portrait ? 'hidden' : '';
   }
 
-  update();
+  // двойной rAF — ловит "промежуточные" размеры в момент поворота
+  let raf = 0;
+  function schedule(){
+    if (raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => {
+      raf = 0;
+      apply();
+      requestAnimationFrame(apply);
+    });
+  }
 
-  // максимально рано реагируем
-  try { window.matchMedia('(orientation: portrait)').addEventListener('change', update); } catch(_) {}
-  window.addEventListener('orientationchange', update, { passive:true, capture:true });
-  window.addEventListener('resize', update, { passive:true, capture:true });
+  // сразу применяем (на старте/возврате)
+  apply();
 
-  if (window.visualViewport){
-    window.visualViewport.addEventListener('resize', update, { passive:true });
+  try { mqPortrait?.addEventListener?.('change', schedule); } catch(_) {}
+  try { mqPortrait?.addListener?.(schedule); } catch(_) {} // старые браузеры
+
+  window.addEventListener('orientationchange', schedule, { passive:true });
+  window.addEventListener('resize', schedule, { passive:true });
+  window.addEventListener('pageshow', schedule, { passive:true });
+  document.addEventListener('visibilitychange', schedule, { passive:true });
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', schedule, { passive:true });
   }
 })();
-
 
 
 // --- Попап 1: загрузка фото ---
