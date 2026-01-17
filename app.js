@@ -687,7 +687,7 @@ function syncPhotoCountFromLS(){
     const left = deadline - Date.now();
     if (!warned && left <= WARN_MS && left > 0) {
       warned = true;
-      try { window.Telegram?.WebApp?.showAlert?.('Сессия будет закрыта через 30 секунд для безопасности.'); } catch(_){}
+      try { window.Telegram?.WebApp?.showAlert?.('Сессия окончена.'); } catch(_){}
     }
     if (left <= 0) {
       try { window.Telegram?.WebApp?.close?.(); } catch(_){}
