@@ -213,15 +213,15 @@ if (window.Telegram && window.Telegram.WebApp) {
   try { window.Telegram.WebApp.expand(); } catch (e) {}
 }
 
-// === FIX v2: сцена НЕ сжимается от клавиатуры (iOS visualViewport) ===
-// Заменить целиком твой (function lockSceneHeight(){ ... })();
+// === FIX v3: стабильная высота + анти-залипание после поворота ===
 (function lockSceneHeight(){
   const root = document.documentElement;
 
-  // "Стабильная" высота сцены (без клавиатуры).
   let stableH = 0;
-  let lastOrientation = null;
-  let lastPortraitH = 0; // запоминаем “нормальную” высоту портрета
+  let lastOri = null;
+
+  let settleTimer = null;
+  let settleRuns = 0;
 
   function isTextInput(el){
     if (!el) return false;
@@ -229,129 +229,157 @@ if (window.Telegram && window.Telegram.WebApp) {
     if (tag === 'TEXTAREA') return true;
     if (tag === 'INPUT') {
       const type = (el.getAttribute('type') || 'text').toLowerCase();
-      // текстовые типы (чтобы range/file не считались "клавиатурой")
       return !['checkbox','radio','range','color','file','button','submit','reset'].includes(type);
     }
     return !!el.isContentEditable;
   }
 
   function getOrientation(){
-    return (window.innerWidth > window.innerHeight) ? 'landscape' : 'portrait';
+    // matchMedia обычно стабильнее, чем сравнение w/h при “дребезге”
+    try {
+      if (window.matchMedia && window.matchMedia('(orientation: portrait)').matches) return 'portrait';
+      return 'landscape';
+    } catch(_) {
+      return (window.innerWidth > window.innerHeight) ? 'landscape' : 'portrait';
+    }
   }
 
-  function getVV(){
+  function measureH(){
+    const h1 = window.innerHeight || 0;
+    const h2 = root.clientHeight || 0;
     const vv = window.visualViewport;
-    if (!vv) return null;
-    return {
-      h: vv.height || 0,
-      top: vv.offsetTop || 0
-    };
+    const h3 = vv ? ((vv.height || 0) + (vv.offsetTop || 0)) : 0;
+    return Math.max(h1, h2, h3);
   }
 
   function applyAppH(h){
     root.style.setProperty('--app-h', `${Math.round(h)}px`);
   }
 
-  // полезно, если когда-нибудь захочешь делать паддинг модалки под клаву
   function applyKb(px){
     root.style.setProperty('--kb', `${Math.max(0, Math.round(px))}px`);
   }
 
-  function initStable(minH = 0){
-  const vv = getVV();
-  const base = window.innerHeight || 0;
-  const vvFull = vv ? (vv.h + vv.top) : 0;
-
-  // ключ: не даём stableH упасть ниже minH (важно при возврате в портрет)
-  stableH = Math.max(minH, base, vvFull) || base || minH || 0;
-
-  applyAppH(stableH);
-  applyKb(0);
-  lastOrientation = getOrientation();
-
-  // если мы в портрете — обновим “последнюю хорошую” высоту
-  if (lastOrientation === 'portrait') {
-    lastPortraitH = Math.max(lastPortraitH, stableH);
+  function nudgeStage(){
+    // пинок рефлоу/перерисовки — помогает, когда “иконки залипают”
+    const stage = document.querySelector('[data-stage]') || document.querySelector('.stage');
+    if (!stage) return;
+    stage.style.transform = 'translateZ(0)';
+    void stage.offsetHeight;
+    stage.style.transform = '';
   }
-}
 
+  function initStable(){
+    stableH = measureH() || stableH || (window.innerHeight || 0);
+    applyAppH(stableH);
+    applyKb(0);
+  }
+
+  function stopSettle(){
+    if (settleTimer) { clearInterval(settleTimer); settleTimer = null; }
+  }
+
+  function startSettle(){
+    stopSettle();
+    settleRuns = 0;
+    let maxH = 0;
+
+    // ~1.2с: поймать “поздний” корректный innerHeight после поворота
+    settleTimer = setInterval(() => {
+      const h = measureH();
+      maxH = Math.max(maxH, h);
+
+      // если внезапно стало больше — сразу применяем
+      if (h > stableH + 20) {
+        stableH = h;
+        applyAppH(stableH);
+        nudgeStage();
+      }
+
+      settleRuns++;
+      if (settleRuns >= 10) {
+        stopSettle();
+        stableH = Math.max(stableH, maxH);
+        applyAppH(stableH);
+        applyKb(0);
+        nudgeStage();
+      }
+    }, 120);
+  }
 
   function update(){
     const ori = getOrientation();
-    const vv = getVV();
+    const vv = window.visualViewport;
     const typing = isTextInput(document.activeElement);
 
-    // при смене ориентации — переснимаем базу, но портрет НЕ даём “провалить”
-if (ori !== lastOrientation) {
-  // если уходим из портрета — запомним последнюю нормальную высоту портрета
-  if (lastOrientation === 'portrait') {
-    lastPortraitH = Math.max(lastPortraitH, stableH || 0);
-  }
+    // смена ориентации — переснимаем и запускаем “дожим”
+    if (ori !== lastOri) {
+      lastOri = ori;
+      initStable();
+      startSettle();
+      return;
+    }
 
-  // важно: initStable сам поставит lastOrientation
-  if (ori === 'portrait') initStable(lastPortraitH);
-  else initStable(0);
-
-    // МИКРО-ФИКС: после возврата в портрет даём браузеру “достабилизироваться”
-  // и прогоняем update ещё раз, чтобы не было секунды “квадрата/чёрного низа”.
-  if (ori === 'portrait') {
-    requestAnimationFrame(() => requestAnimationFrame(update));
-    setTimeout(update, 120);
-  }
-
-
-  return;
-}
-
-
-    // keyboard px (по vv) — считаем относительно стабильной высоты
+    // keyboard px (по vv) — считаем относительно stableH
     if (vv) {
-      const vvFull = vv.h + vv.top;
+      const vvFull = (vv.height || 0) + (vv.offsetTop || 0);
       const kb = Math.max(0, stableH - vvFull);
-      // kb показываем только когда реально вводим
       applyKb(typing ? kb : 0);
     } else {
       applyKb(0);
     }
 
-    // ключевой момент:
-    // - когда НЕ печатаем: разрешаем stableH только РАСТИ (адресная строка спряталась и т.п.)
-    // - когда печатаем: НИКОГДА не уменьшаем stableH (чтобы сцена не "дышала")
-    const nowH = window.innerHeight || 0;
+    const nowH = measureH();
 
+    // НЕ печатаем → позволяем stableH расти и лечим “половину экрана”, если вдруг залипло
     if (!typing) {
-      if (nowH > stableH) {
+      if (nowH > stableH + 6) {
         stableH = nowH;
         applyAppH(stableH);
-      } else {
-        // оставляем как есть (не уменьшаем — меньше визуальных скачков на iOS)
+        nudgeStage();
+      } else if (nowH > 0 && stableH > 0 && stableH < nowH * 0.85) {
+        // анти-залипание: если stableH подозрительно меньше реальности — исправляем
+        stableH = nowH;
         applyAppH(stableH);
+        nudgeStage();
       }
-      if (lastOrientation === 'portrait') {
-      lastPortraitH = Math.max(lastPortraitH, stableH);
-    }
       return;
     }
 
-    // typing = true → фиксируем высоту сцены
-    applyAppH(stableH);
+    // typing = true → фиксируем высоту сцены, но рост разрешаем
+    if (nowH > stableH) {
+      stableH = nowH;
+      applyAppH(stableH);
+    } else {
+      applyAppH(stableH);
+    }
   }
 
+  // init
+  lastOri = getOrientation();
   initStable();
+  startSettle();
 
   window.addEventListener('resize', update, { passive:true });
-  window.addEventListener('orientationchange', () => setTimeout(update, 250), { passive:true });
-  window.addEventListener('pageshow', () => setTimeout(update, 0), { passive:true });
+  window.addEventListener('orientationchange', () => {
+    // важные “поздние” догонки
+    update();
+    setTimeout(update, 120);
+    setTimeout(update, 280);
+    setTimeout(update, 600);
+  }, { passive:true });
+
+  window.addEventListener('pageshow', () => { setTimeout(update, 0); startSettle(); }, { passive:true });
 
   if (window.visualViewport) {
     window.visualViewport.addEventListener('resize', update, { passive:true });
     window.visualViewport.addEventListener('scroll', update, { passive:true });
   }
 
-  // iOS иногда даёт события не через resize — страхуемся фокусом
   document.addEventListener('focusin',  () => setTimeout(update, 0), true);
   document.addEventListener('focusout', () => setTimeout(update, 0), true);
 })();
+
   
 
 
