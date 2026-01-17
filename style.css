@@ -1805,13 +1805,6 @@ background: #FF7300; /* оранжевый активный */
   width:22px; height:22px; vertical-align:middle; margin-right:6px;
 }
 
-/* Крестик модалки — вправо */
-[data-modal-root] .modal__close{
-  position: absolute;
-  top: 10px;
-  right: 12px;   /* ← справа */
-  left: auto;    /* ← убираем «слева» */
-}
 
 /* ===== Reset-cooldown: кнопка "Сбросить ... за ... PLAMc" ===== */
 .reset-popup [data-reset-now]{
