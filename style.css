@@ -1420,40 +1420,14 @@ background: #FF7300; /* оранжевый активный */
 
 /* ===== Orientation lock: hard fallback to prevent landscape flash ===== */
 
-/* ===== Orientation lock: CSS-first (без задержек JS) ===== */
-#orientationLock{
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: none;     /* в портрете скрыто */
-  opacity: 0;
-  transition: opacity 180ms ease;
-  pointer-events: none;
-}
-
-/* активный показ (используем и для "додержать" при возврате в портрет) */
-#orientationLock.is-active{
-  display: flex;
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* плавное скрытие (додерживаем блок, но прячем) */
-#orientationLock.is-hiding{
-  display: flex;
-  opacity: 0;
-  pointer-events: none;
-}
-
-/* ВАЖНО: в landscape заглушка должна включаться мгновенно, без JS */
-@media (orientation: landscape){
+/* на всякий: если у тебя уже есть display-логика через .is-active — это не ломает,
+   а просто гарантирует показ в landscape */
+@media (orientation: landscape) {
   #orientationLock{
     display: flex !important;
     opacity: 1 !important;
     pointer-events: auto !important;
   }
-}
-
 
   /* блокируем прокрутку, чтобы не дергало layout */
   html, body{
