@@ -2417,9 +2417,7 @@ background: #FF7300; /* оранжевый активный */
   margin: 14px 0;             /* ↑↓ воздух вокруг линии */
 }
 
-html.ori-settling * {
-  transition: none !important;
-}
+html.ori-settling
 
 
 
