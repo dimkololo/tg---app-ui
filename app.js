@@ -216,6 +216,47 @@ if (window.Telegram && window.Telegram.WebApp) {
 // === FIX v3: стабильная высота + анти-залипание после поворота ===
 (function lockSceneHeight(){
   const root = document.documentElement;
+    // --- ORI SHIELD (маскируем 0.6–0.8с после поворота, пока высота "прыгает") ---
+  let shield = null;
+  let shieldOffTimer = null;
+  let settling = false;
+
+  function ensureShield(){
+    if (shield) return shield;
+    shield = document.createElement('div');
+    shield.id = 'plamOriShield';
+    shield.setAttribute('aria-hidden','true');
+    // ВАЖНО: z-index ниже ориентационной заглушки, но выше всего UI
+    shield.style.cssText = [
+      'position:fixed',
+      'inset:0',
+      'z-index:9998',
+      'pointer-events:none',
+      'background:#000',
+      'opacity:0',
+      'transition:opacity 140ms ease',
+      'will-change:opacity',
+      'transform:translateZ(0)'
+    ].join(';');
+    document.body.appendChild(shield);
+    return shield;
+  }
+
+  function shieldOn(){
+    clearTimeout(shieldOffTimer);
+    ensureShield();
+    // показать в следующий кадр — меньше шанс "мигания"
+    requestAnimationFrame(()=>{ if (shield) shield.style.opacity = '1'; });
+  }
+
+  function shieldOff(){
+    clearTimeout(shieldOffTimer);
+    shieldOffTimer = setTimeout(()=>{
+      if (!shield) return;
+      shield.style.opacity = '0';
+    }, 120); // чуть подержать после финального апдейта
+  }
+
 
   let stableH = 0;
   let lastOri = null;
@@ -311,14 +352,41 @@ if (window.Telegram && window.Telegram.WebApp) {
     const ori = getOrientation();
     const vv = window.visualViewport;
     const typing = isTextInput(document.activeElement);
-
-    // смена ориентации — переснимаем и запускаем “дожим”
-    if (ori !== lastOri) {
-      lastOri = ori;
-      initStable();
-      startSettle();
+        if (settling) {
+      // пока settling — не дёргаем высоту сценой туда-сюда
       return;
     }
+
+
+        // смена ориентации — включаем "settling-режим"
+    if (ori !== lastOri) {
+      lastOri = ori;
+
+      settling = true;
+      root.classList.add('ori-settling');
+      shieldOn();
+
+      // НЕ трогаем app-h мгновенно (иначе увидишь "квадрат + чёрный низ")
+      // ждём пару кадров + небольшой таймаут, чтобы браузер успел отдать корректные размеры
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            initStable();     // первый "нормальный" замер
+            startSettle();    // дальше дожим (несколько замеров)
+            // держим шторку ещё чуть-чуть, чтобы не показать переходное состояние
+            setTimeout(() => {
+              settling = false;
+              root.classList.remove('ori-settling');
+              shieldOff();
+              nudgeStage();
+            }, 650);
+          }, 80);
+        });
+      });
+
+      return;
+    }
+
 
     // keyboard px (по vv) — считаем относительно stableH
     if (vv) {
