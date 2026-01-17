@@ -904,21 +904,56 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// --- Оверлей ориентации ---
+// --- Оверлей ориентации (фикс: без "вспышки", стабильнее на мобилках) ---
 (function setupOrientationOverlay(){
   const lock = document.getElementById('orientationLock');
   if (!lock) return;
-  const mq = window.matchMedia('(orientation: portrait)');
-  const update = () => {
-    const isPortrait = mq.matches || window.innerHeight >= window.innerWidth;
-    lock.classList.toggle('is-active', !isPortrait);
-    document.documentElement.style.overflow = !isPortrait ? 'hidden' : '';
-  };
-  update();
-  try { mq.addEventListener('change', update); } catch(_) {}
-  window.addEventListener('orientationchange', update);
-  window.addEventListener('resize', update);
+
+  const mqPortrait = window.matchMedia ? window.matchMedia('(orientation: portrait)') : null;
+
+  function isPortraitNow(){
+    if (mqPortrait) return mqPortrait.matches;
+    return window.innerHeight >= window.innerWidth;
+  }
+
+  let last = null;
+
+  function apply(){
+    const portrait = isPortraitNow();
+    if (portrait === last) return;
+    last = portrait;
+
+    lock.classList.toggle('is-active', !portrait);
+    document.documentElement.style.overflow = !portrait ? 'hidden' : '';
+  }
+
+  // двойной rAF — ловит "промежуточные" размеры в момент поворота
+  let raf = 0;
+  function schedule(){
+    if (raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => {
+      raf = 0;
+      apply();
+      requestAnimationFrame(apply);
+    });
+  }
+
+  // сразу применяем (на старте/возврате)
+  apply();
+
+  try { mqPortrait?.addEventListener?.('change', schedule); } catch(_) {}
+  try { mqPortrait?.addListener?.(schedule); } catch(_) {} // старые браузеры
+
+  window.addEventListener('orientationchange', schedule, { passive:true });
+  window.addEventListener('resize', schedule, { passive:true });
+  window.addEventListener('pageshow', schedule, { passive:true });
+  document.addEventListener('visibilitychange', schedule, { passive:true });
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', schedule, { passive:true });
+  }
 })();
+
 
 // --- Попап 1: загрузка фото ---
 function initUploadPopup(){
