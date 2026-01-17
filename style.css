@@ -911,6 +911,14 @@ input {
   justify-self: center;
 }
 
+/* Если внутри сетки один элемент, но это НЕ .prize-item (например "Пока нет призов") — центрируем */
+.prize-grid > :only-child:not(.prize-item){
+  grid-column: 1 / -1;     /* занять все 3 колонки */
+  justify-self: center;    /* по центру */
+  text-align: center;      /* текст по центру */
+}
+
+
 /* Элемент списка: чекбокс + квадрат 100x100 */ 
 .prize-item{ 
   display: inline-flex; 
