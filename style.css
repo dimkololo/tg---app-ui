@@ -869,7 +869,7 @@ input {
 
 
 /* ====== попап 2: магазин ====== */
-.shop-header{width:100%; min-height:150px; display:grid; place-items:center; gap:4px; padding:14px 12px}
+.shop-header{width:100%; min-height:150px; display:grid; place-items:center; gap:4px; padding:14px 12px; margin-top: 8px;}
 .shop-header__icon{width:56px; height:auto; display:block}
 .shop-title{margin:4px 0 0; font-size:22px; font-weight:800; color:#000}
 .shop-subtitle{margin:0; font-size:14px; color:#000; opacity:.75}
