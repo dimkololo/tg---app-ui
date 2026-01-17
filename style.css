@@ -654,7 +654,7 @@ html,body{
 .modal__backdrop{position:absolute; inset:0; background:rgba(0,0,0,.5)}
 .modal__dialog{
   position:relative; width:min(560px,calc(100vw - 24px)); max-width:560px;
-  border-radius:32px; background:var(--popup-bg); box-shadow:var(--shadow); padding:32px 16px 22px;
+  border-radius:26px; background:var(--popup-bg); box-shadow:var(--shadow); padding:36px 16px 22px;
 }
 .modal__content{
   max-height: none;    /* снимем ограничение высоты */
@@ -667,8 +667,8 @@ html,body{
   right:12px;      /* можно оставить тут, тогда блок [data-modal-root] можно не нужен */
   left:auto;
 
-  width:30px;
-  height:30px;
+  width:26px;
+  height:26px;
   border-radius:50%;
 
   border:0;
@@ -678,7 +678,7 @@ html,body{
   display:grid;
   place-items:center;
 
-  font-size:18px;
+  font-size:16px;
   line-height:1;
   cursor:pointer;
 
@@ -2392,11 +2392,6 @@ background: #FF7300; /* оранжевый активный */
   height: 1px;
   background: rgba(0,0,0,.25); /* подстрой под свой цвет */
   margin: 14px 0;             /* ↑↓ воздух вокруг линии */
-}
-
-/* Больше воздуха сверху только для попапа "Обмен и вывод" */
-.modal__dialog:has(.shop-popup){
-  padding-top: 36px;   /* было 18px — подстрой 24–34 */
 }
 
 
