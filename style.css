@@ -1418,6 +1418,29 @@ background: #FF7300; /* оранжевый активный */
 
 .orientation-lock.is-active{ display:block; }
 
+/* ===== Orientation lock: hard fallback to prevent landscape flash ===== */
+
+/* на всякий: если у тебя уже есть display-логика через .is-active — это не ломает,
+   а просто гарантирует показ в landscape */
+@media (orientation: landscape) {
+  #orientationLock{
+    display: flex !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+  /* блокируем прокрутку, чтобы не дергало layout */
+  html, body{
+    overflow: hidden !important;
+  }
+
+  /* чтобы не было "вспышки" интерфейса под заглушкой */
+  .scene{
+    visibility: hidden !important;
+  }
+}
+
+
 /* --- Upload popup: writing mode --- */
 
 /* по умолчанию как было */
