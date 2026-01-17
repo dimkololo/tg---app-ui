@@ -292,6 +292,14 @@ if (ori !== lastOrientation) {
   if (ori === 'portrait') initStable(lastPortraitH);
   else initStable(0);
 
+    // МИКРО-ФИКС: после возврата в портрет даём браузеру “достабилизироваться”
+  // и прогоняем update ещё раз, чтобы не было секунды “квадрата/чёрного низа”.
+  if (ori === 'portrait') {
+    requestAnimationFrame(() => requestAnimationFrame(update));
+    setTimeout(update, 120);
+  }
+
+
   return;
 }
 
