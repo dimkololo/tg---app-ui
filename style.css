@@ -1285,6 +1285,12 @@ background: #FF7300; /* оранжевый активный */
 
 /* крестик на светлом фоне должен быть тёмным */
 .modal--stack .modal__close{ color:#000; }
+/* Reset-cooldown: крестик снова белый */
+.modal--stack .reset-popup ~ .modal__close,
+.modal--stack:has(.reset-popup) .modal__close{
+  color:#fff;
+}
+
 
 /* Прокрутка контента в верхнем слое модалки (стек) */
 .modal--stack .modal__content{
