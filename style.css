@@ -693,7 +693,7 @@ html,body{
 .modal__close::after{
   content:"";
   position:absolute;
-  width:16px;
+  width:12px;
   height:2px;
   background:#fff;              /* белый крестик */
   border-radius:2px;
