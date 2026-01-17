@@ -654,7 +654,7 @@ html,body{
 .modal__backdrop{position:absolute; inset:0; background:rgba(0,0,0,.5)}
 .modal__dialog{
   position:relative; width:min(560px,calc(100vw - 24px)); max-width:560px;
-  border-radius:42px; background:var(--popup-bg); box-shadow:var(--shadow); padding:18px 16px 22px;
+  border-radius:32px; background:var(--popup-bg); box-shadow:var(--shadow); padding:18px 16px 22px;
 }
 .modal__content{
   max-height: none;    /* снимем ограничение высоты */
