@@ -221,6 +221,7 @@ if (window.Telegram && window.Telegram.WebApp) {
   // "Стабильная" высота сцены (без клавиатуры).
   let stableH = 0;
   let lastOrientation = null;
+  let lastPortraitH = 0; // запоминаем “нормальную” высоту портрета
 
   function isTextInput(el){
     if (!el) return false;
@@ -256,27 +257,44 @@ if (window.Telegram && window.Telegram.WebApp) {
     root.style.setProperty('--kb', `${Math.max(0, Math.round(px))}px`);
   }
 
-  function initStable(){
-    const vv = getVV();
-    const base = window.innerHeight || 0;
-    const vvFull = vv ? (vv.h + vv.top) : 0;
-    stableH = Math.max(base, vvFull) || base || 0;
-    applyAppH(stableH);
-    applyKb(0);
-    lastOrientation = getOrientation();
+  function initStable(minH = 0){
+  const vv = getVV();
+  const base = window.innerHeight || 0;
+  const vvFull = vv ? (vv.h + vv.top) : 0;
+
+  // ключ: не даём stableH упасть ниже minH (важно при возврате в портрет)
+  stableH = Math.max(minH, base, vvFull) || base || minH || 0;
+
+  applyAppH(stableH);
+  applyKb(0);
+  lastOrientation = getOrientation();
+
+  // если мы в портрете — обновим “последнюю хорошую” высоту
+  if (lastOrientation === 'portrait') {
+    lastPortraitH = Math.max(lastPortraitH, stableH);
   }
+}
+
 
   function update(){
     const ori = getOrientation();
     const vv = getVV();
     const typing = isTextInput(document.activeElement);
 
-    // при смене ориентации — переснимаем базу
-    if (ori !== lastOrientation) {
-      lastOrientation = ori;
-      initStable();
-      return;
-    }
+    // при смене ориентации — переснимаем базу, но портрет НЕ даём “провалить”
+if (ori !== lastOrientation) {
+  // если уходим из портрета — запомним последнюю нормальную высоту портрета
+  if (lastOrientation === 'portrait') {
+    lastPortraitH = Math.max(lastPortraitH, stableH || 0);
+  }
+
+  // важно: initStable сам поставит lastOrientation
+  if (ori === 'portrait') initStable(lastPortraitH);
+  else initStable(0);
+
+  return;
+}
+
 
     // keyboard px (по vv) — считаем относительно стабильной высоты
     if (vv) {
@@ -301,6 +319,9 @@ if (window.Telegram && window.Telegram.WebApp) {
         // оставляем как есть (не уменьшаем — меньше визуальных скачков на iOS)
         applyAppH(stableH);
       }
+      if (lastOrientation === 'portrait') {
+      lastPortraitH = Math.max(lastPortraitH, stableH);
+    }
       return;
     }
 
