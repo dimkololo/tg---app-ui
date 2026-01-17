@@ -667,8 +667,8 @@ html,body{
   right:12px;      /* можно оставить тут, тогда блок [data-modal-root] можно не нужен */
   left:auto;
 
-  width:36px;
-  height:36px;
+  width:30px;
+  height:30px;
   border-radius:50%;
 
   border:0;
@@ -678,7 +678,7 @@ html,body{
   display:grid;
   place-items:center;
 
-  font-size:22px;
+  font-size:18px;
   line-height:1;
   cursor:pointer;
 
