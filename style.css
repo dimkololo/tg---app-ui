@@ -1400,45 +1400,30 @@ background: #FF7300; /* оранжевый активный */
 }
 
 
-/* Оверлей, блокирующий приложение в альбомной ориентации */
-.orientation-lock{
-  position:fixed;
-  inset:0;
-  z-index:2000;                /* выше модалок/стека */
-  display:none;                /* показываем только в ландшафте */
-  background:center/cover no-repeat;
-  /* картинка предупреждения */
-  background-image:image-set(
-    url("./bgicons/rotate-warning.png") 1x,
-    url("./bgicons/rotate-warning@2x.png") 2x
-  );
-  /* подложка на всякий случай, если картинка с прозрачностью */
-  background-color:#0f1115;
-}
 
-.orientation-lock.is-active{ display:block; }
-
-/* ===== Orientation lock: hard fallback to prevent landscape flash ===== */
-
-/* ===== ORIENTATION LOCK: мгновенно в landscape + мягкое скрытие ===== */
+/* Оверлей ориентации (единый стиль) */
 #orientationLock{
   position: fixed;
   inset: 0;
   z-index: 99999;
 
-  /* твой текущий вид заглушки оставь как есть (текст/иконки внутри) */
-  background: #000;
+  /* важно: НЕ display:none, иначе ломаются transition и анти-мигание */
+  display: block;
 
-  /* главное: по умолчанию скрыто */
+  background: center/cover no-repeat;
+  background-image: image-set(
+    url("./bgicons/rotate-warning.png") 1x,
+    url("./bgicons/rotate-warning@2x.png") 2x
+  );
+  background-color:#0f1115;
+
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
 
-  /* важно: visibility прячем ПОСЛЕ fade, чтобы не мигало */
   transition: opacity 180ms ease, visibility 0s linear 180ms;
   will-change: opacity;
 }
-
 
 /* landscape: мгновенно скрываем сцену и блокируем скролл */
 @media (orientation: landscape){
@@ -1450,9 +1435,14 @@ background: #FF7300; /* оранжевый активный */
   }
 }
 
-/* пока держим заглушку при возврате в портрет — тоже прячем сцену */
 html.ori-hold .scene{
   visibility: hidden !important;
+}
+html.ori-hold #orientationLock{
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transition: none !important;
 }
 
 /* --- Upload popup: writing mode --- */
