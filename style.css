@@ -2417,52 +2417,6 @@ background: #FF7300; /* оранжевый активный */
   margin: 14px 0;             /* ↑↓ воздух вокруг линии */
 }
 
-/* ===== Portrait-lock UI (без шторок и JS) ===== */
-
-/* подстрой, если твой bg-master НЕ 9:16 */
-:root{
-  --plam-portrait-ar: 0.5625; /* 9/16 = 0.5625 */
-}
-
-/* важно: сцена должна быть контейнером для абсолютных хотспотов */
-.scene{
-  position: relative;
-}
-
-/* LANDSCAPE: оставляем интерфейс портретным по высоте экрана */
-@media (orientation: landscape){
-  html, body{
-    background:#000;          /* боковые поля будут черными */
-  }
-
-  body{
-    display:grid;
-    place-items:center;       /* центрируем портретную сцену */
-    overflow:hidden;
-  }
-
-  /* делаем “портретную рамку” по высоте */
-  .scene{
-    height: 100vh;
-    width: calc(100vh * var(--plam-portrait-ar));
-    max-width: 100vw;         /* на всякий: если очень узкий viewport */
-    margin: 0 auto;
-  }
-}
-
-/* PORTRAIT: как было — на весь экран */
-@media (orientation: portrait){
-  .scene{
-    width: 100vw;
-    height: 100vh;
-  }
-}
-
-
-
-
-
-
 
 
 /* ====== DEBUG (включай <body class="__debug">) ====== 
