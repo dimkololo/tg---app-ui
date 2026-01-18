@@ -8,39 +8,6 @@
   window.__PLAM_APP_INIT__ = true;
 
   // ↓↓↓ весь остальной код файла остаётся как есть
-  // === VIEWPORT VARS: держим --app-h в px (без lockSceneHeight) ===
-(function plamViewportVars(){
-  if (window.__PLAM_VV_VARS__) return;
-  window.__PLAM_VV_VARS__ = true;
-
-  const root = document.documentElement;
-
-  function setAppH(){
-    const vv = window.visualViewport;
-    const hVV = vv && vv.height ? (vv.height + (vv.offsetTop || 0)) : 0;
-    const hIH = window.innerHeight || 0;
-    const hCH = root.clientHeight || 0;
-
-    // в TG/WebView чаще всего стабильнее минимум
-    const h = Math.max(1, Math.round(Math.min(
-      hIH || 1e9,
-      hCH || 1e9,
-      hVV || 1e9
-    )));
-
-    root.style.setProperty('--app-h', h + 'px');
-  }
-
-  setAppH();
-  window.addEventListener('resize', setAppH, { passive:true });
-  window.addEventListener('orientationchange', setAppH, { passive:true });
-
-  if (window.visualViewport){
-    window.visualViewport.addEventListener('resize', setAppH, { passive:true });
-    window.visualViewport.addEventListener('scroll', setAppH, { passive:true });
-  }
-})();
-
 
 
 // === TEMP: reset LocalStorage on every page load (for testing) УДАЛИТЬ!!!!!!!!!!!!!===
@@ -60,6 +27,7 @@
 })();
   
 
+// === Common finisher to unfreeze UI ===
 function __plamFinishSplash() {
   try {
     // 1) показать сцену
@@ -245,7 +213,177 @@ if (window.Telegram && window.Telegram.WebApp) {
   try { window.Telegram.WebApp.expand(); } catch (e) {}
 }
 
+// === FIX v3: стабильная высота + анти-залипание после поворота ===
+(function lockSceneHeight(){
+  const root = document.documentElement;
+
+  let stableH = 0;
+  let lastOri = null;
+
+  let settleTimer = null;
+  let settleRuns = 0;
+
+  function isTextInput(el){
+    if (!el) return false;
+    const tag = el.tagName;
+    if (tag === 'TEXTAREA') return true;
+    if (tag === 'INPUT') {
+      const type = (el.getAttribute('type') || 'text').toLowerCase();
+      return !['checkbox','radio','range','color','file','button','submit','reset'].includes(type);
+    }
+    return !!el.isContentEditable;
+  }
+
+  function getOrientation(){
+    // matchMedia обычно стабильнее, чем сравнение w/h при “дребезге”
+    try {
+      if (window.matchMedia && window.matchMedia('(orientation: portrait)').matches) return 'portrait';
+      return 'landscape';
+    } catch(_) {
+      return (window.innerWidth > window.innerHeight) ? 'landscape' : 'portrait';
+    }
+  }
+
+  function measureH(){
+    const h1 = window.innerHeight || 0;
+    const h2 = root.clientHeight || 0;
+    const vv = window.visualViewport;
+    const h3 = vv ? ((vv.height || 0) + (vv.offsetTop || 0)) : 0;
+    return Math.max(h1, h2, h3);
+  }
+
+  function applyAppH(h){
+    root.style.setProperty('--app-h', `${Math.round(h)}px`);
+  }
+
+  function applyKb(px){
+    root.style.setProperty('--kb', `${Math.max(0, Math.round(px))}px`);
+  }
+
+  function nudgeStage(){
+    // пинок рефлоу/перерисовки — помогает, когда “иконки залипают”
+    const stage = document.querySelector('[data-stage]') || document.querySelector('.stage');
+    if (!stage) return;
+    stage.style.transform = 'translateZ(0)';
+    void stage.offsetHeight;
+    stage.style.transform = '';
+  }
+
+  function initStable(){
+    stableH = measureH() || stableH || (window.innerHeight || 0);
+    applyAppH(stableH);
+    applyKb(0);
+  }
+
+  function stopSettle(){
+    if (settleTimer) { clearInterval(settleTimer); settleTimer = null; }
+  }
+
+  function startSettle(){
+    stopSettle();
+    settleRuns = 0;
+    let maxH = 0;
+
+    // ~1.2с: поймать “поздний” корректный innerHeight после поворота
+    settleTimer = setInterval(() => {
+      const h = measureH();
+      maxH = Math.max(maxH, h);
+
+      // если внезапно стало больше — сразу применяем
+      if (h > stableH + 20) {
+        stableH = h;
+        applyAppH(stableH);
+        nudgeStage();
+      }
+
+      settleRuns++;
+      if (settleRuns >= 10) {
+        stopSettle();
+        stableH = Math.max(stableH, maxH);
+        applyAppH(stableH);
+        applyKb(0);
+        nudgeStage();
+      }
+    }, 120);
+  }
+
+  function update(){
+    const ori = getOrientation();
+    const vv = window.visualViewport;
+    const typing = isTextInput(document.activeElement);
+
+    // смена ориентации — переснимаем и запускаем “дожим”
+    if (ori !== lastOri) {
+      lastOri = ori;
+      initStable();
+      startSettle();
+      return;
+    }
+
+    // keyboard px (по vv) — считаем относительно stableH
+    if (vv) {
+      const vvFull = (vv.height || 0) + (vv.offsetTop || 0);
+      const kb = Math.max(0, stableH - vvFull);
+      applyKb(typing ? kb : 0);
+    } else {
+      applyKb(0);
+    }
+
+    const nowH = measureH();
+
+    // НЕ печатаем → позволяем stableH расти и лечим “половину экрана”, если вдруг залипло
+    if (!typing) {
+      if (nowH > stableH + 6) {
+        stableH = nowH;
+        applyAppH(stableH);
+        nudgeStage();
+      } else if (nowH > 0 && stableH > 0 && stableH < nowH * 0.85) {
+        // анти-залипание: если stableH подозрительно меньше реальности — исправляем
+        stableH = nowH;
+        applyAppH(stableH);
+        nudgeStage();
+      }
+      return;
+    }
+
+    // typing = true → фиксируем высоту сцены, но рост разрешаем
+    if (nowH > stableH) {
+      stableH = nowH;
+      applyAppH(stableH);
+    } else {
+      applyAppH(stableH);
+    }
+  }
+
+  // init
+  lastOri = getOrientation();
+  initStable();
+  startSettle();
+
+  window.addEventListener('resize', update, { passive:true });
+  window.addEventListener('orientationchange', () => {
+    // важные “поздние” догонки
+    update();
+    setTimeout(update, 120);
+    setTimeout(update, 280);
+    setTimeout(update, 600);
+  }, { passive:true });
+
+  window.addEventListener('pageshow', () => { setTimeout(update, 0); startSettle(); }, { passive:true });
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', update, { passive:true });
+    window.visualViewport.addEventListener('scroll', update, { passive:true });
+  }
+
+  document.addEventListener('focusin',  () => setTimeout(update, 0), true);
+  document.addEventListener('focusout', () => setTimeout(update, 0), true);
+})();
+
   
+
+
+
 // --- LS helper Весь Local Storage перевести на сервер ---
 const LS = {
   get(k, d = null) {
@@ -823,6 +961,55 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+// --- Оверлей ориентации (фикс: без "вспышки", стабильнее на мобилках) ---
+(function setupOrientationOverlay(){
+  const lock = document.getElementById('orientationLock');
+  if (!lock) return;
+
+  const mqPortrait = window.matchMedia ? window.matchMedia('(orientation: portrait)') : null;
+
+  function isPortraitNow(){
+    if (mqPortrait) return mqPortrait.matches;
+    return window.innerHeight >= window.innerWidth;
+  }
+
+  let last = null;
+
+  function apply(){
+    const portrait = isPortraitNow();
+    if (portrait === last) return;
+    last = portrait;
+
+    lock.classList.toggle('is-active', !portrait);
+    document.documentElement.style.overflow = !portrait ? 'hidden' : '';
+  }
+
+  // двойной rAF — ловит "промежуточные" размеры в момент поворота
+  let raf = 0;
+  function schedule(){
+    if (raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => {
+      raf = 0;
+      apply();
+      requestAnimationFrame(apply);
+    });
+  }
+
+  // сразу применяем (на старте/возврате)
+  apply();
+
+  try { mqPortrait?.addEventListener?.('change', schedule); } catch(_) {}
+  try { mqPortrait?.addListener?.(schedule); } catch(_) {} // старые браузеры
+
+  window.addEventListener('orientationchange', schedule, { passive:true });
+  window.addEventListener('resize', schedule, { passive:true });
+  window.addEventListener('pageshow', schedule, { passive:true });
+  document.addEventListener('visibilitychange', schedule, { passive:true });
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', schedule, { passive:true });
+  }
+})();
 
 
 // --- Попап 1: загрузка фото ---
@@ -1989,149 +2176,7 @@ document.addEventListener('plam:langChanged', () => {
   });
   localStorage.setItem(FLAG, '1');
 })();
-
-// === ORIENTATION LOCK v4 (классы + анти-дребезг, без двойной заглушки) ===
-// === ORIENTATION LOCK v4.1 (instant landscape cover, no --app-h tug-of-war) ===
-(function plamOriLockV4(){
-  if (window.__PLAM_ORI_V4__) return;
-  window.__PLAM_ORI_V4__ = true;
-
-  const html = document.documentElement;
-
-  // Настройки
-  const TH = 80;                 // гистерезис (защита от "почти квадрат" дребезга)
-  const DEBOUNCE_PORTRAIT = 50;   // debounce ТОЛЬКО для перехода в portrait
-  const HOLD_MAX = 160;          // макс. держим заглушку при возврате в portrait
-
-  let state = null;              // 'portrait' | 'landscape'
-  let tPortrait = null;
-  let runId = 0;
-
-  function want(){
-    const w = window.innerWidth || 0;
-    const h = window.innerHeight || 0;
-
-    if (w > h + TH) return 'landscape';
-    if (h > w + TH) return 'portrait';
-
-    // почти квадрат — не дергаемся
-    return state || (w > h ? 'landscape' : 'portrait');
-  }
-
-  // только для определения "стабильности", НЕ пишем --app-h тут
-  function measureOnly(){
-    const vv = window.visualViewport;
-    const hVV = vv && vv.height ? (vv.height + (vv.offsetTop || 0)) : 0;
-    const hIH = window.innerHeight || 0;
-    const hCH = html.clientHeight || 0;
-
-    // чаще всего адекватнее минимум (но только для сравнения)
-    return Math.max(1, Math.round(Math.min(
-      hIH || 1e9,
-      hCH || 1e9,
-      hVV || 1e9
-    )));
-  }
-
-  function setLandscape(){
-    state = 'landscape';
-    html.classList.add('is-landscape');
-    html.classList.remove('is-portrait');
-
-    // КЛЮЧЕВОЕ: включаем ori-fix сразу — он показывает заглушку и прячет сцену
-    // (это убирает "горизонтальный флеш" до заглушки)
-    html.classList.add('ori-fix');
-  }
-
-  function setPortraitWithHold(){
-    state = 'portrait';
-    html.classList.remove('is-landscape');
-    html.classList.add('is-portrait');
-
-    // прикрываем возврат в портрет
-    html.classList.add('ori-fix');
-
-    const myRun = ++runId;
-    let prev = null;
-    let stable = 0;
-    const start = performance.now();
-
-    const stage = document.querySelector('.stage') || document.querySelector('.scene');
-
-    function nudge(){
-      if (stage){
-        stage.style.transform = 'translateZ(0)';
-        void stage.offsetHeight;
-        stage.style.transform = '';
-      }
-      try { window.Telegram?.WebApp?.expand?.(); } catch(_){}
-    }
-
-    function tick(){
-      if (myRun !== runId) return;
-
-      // если снова ушли в landscape — остаёмся в landscape без снятия ori-fix
-      if (want() === 'landscape') { setLandscape(); return; }
-
-      const h = measureOnly();
-      nudge();
-
-      if (prev !== null && Math.abs(h - prev) <= 1) stable++;
-      else stable = 0;
-      prev = h;
-
-      if (stable >= 1 || (performance.now() - start) >= HOLD_MAX){
-        // снимаем прикрытие — показываем сцену
-        html.classList.remove('ori-fix');
-        return;
-      }
-      requestAnimationFrame(tick);
-    }
-
-    requestAnimationFrame(tick);
-  }
-
-  function schedule(){
-  const next = want();
-
-  // LANDSCAPE — применяем мгновенно, без ожидания (убирает "вспышку")
-  if (next === 'landscape'){
-    if (t) { clearTimeout(t); t = null; }
-    apply('landscape');
-    return;
-  }
-
-  // PORTRAIT — можно чуть подождать, чтобы не ловить дребезг/квадрат
-  if (t) clearTimeout(t);
-  t = setTimeout(() => apply('portrait'), DEBOUNCE);
-}
-
-
-  // init
-  state = want();
-  if (state === 'landscape') setLandscape();
-  else {
-    state = 'portrait';
-    html.classList.add('is-portrait');
-    html.classList.remove('is-landscape');
-    html.classList.remove('ori-fix');
-  }
-
-  window.addEventListener('resize', schedule, { passive:true });
-  window.addEventListener('orientationchange', schedule, { passive:true });
-
-  // часто срабатывает раньше/стабильнее, чем resize
-  try {
-    const mq = window.matchMedia('(orientation: landscape)');
-    if (mq && mq.addEventListener) mq.addEventListener('change', schedule);
-    else if (mq && mq.addListener) mq.addListener(schedule);
-  } catch(_) {}
-
-  if (window.visualViewport){
-    window.visualViewport.addEventListener('resize', schedule, { passive:true });
-    window.visualViewport.addEventListener('scroll', schedule, { passive:true });
-  }
-})();
+ 
 
 
 })(); // END app.js wrapper
