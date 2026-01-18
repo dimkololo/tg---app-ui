@@ -29,6 +29,12 @@
 
 // === Common finisher to unfreeze UI ===
 function __plamFinishSplash() {
+   try {
+    // сбросить возможный "ранний" флаг ориентационной заглушки
+    const lock = document.getElementById('orientationLock');
+    if (lock) lock.classList.remove('is-active', 'is-hiding');
+    document.documentElement.classList.remove('ori-hold');
+  } catch(_) {}
   try {
     // 1) показать сцену
     document.documentElement.classList.remove('plam-preload');
