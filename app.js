@@ -1967,7 +1967,7 @@ document.addEventListener('plam:langChanged', () => {
   // Настройки (можно подстроить)
   const TH = 80;        // гистерезис в px (защита от "квадратного" дребезга)
   const DEBOUNCE = 90;  // задержка перед применением смены ориентации (мс)
-  const HOLD_MAX = 220; // макс. держим заглушку при возврате в портрет (мс)
+  const HOLD_MAX = 140; // макс. держим заглушку при возврате в портрет (мс)
 
   let state = null;     // 'portrait' | 'landscape'
   let t = null;
