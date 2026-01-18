@@ -961,55 +961,70 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// --- Оверлей ориентации (фикс: без "вспышки", стабильнее на мобилках) ---
-(function setupOrientationOverlay(){
+// --- Оверлей ориентации: CSS показывает в landscape, JS держит при возврате в portrait ---
+(function setupOrientationHold(){
+  const root = document.documentElement;
   const lock = document.getElementById('orientationLock');
   if (!lock) return;
 
-  const mqPortrait = window.matchMedia ? window.matchMedia('(orientation: portrait)') : null;
+  let t = 0;
 
-  function isPortraitNow(){
-    if (mqPortrait) return mqPortrait.matches;
-    return window.innerHeight >= window.innerWidth;
+  function isPortrait(){
+    try { return window.matchMedia('(orientation: portrait)').matches; }
+    catch(_) { return window.innerHeight >= window.innerWidth; }
   }
 
-  let last = null;
+  function kickLayout(){
+    // обновим высоту (у тебя сцена часто завязана на --app-h)
+    try {
+      const h = Math.max(window.innerHeight || 0, root.clientHeight || 0);
+      if (h) root.style.setProperty('--app-h', `${Math.round(h)}px`);
+    } catch(_) {}
 
-  function apply(){
-    const portrait = isPortraitNow();
-    if (portrait === last) return;
-    last = portrait;
-
-    lock.classList.toggle('is-active', !portrait);
-    document.documentElement.style.overflow = !portrait ? 'hidden' : '';
+    // легкий “пинок” для пересчёта хотспотов/фона
+    const stage = document.querySelector('.scene') || document.body;
+    if (!stage) return;
+    stage.style.transform = 'translateZ(0)';
+    void stage.offsetHeight;
+    stage.style.transform = '';
   }
 
-  // двойной rAF — ловит "промежуточные" размеры в момент поворота
-  let raf = 0;
-  function schedule(){
-    if (raf) cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(() => {
-      raf = 0;
-      apply();
-      requestAnimationFrame(apply);
+  function onChange(){
+    clearTimeout(t);
+
+    // В landscape CSS уже показывает заглушку мгновенно,
+    // но мы ставим hold, чтобы она точно держалась.
+    if (!isPortrait()){
+      root.classList.add('ori-hold');
+      root.style.overflow = 'hidden';
+      return;
+    }
+
+    // Возврат в portrait: держим заглушку ~700мс, пока Telegram “усаживает” layout
+    root.classList.add('ori-hold');
+    root.style.overflow = 'hidden';
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        kickLayout();
+      });
     });
+
+    t = setTimeout(() => {
+      kickLayout();
+      root.classList.remove('ori-hold');
+      root.style.overflow = '';
+    }, 700);
   }
 
-  // сразу применяем (на старте/возврате)
-  apply();
+  // старт
+  onChange();
 
-  try { mqPortrait?.addEventListener?.('change', schedule); } catch(_) {}
-  try { mqPortrait?.addListener?.(schedule); } catch(_) {} // старые браузеры
-
-  window.addEventListener('orientationchange', schedule, { passive:true });
-  window.addEventListener('resize', schedule, { passive:true });
-  window.addEventListener('pageshow', schedule, { passive:true });
-  document.addEventListener('visibilitychange', schedule, { passive:true });
-
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', schedule, { passive:true });
-  }
+  window.addEventListener('orientationchange', onChange, { passive: true });
+  window.addEventListener('resize', onChange, { passive: true });
+  try { window.matchMedia('(orientation: portrait)').addEventListener('change', onChange); } catch(_){}
 })();
+
 
 
 // --- Попап 1: загрузка фото ---
