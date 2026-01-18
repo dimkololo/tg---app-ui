@@ -1958,36 +1958,21 @@ document.addEventListener('plam:langChanged', () => {
 })();
 
 // === ORIENTATION LOCK v4 (классы + анти-дребезг, без двойной заглушки) ===
+// === ORIENTATION LOCK v4.1 (instant landscape cover, no --app-h tug-of-war) ===
 (function plamOriLockV4(){
   if (window.__PLAM_ORI_V4__) return;
   window.__PLAM_ORI_V4__ = true;
 
   const html = document.documentElement;
 
-  // Настройки (можно подстроить)
-  const TH = 80;        // гистерезис в px (защита от "квадратного" дребезга)
-  const DEBOUNCE = 90;  // задержка перед применением смены ориентации (мс)
-  const HOLD_MAX = 140; // макс. держим заглушку при возврате в портрет (мс)
+  // Настройки
+  const TH = 80;                 // гистерезис (защита от "почти квадрат" дребезга)
+  const DEBOUNCE_PORTRAIT = 50;   // debounce ТОЛЬКО для перехода в portrait
+  const HOLD_MAX = 160;          // макс. держим заглушку при возврате в portrait
 
-  let state = null;     // 'portrait' | 'landscape'
-  let t = null;
+  let state = null;              // 'portrait' | 'landscape'
+  let tPortrait = null;
   let runId = 0;
-
-  function measureH(){
-    const vv = window.visualViewport;
-    const hVV = vv && vv.height ? (vv.height + (vv.offsetTop || 0)) : 0;
-    const hIH = window.innerHeight || 0;
-    const hCH = html.clientHeight || 0;
-
-    // На TG/WebView чаще всего адекватнее минимум
-    const h = Math.max(1, Math.round(Math.min(
-      hIH || 1e9,
-      hCH || 1e9,
-      hVV || 1e9
-    )));
-    html.style.setProperty('--app-h', h + 'px');
-    return h;
-  }
 
   function want(){
     const w = window.innerWidth || 0;
@@ -1996,15 +1981,33 @@ document.addEventListener('plam:langChanged', () => {
     if (w > h + TH) return 'landscape';
     if (h > w + TH) return 'portrait';
 
-    // промежуточное состояние (почти квадрат) — НЕ переключаемся
+    // почти квадрат — не дергаемся
     return state || (w > h ? 'landscape' : 'portrait');
+  }
+
+  // только для определения "стабильности", НЕ пишем --app-h тут
+  function measureOnly(){
+    const vv = window.visualViewport;
+    const hVV = vv && vv.height ? (vv.height + (vv.offsetTop || 0)) : 0;
+    const hIH = window.innerHeight || 0;
+    const hCH = html.clientHeight || 0;
+
+    // чаще всего адекватнее минимум (но только для сравнения)
+    return Math.max(1, Math.round(Math.min(
+      hIH || 1e9,
+      hCH || 1e9,
+      hVV || 1e9
+    )));
   }
 
   function setLandscape(){
     state = 'landscape';
     html.classList.add('is-landscape');
     html.classList.remove('is-portrait');
-    html.classList.remove('ori-fix');
+
+    // КЛЮЧЕВОЕ: включаем ori-fix сразу — он показывает заглушку и прячет сцену
+    // (это убирает "горизонтальный флеш" до заглушки)
+    html.classList.add('ori-fix');
   }
 
   function setPortraitWithHold(){
@@ -2012,7 +2015,7 @@ document.addEventListener('plam:langChanged', () => {
     html.classList.remove('is-landscape');
     html.classList.add('is-portrait');
 
-    // Держим заглушку и прячем сцену пока высота "успокоится"
+    // прикрываем возврат в портрет
     html.classList.add('ori-fix');
 
     const myRun = ++runId;
@@ -2023,7 +2026,6 @@ document.addEventListener('plam:langChanged', () => {
     const stage = document.querySelector('.stage') || document.querySelector('.scene');
 
     function nudge(){
-      // мягкий пинок перерисовки (без серийных таймеров)
       if (stage){
         stage.style.transform = 'translateZ(0)';
         void stage.offsetHeight;
@@ -2033,19 +2035,20 @@ document.addEventListener('plam:langChanged', () => {
     }
 
     function tick(){
-      // если за время холда успели снова уйти в landscape — прекращаем
       if (myRun !== runId) return;
+
+      // если снова ушли в landscape — остаёмся в landscape без снятия ori-fix
       if (want() === 'landscape') { setLandscape(); return; }
 
-      const h = measureH();
+      const h = measureOnly();
       nudge();
 
       if (prev !== null && Math.abs(h - prev) <= 1) stable++;
       else stable = 0;
       prev = h;
 
-      if (stable >= 2 || (performance.now() - start) >= HOLD_MAX){
-        // одним шагом показываем сцену — без промельков
+      if (stable >= 1 || (performance.now() - start) >= HOLD_MAX){
+        // снимаем прикрытие — показываем сцену
         html.classList.remove('ori-fix');
         return;
       }
@@ -2055,25 +2058,44 @@ document.addEventListener('plam:langChanged', () => {
     requestAnimationFrame(tick);
   }
 
-  function apply(next){
-    if (next === state) return;
-    if (next === 'landscape') setLandscape();
-    else setPortraitWithHold();
-  }
-
   function schedule(){
-    if (t) clearTimeout(t);
-    t = setTimeout(() => apply(want()), DEBOUNCE);
+    const next = want();
+
+    // ПОРТРЕТ -> ЛАНДШАФТ: без debounce, сразу прикрываем
+    if (next === 'landscape'){
+      if (tPortrait){ clearTimeout(tPortrait); tPortrait = null; }
+      if (state !== 'landscape') setLandscape();
+      else html.classList.add('ori-fix'); // на всякий, если кто-то снял
+      return;
+    }
+
+    // ЛАНДШАФТ -> ПОРТРЕТ: можно чуть дебаунсить
+    if (tPortrait) clearTimeout(tPortrait);
+    tPortrait = setTimeout(() => {
+      if (want() === 'portrait' && state !== 'portrait') setPortraitWithHold();
+      tPortrait = null;
+    }, DEBOUNCE_PORTRAIT);
   }
 
   // init
   state = want();
-  measureH();
   if (state === 'landscape') setLandscape();
-  else html.classList.add('is-portrait');
+  else {
+    state = 'portrait';
+    html.classList.add('is-portrait');
+    html.classList.remove('is-landscape');
+    html.classList.remove('ori-fix');
+  }
 
   window.addEventListener('resize', schedule, { passive:true });
   window.addEventListener('orientationchange', schedule, { passive:true });
+
+  // часто срабатывает раньше/стабильнее, чем resize
+  try {
+    const mq = window.matchMedia('(orientation: landscape)');
+    if (mq && mq.addEventListener) mq.addEventListener('change', schedule);
+    else if (mq && mq.addListener) mq.addListener(schedule);
+  } catch(_) {}
 
   if (window.visualViewport){
     window.visualViewport.addEventListener('resize', schedule, { passive:true });
