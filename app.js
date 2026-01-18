@@ -219,140 +219,6 @@ if (window.Telegram && window.Telegram.WebApp) {
   try { window.Telegram.WebApp.expand(); } catch (e) {}
 }
 
-// === ORI FIX: стабильная высота сцены + анти-залипание после поворота (без долгих settle) ===
-(function lockSceneHeight(){
-  if (window.__PLAM_LOCK_SCENE_H__) return;
-  window.__PLAM_LOCK_SCENE_H__ = true;
-
-  const root = document.documentElement;
-
-  let stableH = 0;
-  let lastOri = null;
-
-  function isTextInput(el){
-    if (!el) return false;
-    const tag = el.tagName;
-    if (tag === 'TEXTAREA') return true;
-    if (tag === 'INPUT') {
-      const type = (el.getAttribute('type') || 'text').toLowerCase();
-      return !['checkbox','radio','range','color','file','button','submit','reset'].includes(type);
-    }
-    return !!el.isContentEditable;
-  }
-
-  function getOrientation(){
-    try {
-      if (window.matchMedia && window.matchMedia('(orientation: portrait)').matches) return 'portrait';
-      return 'landscape';
-    } catch(_) {
-      return (window.innerWidth > window.innerHeight) ? 'landscape' : 'portrait';
-    }
-  }
-
-  function measureH(){
-    // Берём МАКСИМУМ — так сцена не “схлопывается в квадрат” из-за дерганий vv/innerHeight
-    const h1 = window.innerHeight || 0;
-    const h2 = root.clientHeight || 0;
-    const vv = window.visualViewport;
-    const h3 = vv ? ((vv.height || 0) + (vv.offsetTop || 0)) : 0;
-    return Math.max(h1, h2, h3);
-  }
-
-  function applyAppH(h){
-    root.style.setProperty('--app-h', `${Math.round(h)}px`);
-  }
-
-  function applyKb(px){
-    root.style.setProperty('--kb', `${Math.max(0, Math.round(px))}px`);
-  }
-
-  function nudgeStage(){
-    // Лёгкий “пинок” перерисовки — помогает, когда хотспоты залипают после поворота
-    const stage = document.querySelector('[data-stage]') || document.querySelector('.stage');
-    if (!stage) return;
-    stage.style.transform = 'translateZ(0)';
-    void stage.offsetHeight;
-    stage.style.transform = '';
-  }
-
-  function initStable(){
-    stableH = measureH() || stableH || (window.innerHeight || 0);
-    applyAppH(stableH);
-    applyKb(0);
-  }
-
-  function update(){
-    const ori = getOrientation();
-    const vv = window.visualViewport;
-    const typing = isTextInput(document.activeElement);
-
-    // Смена ориентации — переснимаем “базу” и пинаем перерисовку
-    if (ori !== lastOri) {
-      lastOri = ori;
-      initStable();
-      nudgeStage();
-      return;
-    }
-
-    // keyboard px (через vv), но только когда печатаем
-    if (vv) {
-      const vvFull = (vv.height || 0) + (vv.offsetTop || 0);
-      const kb = Math.max(0, stableH - vvFull);
-      applyKb(typing ? kb : 0);
-    } else {
-      applyKb(0);
-    }
-
-    const nowH = measureH();
-
-    // НЕ печатаем → позволяем stableH расти и лечим “залипание”
-    if (!typing) {
-      if (nowH > stableH + 6) {
-        stableH = nowH;
-        applyAppH(stableH);
-        nudgeStage();
-      } else if (nowH > 0 && stableH > 0 && stableH < nowH * 0.85) {
-        // анти-залипание: если stableH подозрительно меньше реальности — исправляем
-        stableH = nowH;
-        applyAppH(stableH);
-        nudgeStage();
-      }
-      return;
-    }
-
-    // typing = true → высоту держим стабильной, но рост разрешаем
-    if (nowH > stableH) {
-      stableH = nowH;
-    }
-    applyAppH(stableH);
-  }
-
-  // init
-  lastOri = getOrientation();
-  initStable();
-
-  window.addEventListener('resize', update, { passive:true });
-
-  window.addEventListener('orientationchange', () => {
-    // КОРОТКАЯ догонялка: без “секундных костылей”
-    update();
-    requestAnimationFrame(update);
-    setTimeout(update, 120);
-  }, { passive:true });
-
-  window.addEventListener('pageshow', () => setTimeout(update, 0), { passive:true });
-
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', update, { passive:true });
-    window.visualViewport.addEventListener('scroll', update, { passive:true });
-  }
-
-  document.addEventListener('focusin',  () => setTimeout(update, 0), true);
-  document.addEventListener('focusout', () => setTimeout(update, 0), true);
-})();
-
-
-
   
 // --- LS helper Весь Local Storage перевести на сервер ---
 const LS = {
@@ -2098,68 +1964,128 @@ document.addEventListener('plam:langChanged', () => {
   localStorage.setItem(FLAG, '1');
 })();
 
-// ===== Orientation/viewport stabilizer (anti-jump) =====
-(function () {
-  if (window.__PLAM_ORI_STABILIZER__) return;
-  window.__PLAM_ORI_STABILIZER__ = true;
+// === ORIENTATION LOCK v4 (классы + анти-дребезг, без двойной заглушки) ===
+(function plamOriLockV4(){
+  if (window.__PLAM_ORI_V4__) return;
+  window.__PLAM_ORI_V4__ = true;
 
-  const root = document.documentElement;
-  const mqLandscape = window.matchMedia ? window.matchMedia('(orientation: landscape)') : null;
+  const html = document.documentElement;
 
-  function isLandscape() {
-    return mqLandscape ? mqLandscape.matches : (window.innerWidth > window.innerHeight);
-  }
+  // Настройки (можно подстроить)
+  const TH = 80;        // гистерезис в px (защита от "квадратного" дребезга)
+  const DEBOUNCE = 90;  // задержка перед применением смены ориентации (мс)
+  const HOLD_MAX = 220; // макс. держим заглушку при возврате в портрет (мс)
 
-  function setAppH() {
+  let state = null;     // 'portrait' | 'landscape'
+  let t = null;
+  let runId = 0;
+
+  function measureH(){
     const vv = window.visualViewport;
-    const h = Math.round((vv ? vv.height : window.innerHeight));
-    root.style.setProperty('--app-h', h + 'px');
+    const hVV = vv && vv.height ? (vv.height + (vv.offsetTop || 0)) : 0;
+    const hIH = window.innerHeight || 0;
+    const hCH = html.clientHeight || 0;
+
+    // На TG/WebView чаще всего адекватнее минимум
+    const h = Math.max(1, Math.round(Math.min(
+      hIH || 1e9,
+      hCH || 1e9,
+      hVV || 1e9
+    )));
+    html.style.setProperty('--app-h', h + 'px');
+    return h;
   }
 
-  let raf1 = 0, raf2 = 0;
+  function want(){
+    const w = window.innerWidth || 0;
+    const h = window.innerHeight || 0;
 
-  function stabilize() {
-    if (isLandscape()) {
-      // в landscape сцена скрыта display:none, просто обновим высоту
-      setAppH();
-      return;
+    if (w > h + TH) return 'landscape';
+    if (h > w + TH) return 'portrait';
+
+    // промежуточное состояние (почти квадрат) — НЕ переключаемся
+    return state || (w > h ? 'landscape' : 'portrait');
+  }
+
+  function setLandscape(){
+    state = 'landscape';
+    html.classList.add('is-landscape');
+    html.classList.remove('is-portrait');
+    html.classList.remove('ori-fix');
+  }
+
+  function setPortraitWithHold(){
+    state = 'portrait';
+    html.classList.remove('is-landscape');
+    html.classList.add('is-portrait');
+
+    // Держим заглушку и прячем сцену пока высота "успокоится"
+    html.classList.add('ori-fix');
+
+    const myRun = ++runId;
+    let prev = null;
+    let stable = 0;
+    const start = performance.now();
+
+    const stage = document.querySelector('.stage') || document.querySelector('.scene');
+
+    function nudge(){
+      // мягкий пинок перерисовки (без серийных таймеров)
+      if (stage){
+        stage.style.transform = 'translateZ(0)';
+        void stage.offsetHeight;
+        stage.style.transform = '';
+      }
+      try { window.Telegram?.WebApp?.expand?.(); } catch(_){}
     }
 
-    // На возврате в портрет прикрываем заглушкой на 2 кадра
-    root.classList.add('ori-fix');
+    function tick(){
+      // если за время холда успели снова уйти в landscape — прекращаем
+      if (myRun !== runId) return;
+      if (want() === 'landscape') { setLandscape(); return; }
 
-    cancelAnimationFrame(raf1);
-    cancelAnimationFrame(raf2);
+      const h = measureH();
+      nudge();
 
-    raf1 = requestAnimationFrame(() => {
-      setAppH();
-      raf2 = requestAnimationFrame(() => {
-        setAppH();
-        root.classList.remove('ori-fix');
-      });
-    });
+      if (prev !== null && Math.abs(h - prev) <= 1) stable++;
+      else stable = 0;
+      prev = h;
+
+      if (stable >= 2 || (performance.now() - start) >= HOLD_MAX){
+        // одним шагом показываем сцену — без промельков
+        html.classList.remove('ori-fix');
+        return;
+      }
+      requestAnimationFrame(tick);
+    }
+
+    requestAnimationFrame(tick);
   }
 
-  function onResize() {
-    cancelAnimationFrame(raf1);
-    raf1 = requestAnimationFrame(stabilize);
+  function apply(next){
+    if (next === state) return;
+    if (next === 'landscape') setLandscape();
+    else setPortraitWithHold();
+  }
+
+  function schedule(){
+    if (t) clearTimeout(t);
+    t = setTimeout(() => apply(want()), DEBOUNCE);
   }
 
   // init
-  setAppH();
+  state = want();
+  measureH();
+  if (state === 'landscape') setLandscape();
+  else html.classList.add('is-portrait');
 
-  window.addEventListener('resize', onResize, { passive: true });
-  window.addEventListener('orientationchange', onResize, { passive: true });
+  window.addEventListener('resize', schedule, { passive:true });
+  window.addEventListener('orientationchange', schedule, { passive:true });
 
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', onResize, { passive: true });
+  if (window.visualViewport){
+    window.visualViewport.addEventListener('resize', schedule, { passive:true });
+    window.visualViewport.addEventListener('scroll', schedule, { passive:true });
   }
-
-  // Telegram WebApp viewport events (если доступны)
-  try {
-    const tg = window.Telegram && Telegram.WebApp;
-    if (tg && tg.onEvent) tg.onEvent('viewportChanged', onResize);
-  } catch (_) {}
 })();
 
 
