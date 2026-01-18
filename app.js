@@ -2192,33 +2192,90 @@ document.addEventListener('plam:langChanged', () => {
   localStorage.setItem(FLAG, '1');
 })();
 
-// ===== ORIENTATION HOLD: держим заглушку при возврате в портрет, чтобы не дергало =====
+// ===== ORIENTATION HOLD + FREEZE PORTRAIT HEIGHT (anti-sticky icons) =====
 (function orientationHoldFix(){
   const lock = document.getElementById('orientationLock');
   if (!lock) return;
 
   const root = document.documentElement;
+
   let holdTimer = 0;
+  let lastPortraitH = 0;
+  let last = null;
 
   const isLandscape = () => {
     try { return window.matchMedia('(orientation: landscape)').matches; }
     catch(_) { return window.innerWidth > window.innerHeight; }
   };
 
-  let last = isLandscape() ? 'landscape' : 'portrait';
+  function measureH(){
+    const vv = window.visualViewport;
+    const hVV = vv ? ((vv.height || 0) + (vv.offsetTop || 0)) : 0;
+    const h = Math.max(window.innerHeight || 0, root.clientHeight || 0, hVV || 0);
+    return Math.round(h || 0);
+  }
+
+  function applyAppH(h){
+    if (!h || h < 200) return;
+    root.style.setProperty('--app-h', `${h}px`);
+  }
+
+  function forceReflow(){
+    const stage = document.querySelector('.scene') || document.querySelector('[data-stage]') || document.body;
+    if (!stage) return;
+    stage.style.transform = 'translateZ(0)';
+    void stage.offsetHeight;
+    stage.style.transform = '';
+  }
+
+  function kickPortraitLayout(){
+    const h = measureH();
+    if (h > 0) {
+      lastPortraitH = h;
+      applyAppH(h);
+    }
+    forceReflow();
+    try { window.scrollTo(0,0); } catch(_) {}
+  }
 
   function onChange(){
     const now = isLandscape() ? 'landscape' : 'portrait';
 
-    // только при переходе landscape -> portrait
+    // на старте
+    if (last == null) {
+      last = now;
+      if (now === 'portrait') kickPortraitLayout();
+      else {
+        // если сразу открылись в landscape — хотя бы не пишем мусорные размеры
+        if (lastPortraitH > 0) applyAppH(lastPortraitH);
+      }
+      return;
+    }
+
+    // portrait -> landscape: "замораживаем" высоту (НЕ меряем landscape)
+    if (last === 'portrait' && now === 'landscape'){
+      // зафиксировать последнюю портретную высоту
+      if (lastPortraitH <= 0) lastPortraitH = measureH();
+      if (lastPortraitH > 0) applyAppH(lastPortraitH);
+      last = now;
+      return;
+    }
+
+    // landscape -> portrait: держим заглушку, делаем серию пинков
     if (last === 'landscape' && now === 'portrait'){
       root.classList.add('ori-hold');
       clearTimeout(holdTimer);
 
+      // несколько попыток “поймать” правильный viewport после поворота
+      const kicks = [0, 60, 140, 260, 420, 650];
+      kicks.forEach(ms => setTimeout(kickPortraitLayout, ms));
+
       holdTimer = setTimeout(() => {
         root.classList.remove('ori-hold');
-        requestAnimationFrame(() => { try { window.scrollTo(0,0); } catch(_) {} });
       }, 650);
+
+      last = now;
+      return;
     }
 
     last = now;
@@ -2232,6 +2289,7 @@ document.addEventListener('plam:langChanged', () => {
     window.visualViewport.addEventListener('resize', onChange, { passive:true });
   }
 })();
+
 
 
 
