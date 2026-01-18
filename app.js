@@ -2192,9 +2192,47 @@ document.addEventListener('plam:langChanged', () => {
   localStorage.setItem(FLAG, '1');
 })();
 
-  document.addEventListener('DOMContentLoaded', () => {
-  try { screen.orientation?.lock?.('portrait'); } catch (_) {}
-});
+// ===== ORIENTATION HOLD: держим заглушку при возврате в портрет, чтобы не дергало =====
+(function orientationHoldFix(){
+  const lock = document.getElementById('orientationLock');
+  if (!lock) return;
+
+  const root = document.documentElement;
+  let holdTimer = 0;
+
+  const isLandscape = () => {
+    try { return window.matchMedia('(orientation: landscape)').matches; }
+    catch(_) { return window.innerWidth > window.innerHeight; }
+  };
+
+  let last = isLandscape() ? 'landscape' : 'portrait';
+
+  function onChange(){
+    const now = isLandscape() ? 'landscape' : 'portrait';
+
+    // только при переходе landscape -> portrait
+    if (last === 'landscape' && now === 'portrait'){
+      root.classList.add('ori-hold');
+      clearTimeout(holdTimer);
+
+      holdTimer = setTimeout(() => {
+        root.classList.remove('ori-hold');
+        requestAnimationFrame(() => { try { window.scrollTo(0,0); } catch(_) {} });
+      }, 650);
+    }
+
+    last = now;
+  }
+
+  onChange();
+
+  window.addEventListener('orientationchange', onChange, { passive:true });
+  window.addEventListener('resize', onChange, { passive:true });
+  if (window.visualViewport){
+    window.visualViewport.addEventListener('resize', onChange, { passive:true });
+  }
+})();
+
 
 
 })(); // END app.js wrapper
