@@ -2176,7 +2176,10 @@ document.addEventListener('plam:langChanged', () => {
   });
   localStorage.setItem(FLAG, '1');
 })();
- 
+
+  document.addEventListener('DOMContentLoaded', () => {
+  try { screen.orientation?.lock?.('portrait'); } catch (_) {}
+});
 
 
 })(); // END app.js wrapper
