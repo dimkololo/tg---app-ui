@@ -84,6 +84,13 @@
   
 }
 
+/* --app-h всегда определён, чтобы не прыгать между 100vh и px */
+:root{ --app-h: 100vh; }
+@supports (height: 100dvh){
+  :root{ --app-h: 100dvh; }
+}
+
+
 /* ====== базовая сцена ====== */
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{
@@ -101,7 +108,7 @@ html,body{
   display: grid;
   place-items: end center;
   width: 100vw;
-  height: var(--app-h, 100vh);   /* фиксируем сцену и фон */
+  height: var(--app-h);
   overflow: hidden;
 
   /* НОВОЕ: один универсальный фон */
@@ -118,7 +125,7 @@ html,body{
   position: relative;
   display: block;         /* можно и inline-block, но block надёжнее */
   width: 100vw;
-  height: var(--app-h, 100vh);   /* фиксируем “холст” хотспотов */
+  height: var(--app-h);
   overflow: visible;
 
   /* как и было — «дизайн-холсты» для пересчёта координат */
@@ -1442,6 +1449,10 @@ background: #FF7300; /* оранжевый активный */
     transition: none !important;
   }
 }
+
+/* На момент стабилизации портрета прячем сцену на пару кадров */
+html.ori-fix .scene{ visibility: hidden !important; }
+
 
 /* Пока идёт splash (html.plam-preload) — заглушку НЕ показываем вообще */
 html.plam-preload #orientationLock{
