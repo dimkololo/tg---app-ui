@@ -1405,62 +1405,59 @@ background: #FF7300; /* оранжевый активный */
 .pick-wrap .btn-pick{
   width: 100%;
 }
-
-
-
-/* ===== ORIENTATION LOCK (единый и без конфликтов) ===== */
+/* ===== ORIENTATION LOCK (стабильно, без дерганья) ===== */
 #orientationLock{
   position: fixed;
   inset: 0;
   z-index: 99999;
 
-  display: block;                 /* не трогаем display в обычной работе */
   background: #0f1115 center/contain no-repeat;
   background-image: image-set(
     url("./bgicons/rotate-warning.png") 1x,
     url("./bgicons/rotate-warning@2x.png") 2x
   );
 
+  /* В портрете скрыто */
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
 
-  transition: opacity 140ms ease, visibility 0s linear 140ms;
-  will-change: opacity;
-}
-
-/* если вдруг захочешь включать/выключать из JS — будет работать */
-#orientationLock.is-active{
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
+  /* без анимаций — меньше вспышек */
   transition: none;
 }
 
-/* В landscape: всегда показываем заглушку и прячем сцену */
+/* LANDSCAPE: показываем заглушку и полностью убираем сцену из layout */
 @media (orientation: landscape){
   html, body{ overflow: hidden !important; }
-  .scene{ visibility: hidden !important; }
 
   #orientationLock{
     opacity: 1 !important;
     visibility: visible !important;
     pointer-events: auto !important;
-    transition: none !important;
   }
+
+  /* КЛЮЧЕВОЕ: не visibility, а display */
+  .scene{ display: none !important; }
 }
 
-/* На момент стабилизации портрета прячем сцену на пару кадров */
-html.ori-fix .scene{ visibility: hidden !important; }
+/* Микро-прикрытие на возврате в портрет (управляет JS) */
+html.ori-fix #orientationLock{
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+html.ori-fix .scene{
+  display: none !important;
+}
 
-
-/* Пока идёт splash (html.plam-preload) — заглушку НЕ показываем вообще */
+/* Пока идёт splash/preload — заглушку не показываем вообще */
 html.plam-preload #orientationLock{
   display: none !important;
   opacity: 0 !important;
   visibility: hidden !important;
   pointer-events: none !important;
 }
+
 
 
 /* --- Upload popup: writing mode --- */
