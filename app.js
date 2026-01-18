@@ -8,6 +8,39 @@
   window.__PLAM_APP_INIT__ = true;
 
   // ↓↓↓ весь остальной код файла остаётся как есть
+  // === VIEWPORT VARS: держим --app-h в px (без lockSceneHeight) ===
+(function plamViewportVars(){
+  if (window.__PLAM_VV_VARS__) return;
+  window.__PLAM_VV_VARS__ = true;
+
+  const root = document.documentElement;
+
+  function setAppH(){
+    const vv = window.visualViewport;
+    const hVV = vv && vv.height ? (vv.height + (vv.offsetTop || 0)) : 0;
+    const hIH = window.innerHeight || 0;
+    const hCH = root.clientHeight || 0;
+
+    // в TG/WebView чаще всего стабильнее минимум
+    const h = Math.max(1, Math.round(Math.min(
+      hIH || 1e9,
+      hCH || 1e9,
+      hVV || 1e9
+    )));
+
+    root.style.setProperty('--app-h', h + 'px');
+  }
+
+  setAppH();
+  window.addEventListener('resize', setAppH, { passive:true });
+  window.addEventListener('orientationchange', setAppH, { passive:true });
+
+  if (window.visualViewport){
+    window.visualViewport.addEventListener('resize', setAppH, { passive:true });
+    window.visualViewport.addEventListener('scroll', setAppH, { passive:true });
+  }
+})();
+
 
 
 // === TEMP: reset LocalStorage on every page load (for testing) УДАЛИТЬ!!!!!!!!!!!!!===
@@ -2059,23 +2092,20 @@ document.addEventListener('plam:langChanged', () => {
   }
 
   function schedule(){
-    const next = want();
+  const next = want();
 
-    // ПОРТРЕТ -> ЛАНДШАФТ: без debounce, сразу прикрываем
-    if (next === 'landscape'){
-      if (tPortrait){ clearTimeout(tPortrait); tPortrait = null; }
-      if (state !== 'landscape') setLandscape();
-      else html.classList.add('ori-fix'); // на всякий, если кто-то снял
-      return;
-    }
-
-    // ЛАНДШАФТ -> ПОРТРЕТ: можно чуть дебаунсить
-    if (tPortrait) clearTimeout(tPortrait);
-    tPortrait = setTimeout(() => {
-      if (want() === 'portrait' && state !== 'portrait') setPortraitWithHold();
-      tPortrait = null;
-    }, DEBOUNCE_PORTRAIT);
+  // LANDSCAPE — применяем мгновенно, без ожидания (убирает "вспышку")
+  if (next === 'landscape'){
+    if (t) { clearTimeout(t); t = null; }
+    apply('landscape');
+    return;
   }
+
+  // PORTRAIT — можно чуть подождать, чтобы не ловить дребезг/квадрат
+  if (t) clearTimeout(t);
+  t = setTimeout(() => apply('portrait'), DEBOUNCE);
+}
+
 
   // init
   state = want();
