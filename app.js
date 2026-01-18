@@ -386,6 +386,46 @@ if (window.Telegram && window.Telegram.WebApp) {
   document.addEventListener('focusout', () => setTimeout(update, 0), true);
 })();
 
+// === ORI: tiny relayout kick on landscape -> portrait (no long holds) ===
+(function portraitRelayoutKick(){
+  let last = null;
+
+  function isLandscape(){
+    try { return window.matchMedia('(orientation: landscape)').matches; }
+    catch(_) { return window.innerWidth > window.innerHeight; }
+  }
+
+  function nudge(){
+    // 1) попросим TG пересчитать viewport (часто помогает)
+    try { window.Telegram?.WebApp?.expand?.(); } catch(_) {}
+
+    // 2) легкий форс-рефлоу сцены (лечит "залипшие" иконки)
+    const scene = document.querySelector('.scene') || document.querySelector('[data-stage]');
+    if (scene){
+      scene.style.transform = 'translateZ(0)';
+      void scene.offsetHeight;
+      scene.style.transform = '';
+    }
+
+    // 3) дернем resize, чтобы lockSceneHeight() заново применил --app-h
+    try { window.dispatchEvent(new Event('resize')); } catch(_) {}
+  }
+
+  function onChange(){
+    const now = isLandscape() ? 'landscape' : 'portrait';
+    if (last === null) { last = now; return; }
+
+    // только при возврате в портрет
+    if (last === 'landscape' && now === 'portrait'){
+      // серия коротких "пинков" без удержания заглушки
+      [0, 80, 180, 320, 520].forEach(ms => setTimeout(nudge, ms));
+    }
+    last = now;
+  }
+
+  window.addEventListener('orientationchange', onChange, { passive:true });
+  window.addEventListener('resize', onChange, { passive:true });
+})();
   
 
 
@@ -966,70 +1006,6 @@ document.addEventListener('keydown', (e) => {
     if (!modalRoot.hidden) { closeModal(); }
   }
 });
-
-// --- Оверлей ориентации: CSS показывает в landscape, JS держит при возврате в portrait ---
-(function setupOrientationHold(){
-  const root = document.documentElement;
-  const lock = document.getElementById('orientationLock');
-  if (!lock) return;
-
-  let t = 0;
-
-  function isPortrait(){
-    try { return window.matchMedia('(orientation: portrait)').matches; }
-    catch(_) { return window.innerHeight >= window.innerWidth; }
-  }
-
-  function kickLayout(){
-    // обновим высоту (у тебя сцена часто завязана на --app-h)
-    try {
-      const h = Math.max(window.innerHeight || 0, root.clientHeight || 0);
-      if (h) root.style.setProperty('--app-h', `${Math.round(h)}px`);
-    } catch(_) {}
-
-    // легкий “пинок” для пересчёта хотспотов/фона
-    const stage = document.querySelector('.scene') || document.body;
-    if (!stage) return;
-    stage.style.transform = 'translateZ(0)';
-    void stage.offsetHeight;
-    stage.style.transform = '';
-  }
-
-  function onChange(){
-    clearTimeout(t);
-
-    // В landscape CSS уже показывает заглушку мгновенно,
-    // но мы ставим hold, чтобы она точно держалась.
-    if (!isPortrait()){
-      root.classList.add('ori-hold');
-      root.style.overflow = 'hidden';
-      return;
-    }
-
-    // Возврат в portrait: держим заглушку ~700мс, пока Telegram “усаживает” layout
-    root.classList.add('ori-hold');
-    root.style.overflow = 'hidden';
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        kickLayout();
-      });
-    });
-
-    t = setTimeout(() => {
-      kickLayout();
-      root.classList.remove('ori-hold');
-      root.style.overflow = '';
-    }, 700);
-  }
-
-  // старт
-  onChange();
-
-  window.addEventListener('orientationchange', onChange, { passive: true });
-  window.addEventListener('resize', onChange, { passive: true });
-  try { window.matchMedia('(orientation: portrait)').addEventListener('change', onChange); } catch(_){}
-})();
 
 
 
@@ -2197,105 +2173,6 @@ document.addEventListener('plam:langChanged', () => {
   });
   localStorage.setItem(FLAG, '1');
 })();
-
-// ===== ORIENTATION HOLD + FREEZE PORTRAIT HEIGHT (anti-sticky icons) =====
-(function orientationHoldFix(){
-  const lock = document.getElementById('orientationLock');
-  if (!lock) return;
-
-  const root = document.documentElement;
-
-  let holdTimer = 0;
-  let lastPortraitH = 0;
-  let last = null;
-
-  const isLandscape = () => {
-    try { return window.matchMedia('(orientation: landscape)').matches; }
-    catch(_) { return window.innerWidth > window.innerHeight; }
-  };
-
-  function measureH(){
-    const vv = window.visualViewport;
-    const hVV = vv ? ((vv.height || 0) + (vv.offsetTop || 0)) : 0;
-    const h = Math.max(window.innerHeight || 0, root.clientHeight || 0, hVV || 0);
-    return Math.round(h || 0);
-  }
-
-  function applyAppH(h){
-    if (!h || h < 200) return;
-    root.style.setProperty('--app-h', `${h}px`);
-  }
-
-  function forceReflow(){
-    const stage = document.querySelector('.scene') || document.querySelector('[data-stage]') || document.body;
-    if (!stage) return;
-    stage.style.transform = 'translateZ(0)';
-    void stage.offsetHeight;
-    stage.style.transform = '';
-  }
-
-  function kickPortraitLayout(){
-    const h = measureH();
-    if (h > 0) {
-      lastPortraitH = h;
-      applyAppH(h);
-    }
-    forceReflow();
-    try { window.scrollTo(0,0); } catch(_) {}
-  }
-
-  function onChange(){
-    const now = isLandscape() ? 'landscape' : 'portrait';
-
-    // на старте
-    if (last == null) {
-      last = now;
-      if (now === 'portrait') kickPortraitLayout();
-      else {
-        // если сразу открылись в landscape — хотя бы не пишем мусорные размеры
-        if (lastPortraitH > 0) applyAppH(lastPortraitH);
-      }
-      return;
-    }
-
-    // portrait -> landscape: "замораживаем" высоту (НЕ меряем landscape)
-    if (last === 'portrait' && now === 'landscape'){
-      // зафиксировать последнюю портретную высоту
-      if (lastPortraitH <= 0) lastPortraitH = measureH();
-      if (lastPortraitH > 0) applyAppH(lastPortraitH);
-      last = now;
-      return;
-    }
-
-    // landscape -> portrait: держим заглушку, делаем серию пинков
-    if (last === 'landscape' && now === 'portrait'){
-      root.classList.add('ori-hold');
-      clearTimeout(holdTimer);
-
-      // несколько попыток “поймать” правильный viewport после поворота
-      const kicks = [0, 60, 140, 260, 420, 650];
-      kicks.forEach(ms => setTimeout(kickPortraitLayout, ms));
-
-      holdTimer = setTimeout(() => {
-        root.classList.remove('ori-hold');
-      }, 650);
-
-      last = now;
-      return;
-    }
-
-    last = now;
-  }
-
-  onChange();
-
-  window.addEventListener('orientationchange', onChange, { passive:true });
-  window.addEventListener('resize', onChange, { passive:true });
-  if (window.visualViewport){
-    window.visualViewport.addEventListener('resize', onChange, { passive:true });
-  }
-})();
-
 
 
 
