@@ -1420,26 +1420,40 @@ background: #FF7300; /* оранжевый активный */
 
 /* ===== Orientation lock: hard fallback to prevent landscape flash ===== */
 
-/* на всякий: если у тебя уже есть display-логика через .is-active — это не ломает,
-   а просто гарантирует показ в landscape */
-@media (orientation: landscape) {
-  #orientationLock{
-    display: flex !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
-  }
+/* ===== ORIENTATION LOCK: мгновенно в landscape + мягкое скрытие ===== */
+#orientationLock{
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
 
-  /* блокируем прокрутку, чтобы не дергало layout */
+  /* твой текущий вид заглушки оставь как есть (текст/иконки внутри) */
+  background: #000;
+
+  /* главное: по умолчанию скрыто */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+
+  /* важно: visibility прячем ПОСЛЕ fade, чтобы не мигало */
+  transition: opacity 180ms ease, visibility 0s linear 180ms;
+  will-change: opacity;
+}
+
+
+/* landscape: мгновенно скрываем сцену и блокируем скролл */
+@media (orientation: landscape){
   html, body{
     overflow: hidden !important;
   }
-
-  /* чтобы не было "вспышки" интерфейса под заглушкой */
   .scene{
     visibility: hidden !important;
   }
 }
 
+/* пока держим заглушку при возврате в портрет — тоже прячем сцену */
+html.ori-hold .scene{
+  visibility: hidden !important;
+}
 
 /* --- Upload popup: writing mode --- */
 
