@@ -2174,6 +2174,83 @@ document.addEventListener('plam:langChanged', () => {
   localStorage.setItem(FLAG, '1');
 })();
 
+  // === ORI FIX: stabilize portrait height after landscape -> portrait (no long hold) ===
+(function(){
+  if (window.__PLAM_ORI_FIX__) return;
+  window.__PLAM_ORI_FIX__ = true;
+
+  const html = document.documentElement;
+  let last = null;
+  let running = false;
+
+  function isLandscape(){
+    try { return window.matchMedia('(orientation: landscape)').matches; }
+    catch(_) { return window.innerWidth > window.innerHeight; }
+  }
+
+  function measureH(){
+    const vv = window.visualViewport;
+    const h1 = vv && vv.height ? vv.height : 0;
+    const h2 = window.innerHeight || 0;
+    const h3 = document.documentElement.clientHeight || 0;
+
+    // берём “самое адекватное” (на TG/WebView это часто min)
+    const h = Math.max(1, Math.round(Math.min(h2 || 1e9, h3 || 1e9, h1 || 1e9)));
+    return h;
+  }
+
+  function setAppH(px){
+    html.style.setProperty('--app-h', px + 'px');
+  }
+
+  function stabilizePortrait(){
+    if (running) return;
+    running = true;
+
+    html.classList.add('ori-fix');
+
+    let prev = null;
+    let stableTicks = 0;
+    const start = performance.now();
+    const MAX_MS = 180; // коротко, без “костыля на секунду”
+
+    function tick(){
+      const h = measureH();
+      setAppH(h);
+
+      // иногда TG помогает пересчитать viewport
+      try { window.Telegram?.WebApp?.expand?.(); } catch(_){}
+
+      if (prev !== null && Math.abs(h - prev) <= 1) stableTicks++;
+      else stableTicks = 0;
+
+      prev = h;
+
+      if (stableTicks >= 2 || (performance.now() - start) >= MAX_MS){
+        html.classList.remove('ori-fix');
+        running = false;
+        return;
+      }
+      requestAnimationFrame(tick);
+    }
+
+    requestAnimationFrame(tick);
+  }
+
+  function onChange(){
+    const now = isLandscape() ? 'landscape' : 'portrait';
+    if (last === null){ last = now; return; }
+
+    if (last === 'landscape' && now === 'portrait'){
+      stabilizePortrait();
+    }
+    last = now;
+  }
+
+  window.addEventListener('orientationchange', onChange, { passive:true });
+  window.addEventListener('resize', onChange, { passive:true });
+})();
+
 
 
 })(); // END app.js wrapper
