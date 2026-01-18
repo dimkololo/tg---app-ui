@@ -1426,18 +1426,21 @@ background: #FF7300; /* оранжевый активный */
   transition: none;
 }
 
-/* LANDSCAPE: показываем заглушку и полностью убираем сцену из layout */
-@media (orientation: landscape){
-  html, body{ overflow: hidden !important; }
+/* Управляем ТОЛЬКО классами на <html> (без @media), чтобы не флапало */
+html.is-landscape,
+html.is-landscape body{
+  overflow: hidden !important;
+}
 
-  #orientationLock{
-    opacity: 1 !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
-  }
+html.is-landscape #orientationLock{
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
 
-  /* КЛЮЧЕВОЕ: не visibility, а display */
-  .scene{ display: none !important; }
+/* КЛЮЧЕВОЕ: убираем сцену из layout в landscape */
+html.is-landscape .scene{
+  display: none !important;
 }
 
 /* Микро-прикрытие на возврате в портрет (управляет JS) */
@@ -1449,6 +1452,15 @@ html.ori-fix #orientationLock{
 html.ori-fix .scene{
   display: none !important;
 }
+
+/* Пока идёт splash/preload — заглушку не показываем вообще */
+html.plam-preload #orientationLock{
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
 
 /* Пока идёт splash/preload — заглушку не показываем вообще */
 html.plam-preload #orientationLock{
