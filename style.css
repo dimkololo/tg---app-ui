@@ -1401,61 +1401,56 @@ background: #FF7300; /* оранжевый активный */
 
 
 
-/* ===== ORIENTATION LOCK (единый, без display:none) ===== */
+/* ===== ORIENTATION LOCK (единый и без конфликтов) ===== */
 #orientationLock{
   position: fixed;
   inset: 0;
   z-index: 99999;
-  display: block; /* важно: НЕ display:none */
 
-  background: center/cover no-repeat;
+  display: block;                 /* не трогаем display в обычной работе */
+  background: #0f1115 center/contain no-repeat;
   background-image: image-set(
     url("./bgicons/rotate-warning.png") 1x,
     url("./bgicons/rotate-warning@2x.png") 2x
   );
-  background-color: #0f1115;
 
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
 
-  transition: opacity 180ms ease, visibility 0s linear 180ms;
+  transition: opacity 140ms ease, visibility 0s linear 140ms;
   will-change: opacity;
-  background-position: center;
-  background-repeat: no-repeat;
-
-  /* ВАЖНО: вместо cover */
-  background-size: contain;
 }
 
-/* В landscape: заглушка видна мгновенно + интерфейс прячем */
-@media (orientation: landscape){
-  html, body{
-    overflow: hidden !important;
-  }
+/* если вдруг захочешь включать/выключать из JS — будет работать */
+#orientationLock.is-active{
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: none;
+}
 
-  .scene{
-    visibility: hidden !important;
-  }
+/* В landscape: всегда показываем заглушку и прячем сцену */
+@media (orientation: landscape){
+  html, body{ overflow: hidden !important; }
+  .scene{ visibility: hidden !important; }
 
   #orientationLock{
     opacity: 1 !important;
     visibility: visible !important;
     pointer-events: auto !important;
-    transition: none !important; /* мгновенно, без мигания */
+    transition: none !important;
   }
 }
 
-/* При возврате в portrait на короткий "холд" тоже прячем сцену и держим заглушку */
-html.ori-hold .scene{
+/* Пока идёт splash (html.plam-preload) — заглушку НЕ показываем вообще */
+html.plam-preload #orientationLock{
+  display: none !important;
+  opacity: 0 !important;
   visibility: hidden !important;
+  pointer-events: none !important;
 }
-html.ori-hold #orientationLock{
-  opacity: 1 !important;
-  visibility: visible !important;
-  pointer-events: auto !important;
-  transition: none !important;
-}
+
 
 /* --- Upload popup: writing mode --- */
 
@@ -2433,13 +2428,7 @@ html.ori-hold #orientationLock{
   margin: 14px 0;             /* ↑↓ воздух вокруг линии */
 }
 
-/* Пока идёт splash (html.plam-preload) — заглушку ориентации не показываем вообще */
-html.plam-preload #orientationLock{
-  display: none !important;
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-}
+
 
 
 
