@@ -1403,6 +1403,7 @@ background: #FF7300; /* оранжевый активный */
 .pick-wrap .btn-pick{
   width: 100%;
 }
+
 /* ===== ORIENTATION LOCK (стабильно, без дерганья) ===== */
 #orientationLock{
   position: fixed;
@@ -1459,15 +1460,15 @@ html.plam-preload #orientationLock{
   pointer-events: none !important;
 }
 
-
-/* Пока идёт splash/preload — заглушку не показываем вообще */
-html.plam-preload #orientationLock{
-  display: none !important;
+/* страховка: в портрете возвращаем сцену как было */
+html.is-portrait .scene{
+  display: revert !important;
+}
+html.is-portrait #orientationLock{
   opacity: 0 !important;
   visibility: hidden !important;
   pointer-events: none !important;
 }
-
 
 
 /* --- Upload popup: writing mode --- */
