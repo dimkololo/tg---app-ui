@@ -2433,6 +2433,15 @@ html.ori-hold #orientationLock{
   margin: 14px 0;             /* ↑↓ воздух вокруг линии */
 }
 
+/* Пока идёт splash (html.plam-preload) — заглушку ориентации не показываем вообще */
+html.plam-preload #orientationLock{
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+
 
 
 /* ====== DEBUG (включай <body class="__debug">) ====== 
