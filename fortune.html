@@ -12,10 +12,12 @@
   <link rel="stylesheet" href="./style.css?v=51">
 
   <!-- Стили страницы колеса -->
-  <link rel="stylesheet" href="./fortune.css?v=3">
+  <link rel="stylesheet" href="./fortune.css?v=6">
+
 
   <!-- ВАЖНО: официальный скрипт Telegram WebApp — ДОЛЖЕН быть до всех ваших JS -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 </head>
 <body>
   <!-- Оверлей при горизонтальной ориентации -->
@@ -42,12 +44,28 @@
         </div>
       </div>
 
-      <!-- ПАНЕЛЬ: Задания (пока пустая) -->
-      <div class="tab-panel" data-panel="tasks" hidden>
-        <div class="tasks-empty">
-          <p class="tasks-empty__text" data-i18n="fortune.tasks_empty">Раздел «Задания» скоро будет доступен</p>
-        </div>
-      </div>
+      <!-- ПАНЕЛЬ: Задания (AdsGram) -->
+<div class="tab-panel" data-panel="tasks" hidden>
+  <div class="tasks-list" id="adsgramTasks"></div>
+
+  <!-- fallback если задач нет -->
+  <div class="tasks-empty" id="adsgramEmpty" hidden>
+    <p class="tasks-empty__text" data-i18n="fortune.tasks_empty">
+      Раздел «Задания» скоро будет доступен
+    </p>
+  </div>
+
+  <!-- шаблон одной карточки (мы размножим до 10 через JS) -->
+  <template id="tpl-adsgram-task">
+    <adsgram-task class="ads-task">
+      <span slot="reward" class="ads-task__reward">+1 PLAMc</span>
+      <div slot="button" class="ads-task__btn">Открыть</div>
+      <div slot="claim" class="ads-task__btn ads-task__btn_claim">Получить</div>
+      <div slot="done" class="ads-task__btn ads-task__btn_done">Готово</div>
+    </adsgram-task>
+  </template>
+</div>
+
     </section>
     
     <header class="fortune-topbar" role="banner">
@@ -84,7 +102,7 @@
 <script src="./plam-balance.js?v=11" defer></script>
 
   <!-- Основной скрипт страницы колеса -->
-  <script src="fortune.js?v=ios-haptics-fix-3"></script>
+  <script src="fortune.js?v=ios-haptics-fix-6"></script>
 
   <noscript>
     Включите JavaScript, чтобы использовать «Колесо фортуны».
